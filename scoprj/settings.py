@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-aahrnabr*)+gu199b&6(_sm7w1nc=5pb)-i@=u53l%qvloyj1z'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -101,14 +101,14 @@ WSGI_APPLICATION = 'scoprj.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 DATABASES = {
-    "default": {
-        "NAME": "scodb",
-        "ENGINE": "django_tenants.postgresql_backend",
-        "USER": "postgres",
-        "PASSWORD": "root1234",
-        "HOST":'localhost',
-        "PORT":5433,
-    },   
+    'default': {
+        'ENGINE': 'django_tenants.postgresql_backend',
+        'NAME': os.environ.get('NAME'),
+        'USER': os.environ.get('USER'),
+        'PASSWORD': os.environ.get('PASSWORD'),
+        'HOST': os.environ.get('HOST'),
+        'OPTIONS': {'sslmode': 'require'},
+    }
 }
 
 DATABASE_ROUTERS = (
