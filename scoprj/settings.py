@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-s73k%1rwq2rs7epi*39jr1rzf+gylw*l0&-2s3=mabka=yuh-n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.vercel.app',]
+ALLOWED_HOSTS = ['*',]
 # scoruda.localhost
 BASE_URL = 'localhost'
 LOGIN_URL = '/create_member/'
