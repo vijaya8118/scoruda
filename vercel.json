@@ -1,11 +1,18 @@
 {
-"builds": [{
-}],
-"src": "scoprj/wsgi.py", "use": "@vercel/python",
-"config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
-"routes":
-{
-"src": "/(.*)",
-"dest": "scoprj/wsgi.py"
+  "builds": [
+    {
+      "src": "scoprj/wsgi.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.9"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "scoprj/wsgi.py"
+    }
+  ]
 }
-
