@@ -897,7 +897,7 @@ def Stock(request):
 
     return render(request,'mode.html',context={'d':d,'d1':d1,'d2':d2,'head':head,'products':products})
 
-@csrf_protect
+
 def scout(request):
         head = "SCOUT"
         purch_query=display(request,Purchase_model,'-date')
@@ -1424,7 +1424,6 @@ def create_member(request):
         form = MemberForm()
     return render(request, 'agriform.html', {'form': form,'heading':heading})
 
-@csrf_protect
 def loginPage(request):
     if request.user.is_authenticated:
             return redirect('show')
