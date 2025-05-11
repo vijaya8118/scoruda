@@ -27,8 +27,14 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG",cast=bool)
 
+
 ALLOWED_HOSTS = ['*',]
-CSRF_TRUSTED_ORIGINS = ['https://scoruda.com']
+CSRF_TRUSTED_ORIGINS = [
+    'https://.scoruda.com',  
+CSRF_COOKIE_DOMAIN = ".scoruda.com"
+SESSION_COOKIE_DOMAIN = ".scoruda.com"
+CSRF_COOKIE_SECURE = True  #
+SESSION_COOKIE_SECURE = True  
 
 
 # scoruda.localhost
