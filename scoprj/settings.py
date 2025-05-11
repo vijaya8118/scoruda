@@ -18,8 +18,6 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY")
@@ -28,13 +26,13 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG",cast=bool)
 
 
-ALLOWED_HOSTS = ['*',]
+ALLOWED_HOSTS = ['scoruda.com', 'www.scoruda.com']
+
 CSRF_TRUSTED_ORIGINS = [
-    'https://.scoruda.com', ] 
-CSRF_COOKIE_DOMAIN = ".scoruda.com"
-SESSION_COOKIE_DOMAIN = ".scoruda.com"
-CSRF_COOKIE_SECURE = True  #
-SESSION_COOKIE_SECURE = True  
+    "https://scoruda.com",
+    "https://www.scoruda.com",
+]
+
 
 
 # scoruda.localhost
