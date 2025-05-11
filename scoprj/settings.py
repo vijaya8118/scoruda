@@ -32,6 +32,9 @@ CSRF_TRUSTED_ORIGINS = [
     "https://scoruda.com",
     "https://www.scoruda.com",
 ]
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 
 
