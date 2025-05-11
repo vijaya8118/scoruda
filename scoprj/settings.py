@@ -103,10 +103,10 @@ WSGI_APPLICATION = 'scoprj.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django_tenants.postgresql_backend',
-        'NAME': 'koyebdb',
-        'USER': 'koyeb-adm',
-        'PASSWORD': 'npg_FaRI5HoBVt4q',
-        'HOST': 'ep-quiet-thunder-a2p0q0y0.eu-central-1.pg.koyeb.app',
+        'NAME': 'scoruda_db',
+        'USER': 'scoruda_db_user',
+        'PASSWORD': 'VeoTlBVK5iaQVajdDDM92RfXu0srM5jB',
+        'HOST': 'dpg-d0g10gruibrs73f5ga10-a',
         'OPTIONS': {'sslmode': 'require'},
     }
 }
