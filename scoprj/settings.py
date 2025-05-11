@@ -30,7 +30,7 @@ DEBUG = config("DEBUG",cast=bool)
 
 ALLOWED_HOSTS = ['*',]
 CSRF_TRUSTED_ORIGINS = [
-    'https://.scoruda.com',  
+    'https://.scoruda.com', ] 
 CSRF_COOKIE_DOMAIN = ".scoruda.com"
 SESSION_COOKIE_DOMAIN = ".scoruda.com"
 CSRF_COOKIE_SECURE = True  #
