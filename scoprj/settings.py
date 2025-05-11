@@ -28,6 +28,13 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG",cast=bool)
 
 ALLOWED_HOSTS = ['*',]
+BASE_DOMAIN = 'scoruda.com'
+
+CSRF_TRUSTED_ORIGINS = [
+    f'https://{BASE_DOMAIN}',        # Main domain (https://scoruda.com)
+    f'https://*.{BASE_DOMAIN}',      # All subdomains (https://*.scoruda.com)
+]
+
 # scoruda.localhost
 BASE_URL = 'localhost'
 LOGIN_URL = '/create_member/'
