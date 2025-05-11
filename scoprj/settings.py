@@ -26,11 +26,10 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG",cast=bool)
 
 
-ALLOWED_HOSTS = ["https://scoruda.com","https://www.scoruda.com",]
+ALLOWED_HOSTS = ["*",]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://scoruda.com",
-    "https://www.scoruda.com",
+    "*",
 ]
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
