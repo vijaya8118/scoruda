@@ -34,8 +34,8 @@ IMAGEKIT_PUBLIC_KEY = os.environ.get('IMAGEKIT_PUBLIC_KEY')
 IMAGEKIT_PRIVATE_KEY = os.environ.get('IMAGEKIT_PRIVATE_KEY')
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://scoruda81.onrender.com',
-    'https://*.scoruda81.onrender.com', 
+    'https://scoruda.onrender.com',
+    'https://*.scoruda.onrender.com', 
     'https://scoruda.com',
     'https://*.scoruda.com',
 ]
