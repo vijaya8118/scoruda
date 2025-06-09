@@ -129,7 +129,7 @@
 </head>
 
 <body>
-   <center><h1>{{ head }}</h1></center> 
+    <center><h1>{{ head }}</h1></center> 
 
     <!-- Form to Select Customer and Payment Method -->
     <form id="order-form" method="POST" action="{% url 't1' %}">
@@ -138,45 +138,40 @@
             <!-- Customer Section -->
             <div class="form-section" id="customer-section">
                 <label for="selbuy">Customer:</label>
-                {{ form.selbuy }}  <!-- Render the Customer field -->
+                {{ form.selbuy }}
             </div>
 
             <!-- Payment Method Section (Initially Hidden) -->
             <div class="form-section" id="payment-method-section" style="display: none;">
                 <label for="mode">Payment Method:</label>
-                {{ form.mode }}  <!-- Render the Payment Mode field -->
+                {{ form.mode }}
             </div>
 
             <!-- Product Selection and Make Payment Button -->
             <div class="main-container" id="product-selection-container">
                 <!-- Image Grid (left side) -->
                 <div class="image-grid" id="image-grid" style="display: none;">
-    {% for item in items %}
-        <a href="javascript:void(0);" onclick="selectProduct('{{ item.id }}', '{{ item.product }}')">
-            {% if item.image %}
-                <img src="{{ item.image.url }}" alt="{{ item.product }}" />
-            {% else %}
-                <div style="
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    height: 150px;
-                    background-color: #e0e0e0;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-                    font-size: 14px;
-                    color: #333;
-                    padding: 10px;
-                    text-align: center;
-                ">
-                    {{ item.product }}
-                </div>
-            {% endif %}
-        </a>
-    {% endfor %}
-</div>
-
-
+                    {% for item in items %}
+                        <a href="javascript:void(0);" onclick="selectProduct('{{ item.id }}', '{{ item.product }}')">
+                            {% if item.image %}
+                                <img src="{{ item.image.url }}" alt="{{ item.product }}" />
+                            {% else %}
+                                <div style="
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    height: 150px;
+                                    background-color: #e0e0e0;
+                                    border-radius: 8px;
+                                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                                    font-size: 14px;
+                                    color: #333;
+                                    padding: 10px;
+                                    text-align: center;
+                                ">
+                                    {{ item.product }}
+                                </div>
+                            {% endif %}
                         </a>
                     {% endfor %}
                 </div>
@@ -193,7 +188,6 @@
     <script>
         const selectedProducts = [];
 
-        // Focus on Customer field when the page loads
         window.onload = function() {
             const customerField = document.querySelector('[name="selbuy"]');
             if (customerField) {
@@ -201,14 +195,12 @@
             }
         };
 
-        // Show Payment Method section after Customer is selected
         document.querySelector('[name="selbuy"]').addEventListener('change', function() {
             if (this.value) {
                 document.getElementById('payment-method-section').style.display = 'block';
             }
         });
 
-        // Show Product images and make payment button after Payment Method is selected
         document.querySelector('[name="mode"]').addEventListener('change', function() {
             if (this.value) {
                 document.getElementById('image-grid').style.display = 'grid';
@@ -217,7 +209,6 @@
             }
         });
 
-        // Select a product
         function selectProduct(productId, productName) {
             if (!selectedProducts.find(p => p.id === productId)) {
                 selectedProducts.push({ id: productId, name: productName, qty: 1 });
@@ -252,13 +243,11 @@
             }
         }
 
-        // Update product quantity
         function updateQuantity(productId, newQty) {
             const product = selectedProducts.find(p => p.id === productId);
             if (product) product.qty = newQty;
         }
 
-        // Remove a product
         function removeProduct(productId) {
             const index = selectedProducts.findIndex(p => p.id === productId);
             if (index !== -1) {
@@ -268,7 +257,6 @@
             }
         }
 
-        // Send order data to Django backend
         function sendOrderToDjango() {
             const customer = document.querySelector('[name="selbuy"]')?.value || null;
             const paymentMethod = document.querySelector('[name="mode"]')?.value || null;
@@ -314,7 +302,7 @@
             })
             .catch(err => {
                 console.error('Error:', err);
-                alert('Saved . Check your scout');
+                alert('Saved. Check your scout.');
             });
         }
 
