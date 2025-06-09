@@ -58,7 +58,7 @@ class Add_item_model(models.Model):
     product=models.CharField(max_length=100)
     rate = models.DecimalField('Selling rate',decimal_places=2,max_digits=10,null=False,default=0)
     rate_purch = models.DecimalField('Purchase rate',decimal_places=2,max_digits=10,null=False,default=0)
-    image = models.ImageField(null=True, blank=True,upload_to='uploads/')
+    image = models.ImageField(null=True, blank=True)
 
     def __str__(self):
         return self.product
