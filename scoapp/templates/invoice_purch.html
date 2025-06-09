@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scoruda</title>
     <style>
         /* Reset some defaults */
@@ -125,12 +125,11 @@
         .payment-button:hover {
             background-color: #45a049;
         }
-
     </style>
 </head>
 
 <body>
-   <center><h1>{{head}} </center> 
+    <center><h1>{{ head }}</h1></center>
 
     <!-- Form to Select Customer and Payment Method -->
     <form id="order-form" method="POST" action="{% url 'p1' %}">
@@ -160,7 +159,6 @@
                                 <img src="path/to/placeholder-image.jpg" alt="{{ item.product }}" />
                             {% endif %}
                         </a>
-                        
                     {% endfor %}
                 </div>
 
@@ -180,15 +178,14 @@
         window.onload = function() {
             const customerField = document.querySelector('[name="selbuy"]');
             if (customerField) {
-                customerField.focus();  // Focus on the customer field
+                customerField.focus();
             }
-        }
+        };
 
         // Show Payment Method section after Customer is selected
         document.querySelector('[name="selbuy"]').addEventListener('change', function() {
             const customerField = document.querySelector('[name="selbuy"]');
             if (customerField.value) {
-                // Display Payment Method section
                 document.getElementById('payment-method-section').style.display = 'block';
             }
         });
@@ -197,10 +194,9 @@
         document.querySelector('[name="mode"]').addEventListener('change', function() {
             const paymentMethodField = document.querySelector('[name="mode"]');
             if (paymentMethodField.value) {
-                // Display the image grid and payment button
                 document.getElementById('image-grid').style.display = 'grid';
                 document.getElementById('payment-button').style.display = 'block';
-                document.querySelector('.main-container').style.display = 'flex';  // Show the main container
+                document.querySelector('.main-container').style.display = 'flex';
             }
         });
 
@@ -212,7 +208,7 @@
                 selectedProducts.push({
                     id: productId,
                     name: productName,
-                    qty: 1  // Default quantity is 1
+                    qty: 1
                 });
 
                 const productDiv = document.createElement('div');
@@ -226,12 +222,15 @@
 
                 const quantityInput = document.createElement('input');
                 quantityInput.type = 'number';
+                quantityInput.min = 1;
+                quantityInput.value = 1;
                 quantityInput.oninput = function() {
                     updateQuantity(productId, quantityInput.value);
                 };
 
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
+                removeButton.type = 'button';  // Prevent form submit
                 removeButton.onclick = function() {
                     removeProduct(productId);
                 };
@@ -242,7 +241,6 @@
 
                 document.getElementById('selected-product-list').appendChild(productDiv);
 
-                // Focus on the quantity input after selecting the product
                 quantityInput.focus();
             }
         }
@@ -260,83 +258,71 @@
             const index = selectedProducts.findIndex(product => product.id === productId);
             if (index !== -1) {
                 selectedProducts.splice(index, 1);
-                document.getElementById('product-' + productId).remove();
+                const productElement = document.getElementById('product-' + productId);
+                if (productElement) {
+                    productElement.remove();
+                }
             }
         }
 
-        // Get CSRF token
-      function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+        // Send order data to Django backend
+        function sendOrderToDjango() {
+            const customer = document.querySelector('[name="selbuy"]')?.value || null;
+            const paymentMethod = document.querySelector('[name="mode"]')?.value || null;
+
+            if (!paymentMethod) {
+                alert('Please select a payment method.');
+                return;
             }
+
+            if (!selectedProducts || selectedProducts.length === 0) {
+                alert('No products selected.');
+                return;
+            }
+
+            const orderData = selectedProducts.map(product => ({
+                productId: product.id,
+                productName: product.name,
+                qty: product.qty,
+                customer: customer,
+                mode: paymentMethod
+            }));
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+            if (!csrfToken) {
+                alert('CSRF token not found in DOM.');
+                return;
+            }
+
+            fetch("{% url 'p1' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify(orderData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Order processed successfully.');
+                window.location.href = "/retailpurch";
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to process order. Please try again.');
+            });
         }
-    }
-    return cookieValue;
-}
-
-function sendOrderToDjango() {
-    const customer = document.querySelector('[name="selbuy"]')?.value || null;
-    const paymentMethod = document.querySelector('[name="mode"]')?.value || null;
-
-    if (!paymentMethod) {
-        alert('Please select a payment method.');
-        return;
-    }
-
-    if (!selectedProducts || selectedProducts.length === 0) {
-        alert('No products selected.');
-        return;
-    }
-
-    const orderData = selectedProducts.map(product => ({
-        productId: product.id,
-        productName: product.name,
-        qty: product.qty,
-        customer: customer,
-        mode: paymentMethod
-    }));
-
-    const csrfToken = getCookie('csrftoken');
-
-    if (!csrfToken) {
-        alert('CSRF token not found.');
-        return;
-    }
-
-    fetch("{% url 'p1' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrfToken
-        },
-        body: JSON.stringify(orderData)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        alert('Order processed successfully.');
-        window.location.href = "/retailpurch";
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to process order. Please try again.');
-    });
-}
 
         // Event listener for the payment button
         document.getElementById('payment-button').addEventListener('click', function(e) {
             e.preventDefault();
-            sendOrderToDjango();  // Send the order data to Django
+            sendOrderToDjango();
         });
     </script>
 </body>
