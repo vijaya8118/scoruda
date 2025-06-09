@@ -151,31 +151,31 @@
             <div class="main-container" id="product-selection-container">
                 <!-- Image Grid (left side) -->
                 <div class="image-grid" id="image-grid" style="display: none;">
-                    {% for item in items %}
-                        <a href="javascript:void(0);" onclick="selectProduct('{{ item.id }}', '{{ item.product }}')">
-                            {% if item.image %}
-    <img src="{{ item.image.url }}" alt="{{ item.product }}" />
-{% else %}
-    <div style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 150px;
-        background-color: #e0e0e0;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        font-size: 16px;
-        color: #333;
-        text-align: center;
-        padding: 10px;
-    ">
-        {{ item.product }}
-    </div>
-{% endif %}
-
-                        </a>
-                    {% endfor %}
+    {% for item in items %}
+        <a href="javascript:void(0);" onclick="selectProduct('{{ item.id }}', '{{ item.product }}')">
+            {% if item.image %}
+                <img src="{{ item.image.url }}" alt="{{ item.product }}" />
+            {% else %}
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 150px;
+                    background-color: #e0e0e0;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                    font-size: 14px;
+                    color: #333;
+                    padding: 10px;
+                    text-align: center;
+                ">
+                    {{ item.product }}
                 </div>
+            {% endif %}
+        </a>
+    {% endfor %}
+</div>
+
 
                 <!-- Selected Products (right side) -->
                 <div class="selected-products-container">
