@@ -265,59 +265,73 @@
         }
 
         // Get CSRF token
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
+      function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
-            return cookieValue;
         }
+    }
+    return cookieValue;
+}
 
-        // Send order data to Django backend
-        function sendOrderToDjango() {
-            const customer = document.querySelector('[name="selbuy"]') ? document.querySelector('[name="selbuy"]').value : null;
-            const paymentMethod = document.querySelector('[name="mode"]').value;
+function sendOrderToDjango() {
+    const customer = document.querySelector('[name="selbuy"]')?.value || null;
+    const paymentMethod = document.querySelector('[name="mode"]')?.value || null;
 
-            // Prepare the product data
-            const orderData = selectedProducts.map(product => ({
-                productId: product.id,
-                productName: product.name,
-                qty: product.qty,
-                customer: customer,
-                mode: paymentMethod
-            }));
+    if (!paymentMethod) {
+        alert('Please select a payment method.');
+        return;
+    }
 
-            fetch("{% url 'p1' %}", {  // Adjust this to your Django URL for order creation
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie('csrftoken')
-                },
-                body: JSON.stringify(orderData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert('Order processed successfully.');
-                    window.location.href = "/retailpurch";
-                } else {
-                    alert('Order processed successfully.');
-                    window.location.href = "/retailpurch";
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Order processed successfully.');
-                    window.location.href = "/retailpurch";
-            });
+    if (!selectedProducts || selectedProducts.length === 0) {
+        alert('No products selected.');
+        return;
+    }
+
+    const orderData = selectedProducts.map(product => ({
+        productId: product.id,
+        productName: product.name,
+        qty: product.qty,
+        customer: customer,
+        mode: paymentMethod
+    }));
+
+    const csrfToken = getCookie('csrftoken');
+
+    if (!csrfToken) {
+        alert('CSRF token not found.');
+        return;
+    }
+
+    fetch("{% url 'p1' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        return response.json();
+    })
+    .then(data => {
+        alert('Order processed successfully.');
+        window.location.href = "/retailpurch";
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to process order. Please try again.');
+    });
+}
 
         // Event listener for the payment button
         document.getElementById('payment-button').addEventListener('click', function(e) {
