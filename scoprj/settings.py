@@ -188,26 +188,23 @@ USE_TZ = True
 
 # # Optional: directories where you can store static files (for development)
 
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')]
 
-# STORAGES = {
-#     "default": {
-#         "BACKEND": "scoapp.imagekit_storage.ImageKitStorage"
-#     },
-#     "staticfiles": {
-#         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
-#     }
-# }
+ STORAGES = {
+     "default": {
+         "BACKEND": "scoapp.imagekit_storage.ImageKitStorage"
+     },
+     "staticfiles": {
+         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+    }
+ }
 STATIC_URL = '/static/'
 
 # Where collectstatic will put files (for production)
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Additional places to look for static files
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # optional
-]
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # avoid using '/'
 MEDIA_URL = '/media/'
 
