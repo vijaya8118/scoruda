@@ -180,34 +180,27 @@ USE_I18N = True
 USE_TZ = True
 
 
-
-# STATIC_URL = '/static/'
-
-# # Directory where static files will be collected (usually an absolute path)
-# STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# # Optional: directories where you can store static files (for development)
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')]
-
- STORAGES = {
-     "default": {
-         "BACKEND": "scoapp.imagekit_storage.ImageKitStorage"
-     },
-     "staticfiles": {
-         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
-    }
- }
+# STATIC SETTINGS
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # Source static files
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')    # collectstatic target
 
-# Where collectstatic will put files (for production)
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # avoid using '/'
+# MEDIA SETTINGS
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Local fallback (if needed)
 
+# STORAGE CONFIGURATION (Django 4.2+)
+STORAGES = {
+    # Custom storage for uploaded media (you must define this backend)
+    "default": {
+        "BACKEND": "scoapp.imagekit_storage.ImageKitStorage",
+    },
+
+    # Default static file storage (for collectstatic and production)
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    }
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
