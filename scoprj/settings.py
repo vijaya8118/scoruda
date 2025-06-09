@@ -129,7 +129,7 @@ WSGI_APPLICATION = 'scoprj.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.parse(
-        config('DATABASE_URL', default='postgresql://scoruda_db_hrnz_user:e1jLUnw60dwYSs6nkbK0nLj79ODYkvyX@dpg-d12lp4be5dus73cjm820-a/scoruda_db_hrnz')
+        config('DATABASE_URL', default='postgresql://db_scoruda_user:KUikpxmXK6ngA63qEvlqQgBmE3WmFx7b@dpg-d13475je5dus73ee210g-a/db_scoruda')
     )
 }
 
