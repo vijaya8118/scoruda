@@ -1,0 +1,44 @@
+{% include 'user_navbar.html' %}
+<html>
+<head>
+    <title>Bill</title>
+    <style>
+
+.container {
+  width: 80%; 
+  margin: 0 auto; 
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+
+
+@media screen and (max-width: 768px) {
+  .container {
+    width: 90%; 
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .container {
+    width: 100%; 
+  }
+}
+    </style>
+</head>
+<body>    <div class="container">
+
+    <h1>Bill</h1>
+    <ul>
+        {% for q in queryset %}
+  
+
+                {%if agrinav%}
+                <li><a href="{%url 'Agrimkbill' q.id %}">{{q.name}}</a></li>
+            
+                {%else%}
+                <li><a href="{%url 'mkbill' q.id %}">{{q.name}}</a></li>
+                {% endif %}
+        {% endfor %}
+    </ul></div>
+</body>
+</html>

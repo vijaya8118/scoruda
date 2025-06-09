@@ -1,0 +1,49 @@
+{% include 'user_navbar.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        function box(){
+          confirm("Form saved sucessfully");
+        }
+      </script>
+      <style>
+
+.container {
+  width: 80%; 
+  margin: 0 auto; 
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+
+
+@media screen and (max-width: 768px) {
+  .container {
+    width: 90%; 
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .container {
+    width: 100%; 
+  }
+}
+      </style>
+</head>
+<body>    <div class="container">
+
+    <form method="post">
+        {% csrf_token %}
+          {{ formset.management_form }}
+          {%for form in formset%}
+          {{ form.as_p }}
+          <hr>
+          {% endfor %}
+      
+        <button type="submit" onclick="box()">Submit</button>
+      </form> </div>
+</body>
+</html>

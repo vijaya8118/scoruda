@@ -1,0 +1,271 @@
+{% include 'user_navbar.html' %}
+{{q}}
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+.row {
+  margin-left: -5px;
+  margin-right: -5px;
+}
+
+.column {
+  float: left;
+  width: 50%;
+  padding: 5px;
+}
+
+.middle {
+  float: left;
+  width: 50%;
+  padding: 5px;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+th, td {
+  text-align: center;
+  padding: 16px;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+/* Responsive layout - makes the two columns stack on top of each other instead of next to each other on screens that are smaller than 600 px */
+@media screen and (max-width: 600px) {
+  .column {
+    width: 100%;
+  }
+}
+
+.container {
+  width: 80%; 
+  margin: 0 auto; 
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    width: 90%; 
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .container {
+    width: 100%; 
+  }
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #6096BA;
+  min-width: 160px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.dropdown-content a {
+  color: #fff;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  border-bottom: 1px solid #2e4057;
+}
+
+.dropdown-content a:hover {
+  background-color: #2e4057;
+}
+
+.dropbtn {
+  background-color: #2e4057;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background-color 0.3s;
+}
+
+.dropbtn:hover {
+  background-color: #6096BA;
+}
+</style>
+</head>
+<body>
+
+<div class="dropdown">
+  <button class="dropbtn" onclick="toggleDropdown('dropdownContent1')">Shortcut Mode Overview</button>
+  <div class="dropdown-content" id="dropdownContent1">
+    <b><ul>SALE</ul></b>
+    <a href="{% url 'mode_shop' 'cash' %}">CASH</a>
+    <a href="{% url 'mode_shop' 'credit' %}">credit</a>
+    <a href="{% url 'mode_shop' 'UPI' %}">UPI</a>
+    <b><ul>PURCHASE</ul></b>
+    <a href="{% url 'purchmode_shop' 'cash' %}">CASH</a>
+    <a href="{% url 'purchmode_shop' 'credit' %}">credit </a>
+    <a href="{% url 'purchmode_shop' 'UPI' %}">UPI</a>
+  </div>
+</div>
+
+<div class="dropdown">
+  <button class="dropbtn" onclick="toggleDropdown('dropdownContent2')">Shortcut Product Overview</button>
+  <div class="dropdown-content" id="dropdownContent2">
+    <b><ul>PURCHASE</ul></b>
+    {% for p in products %}
+    <a href="{% url 'purchprod' p.id %}">{{ p.product }}</a>
+    {% endfor %}
+    <b><ul>SALES</ul></b>
+    {% for p in products %}
+    <a href="{% url 'prod' p.id %}">{{ p.product }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<div >
+  <center><h2>{{head}}</h2></center>
+  {% if agrinav %}
+    <table>
+      <h3>BALANCE</h3>
+      <tr bgcolor="yellow">
+        <td>PRODUCT</td>
+        <td>TOTAL</td>
+      </tr>
+      {% for i, j in d2.items %}
+      <tr>
+        <td>{{i}}</td>
+        <td>{{j|floatformat}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <div class="row">
+      <div class="column">
+        <table>
+          <h3>PURCHASES</h3>
+          <tr bgcolor="yellow">
+            <td>PRODUCT</td>
+            <td>TOTAL</td>
+          </tr>
+          {% for i, j in d.items %}
+          <tr>
+            <td>{{i}}</td>
+            <td>{{j}}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <div class="column">
+        <table>
+          <h3>SALE</h3>
+          <tr bgcolor="yellow">
+            <td>PRODUCT</td>
+            <td>TOTAL</td>
+          </tr>
+          {% for i, j in d1.items %}
+          <tr>
+            <td>{{i}}</td>
+            <td>{{j}}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+
+  {% else %}
+    <table>
+      <h3>BALANCE</h3>
+      <tr bgcolor="yellow">
+        <td>PRODUCT</td>
+        <td>TOTAL</td>
+      </tr>
+      {% for i, j in d2.items %}
+      <tr>
+        <td>{{i}}</td>
+        <td>{{j|floatformat}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <div class="row">
+      <div class="column">
+        <table>
+          <h3>PURCHASES</h3>
+          <tr bgcolor="yellow">
+            <td>PRODUCT</td>
+            <td>TOTAL</td>
+          </tr>
+          {% for i, j in d.items %}
+          <tr>
+            <td><a href="{% url 'purchmode_shop' i %}">{{i}}</a></td>
+            <td>{{j}}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <div class="column">
+        <table>
+          <h3>SALE</h3>
+          <tr bgcolor="yellow">
+            <td>PRODUCT</td>
+            <td>TOTAL</td>
+          </tr>
+          {% for i, j in d1.items %}
+          <tr>
+            <td><a href="{% url 'mode_shop' i %}">{{i}}</a></td>
+            <td>{{j}}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+function toggleDropdown(id) {
+  var dropdownContent = document.getElementById(id);
+  if (dropdownContent.style.display === "block") {
+    dropdownContent.style.display = "none";
+  } else {
+    dropdownContent.style.display = "block";
+  }
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    for (var i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.style.display === "block") {
+        openDropdown.style.display = "none";
+      }
+    }
+  }
+};
+</script>
+
+</body>
+</html>

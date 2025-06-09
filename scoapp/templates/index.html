@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Progressive Web App</title>
+  <link rel="manifest" href="{% static 'manifest.json' %}">
+  <style>
+    /* Basic styling */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* Big Button Styling (for the anchor tag) */
+    .big-btn {
+      display: inline-block;
+      padding: 20px 40px;
+      font-size: 24px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none; /* Remove underline */
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .big-btn:hover {
+      background-color: #45a049;
+    }
+
+    /* Install Button Styling */
+    #install-btn {
+      display: none;
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #008CBA;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #install-btn:hover {
+      background-color: #005f75;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>KARTHICK INTEGRATED FARM</h1>
+
+  <!-- Big Button as an anchor link to a Django URL -->
+  <a href="{% url 'b' %}" class="big-btn">
+    EMPLOYEE
+  </a>
+  <br>
+  <br>
+  <br>
+  <br>
+  <a href="{% url 'login' %}" class="big-btn">ADMIN</a>
+    
+ 
+  <!-- Install App Button -->
+  <button id="install-btn" style="display:none;">Install App</button>
+
+  <script>
+    // Register the service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('{% static "service-worker.js" %}')
+        .then(function(registration) {
+          console.log('Service Worker registered:', registration);
+        })
+        .catch(function(error) {
+          console.log('Service Worker registration failed:', error);
+        });
+    }
+
+    // Variable to store the deferred install prompt event
+    let deferredPrompt;
+    const installBtn = document.getElementById('install-btn');
+
+    // Listen for the beforeinstallprompt event, but don't prevent it
+    window.addEventListener('beforeinstallprompt', (event) => {
+      // Store the event, but DO NOT prevent it
+      deferredPrompt = event;
+
+      // Show the install button (optional, for manual install)
+      installBtn.style.display = 'block';
+
+      // When the install button is clicked, show the install prompt
+      installBtn.addEventListener('click', () => {
+        // Hide the install button
+        installBtn.style.display = 'none';
+
+        // Show the install prompt
+        deferredPrompt.prompt();
+
+        // Wait for the user to respond to the prompt
+        deferredPrompt.userChoice.then((choiceResult) => {
+          console.log(choiceResult.outcome);
+          deferredPrompt = null; // Reset the deferredPrompt variable
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+{% include 'user_navbar.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Dashboard</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            padding-top: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        /* Ensure the 3 boxes are placed horizontally at the top */
+        .payment-summary {
+            display: flex;
+            justify-content: space-evenly;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .payment-box {
+            width: 150px;
+            height: 100px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Ensure the chart is positioned properly below the payment boxes */
+        #stock-chart {
+            width: 600px;       /* Fixed width for the chart */
+            height: 400px;      /* Fixed height for the chart */
+            margin-top: 20px;   /* Space from the top */
+            margin-left: 20px;  /* Space from the left */
+        }
+    </style>
+</head>
+<body>
+    <center><h1>{{head}}</h1></center>
+    <!-- Payment Summary Boxes -->
+    <div class="payment-summary">
+        <div class="payment-box">
+            <span>Cash: {{ payment_data.Cash }}</span>
+        </div>
+        <div class="payment-box">
+            <span>UPI: {{ payment_data.UPI }}</span>
+        </div>
+        <div class="payment-box">
+            <span>Credit: {{ payment_data.Credit }}</span>
+        </div>
+    </div>
+
+    <!-- Container for the chart -->
+    <div id="stock-chart"></div>
+
+    <script>
+        // Sample data, you would pass these variables from your backend.
+        var productNames = {{ product_names|safe }};  // Passed from the backend (Django)
+        var balances = {{ balances|safe }};  // Passed from the backend (Django)
+
+        Highcharts.chart('stock-chart', {
+            chart: {
+                type: 'column'  // This sets the chart to a vertical bar chart
+            },
+            title: {
+                text: 'Product Stock Balances'
+            },
+            xAxis: {
+                categories: productNames,  // Set x-axis labels to product names
+                title: {
+                    text: 'Products'
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Balance',
+                    align: 'high'
+                },
+                labels: {
+                    overflow: 'justify'
+                }
+            },
+            tooltip: {
+                valueSuffix: ' units'
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        color: '#FFFFFF',
+                        style: {
+                            fontWeight: 'bold'
+                        }
+                    }
+                }
+            },
+            series: [{
+                name: 'Stock Balance',
+                data: balances  // Data to plot
+            }]
+        });
+    </script>
+</body>
+</html>

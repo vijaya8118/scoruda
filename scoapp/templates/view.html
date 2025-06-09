@@ -1,0 +1,115 @@
+{% include 'user_navbar.html' %}
+<head>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <style>
+        table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid ;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+tr:nth-child(even){background-color: #b1c6e1}
+
+.container {
+  width: 80%; 
+  margin: 0 auto; 
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+
+
+@media screen and (max-width: 768px) {
+  .container {
+    width: 90%; 
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .container {
+    width: 100%; 
+  }
+}
+    </style>
+    <table >    <div class="container">
+
+        <h2><center>{{heading}} </center></h2> 
+        {%if heading == "Product List"%}
+        <tr bgcolor="yellow">
+        <td>PRODUCT</td>
+        <td>SELLING RATE </td>
+        <TD>PURCHASE RATE</TD>
+        </tr>
+        {%for q in query %}
+        <tr>
+        
+        </td>          <td>{{q.product}}</td>
+        <td>{{q.rate}}</td> 
+        <td>{{q.rate_purch}}</td> 
+
+        <td><a href="{% url 'item_edit' q.id %}">EDIT</a></td>
+        <td><a href="{% url 'item_delete' q.id %}">DELETE</a></td>
+      </tr>
+        {%endfor%}
+        {%endif%}
+        
+        {%if heading == "Seller List"%}
+        <tr bgcolor="yellow">
+        <td>NAME</td>
+        <td>ADDRESS </td>
+        <td>PHONE NUMBER </td>
+        <td>GST NUMBER </td>
+        </tr>
+        {%for q in query %}
+        <tr>
+        <td>{{q.name}}</td>
+        <td>{{q.address}}</td> 
+        <td>{{q.phone}}</td> 
+        <td>{{q.gst}}</td> 
+        <td><a href="{% url 'seller_edit' q.id %}">EDIT</a></td>
+        <td><a href="{% url 'seller_delete' q.id %}">DELETE</a></td>
+        </tr>
+        {%endfor%}
+        {%endif%} 
+        {%if heading == "Customer List"%}
+        <tr bgcolor="yellow">
+        <td>NAME</td>
+        <td>ADDRESS </td>
+        <td>PHONE NUMBER </td>
+        <td>GST NUMBER </td>
+
+        </tr>
+        {%for q in query %}
+        <tr>
+        <td>{{q.name}}</td>
+        <td>{{q.address}}</td> 
+        <td>{{q.phone}}</td> 
+        <td>{{q.gst}}</td>
+        <td><a href="{% url 'customer_edit' q.id %}">EDIT</a></td>
+        <td><a href="{% url 'customer_delete' q.id %}">DELETE</a></td>
+        </tr>
+        {%endfor%}
+        {%endif%} </div></table>
+
+        <div class="pagination">
+          <span class="step-links">
+              {% if query.has_previous %}
+                  <a href="?page=1">&laquo; first</a>
+                  <a href="?page={{ query.previous_page_number }}">previous</a>
+              {% endif %}
+      
+              <span class="current">
+                  Page {{ query.number }} of {{ query.paginator.num_pages }}.
+              </span>
+      
+              {% if query.has_next %}
+                  <a href="?page={{ query.next_page_number }}">next</a>
+                  <a href="?page={{ query.paginator.num_pages }}">last &raquo;</a>
+              {% endif %}
+          </span>
+      </div>

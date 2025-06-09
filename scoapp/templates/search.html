@@ -1,0 +1,63 @@
+{% include 'user_navbar.html' %}
+<head>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+</head>
+    <h2> {{msg}}</h2>
+    <form  method="post" name = "myform">
+        {% csrf_token %}
+        {{form.as_p}}
+        <input class="btn btn-primary" type="submit" value="submit">
+        </form>
+        <br>
+        {%if bill_query%}
+        <h3>Total Quantity Sold {{billtot|floatformat}}</h3>
+        <h3>Total Amoutn Sold {{totamt|floatformat}}</h3>
+       <table >
+        <tr>
+            <td>BILL NUMBER</td>
+        <td>DATE</td>
+        <td>NAME</td>
+        <td>QUANTITY</td>
+        <td>RATE</td>
+        <td>CUSTOMER</td>
+        <td>TOTAL AMOUNT</td>
+
+        </tr>
+
+    {%for q in bill_query%}
+    {%if q.qty > 00%}
+
+        <tr><td>{{q.billnum}}</td>
+        <td>{{q.date}}</td>
+        <td>{{q.product}}</a></td>
+        <td>{{q.qty}}</td>
+        <td>{{q.rate}}</td>
+        <td><a href="{% url 'seller_shop' q.selbuy_id %}">{{q.selbuy}}</a></td>
+   <td>{{q.amount}}</td>
+   <td><a href="{% url 'mode_shop' q.mode %}">{{q.mode}}</a></td>
+
+        <td><a href="{% url 'bill_edit' q.num %}">EDIT</a></td>
+        <td><a href="{% url 'bill_delete' q.num %}">DELETE</a></td>
+        {%endif%}
+    {%endfor%}
+     </table>
+       <div class="pagination">
+        <span class="step-links">
+            {% if bill_query.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ bill_query.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="current">
+                Page {{ bill_query.number }} of {{ bill_query.paginator.num_pages }}.
+            </span>
+    
+            {% if bill_query.has_next %}
+                <a href="?page={{ bill_query.next_page_number }}">next</a>
+                <a href="?page={{ bill_query.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}            {% endif %}
+
+        </span>
+    </div>
+    </div>

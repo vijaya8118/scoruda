@@ -1,0 +1,256 @@
+{% include 'user_navbar.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Dashboard</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            padding-top: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        /* Ensure the 3 boxes are placed horizontally at the top */
+        .payment-summary {
+            display: flex;
+            justify-content: space-evenly;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .payment-box {
+            width: 150px;
+            height: 100px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Create a container for the charts */
+        .chart-container {
+            display: flex;
+            justify-content: space-evenly;
+            margin-top: 20px;
+        }
+
+        #stock-chart, #line-chart {
+            width: 500px;   /* Fixed width for the charts */
+            height: 400px;  /* Fixed height for the charts */
+        }
+
+        table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid ;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+tr:nth-child(even){background-color: #b1c6e1}
+
+.container {
+  width: 80%; 
+  margin: 0 auto; 
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+
+
+@media screen and (max-width: 768px) {
+  .container {
+    width: 90%; 
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .container {
+    width: 100%; 
+  }
+}
+    </style>
+</head>
+<body>
+    <center><h1>DASHBOARD</h1></center>
+    <!-- Payment Summary Boxes -->
+    <div class="payment-summary">
+        <div class="payment-box">
+            {% if payment_data.Cash >= 0 %}
+            <span style="color: #28a745;">Cash: {{ payment_data.Cash }}</span>
+            {% else %}
+    <span style="color: #dc3545;">Cash: {{ payment_data.Cash }}</span>  <!-- Optional: Red color for negative cash -->
+        {% endif %}
+        </div>
+
+        <div class="payment-box">
+        {% if payment_data.UPI >= 0 %}
+        <span style="color: #28a745;">UPI: {{ payment_data.UPI }}</span>
+    {% else %}
+        <span style="color: #dc3545;">UPI: {{ payment_data.UPI }}</span>  <!-- Optional: Red color for negative cash -->
+    {% endif %}</div>
+
+
+    <div class="payment-box">
+    {% if payment_data.Credit < 0 %}
+    <span style="color: #28a745;">Credit: {{ payment_data.Credit }}</span>
+{% else %}
+    <span style="color: #dc3545;">Credit: {{ payment_data.Credit }}</span>  <!-- Optional: Red color for negative cash -->
+{% endif %}
+    </div></div>
+
+    <!-- Container for both the charts -->
+    <div class="chart-container">
+        <!-- Bar chart for stock balances -->
+        <div id="stock-chart"></div>
+
+        <!-- Line chart for sales frequency -->
+        <div id="line-chart"></div>
+    </div>
+
+    <script>
+        // Sample data, you would pass these variables from your backend.
+        var productNames = {{ product_names|safe }};  // Passed from the backend (Django)
+        var balances = {{ balances|safe }};  // Passed from the backend (Django)
+
+        Highcharts.chart('stock-chart', {
+            chart: {
+                type: 'column'  // This sets the chart to a vertical bar chart
+            },
+            title: {
+                text: 'Product Stock Balances'
+            },
+            xAxis: {
+                categories: productNames,  // Set x-axis labels to product names
+                title: {
+                    text: 'Products'
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Balance',
+                    align: 'high'
+                },
+                labels: {
+                    overflow: 'justify'
+                }
+            },
+            tooltip: {
+                valueSuffix: ' units'
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        color: '#FFFFFF',
+                        style: {
+                            fontWeight: 'bold'
+                        }
+                    }
+                }
+            },
+            series: [{
+                name: 'Stock Balance',
+                data: balances  // Data to plot
+            }]
+        });
+    </script>
+
+    <script>
+        // Sample data passed from the Django backend
+        var productNames = {{ linex|safe }};  // Months or product names
+        var balances = {{ liney|safe }};  // Aggregated sales data
+
+        Highcharts.chart('line-chart', {
+            chart: {
+                type: 'line'  // Line chart type
+            },
+            title: {
+                text: 'Monthly Sales Frequency'
+            },
+            xAxis: {
+                categories: productNames,  // Categories (e.g., months or products)
+                title: {
+                    text: 'Month'
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Amount',
+                    align: 'high'
+                },
+                labels: {
+                    overflow: 'justify'
+                }
+            },
+            tooltip: {
+                valueSuffix: ' units'
+            },
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true,
+                        color: '#FFFFFF',
+                        style: {
+                            fontWeight: 'bold'
+                        }
+                    }
+                }
+            },
+            series: [{
+                name: 'Sales',  // or 'Sales' if this is sales data
+                data: balances  // The data to plot on the chart
+            }]
+        });
+    </script>
+  <table>
+        <tr>
+            <th>Supplier Name</th>
+            <th>Due Dates</th>
+            <th></th>
+        </tr>
+   
+        {% for supplier_name, due_dates in due_pay.items %}
+        <tr>
+            <td>{{ supplier_name }}</td>
+
+        {% now "Y-m-d" as current_date %}
+        {% with due_date_obj=due_dates|date:"Y-m-d" %}
+
+        {% if due_date_obj < current_date %}
+        <td style="color: red;">{{ due_dates }}</td>
+        {% else %}
+        <td style="color: blue;">{{ due_dates }}</td>
+        {% endif %}
+        {% endwith %}
+
+            <td>Make payment</td>
+        </tr>
+        {% endfor %}
+    
+</table>
+
+</body>
+</html>

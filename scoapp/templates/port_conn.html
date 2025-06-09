@@ -1,0 +1,163 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serial Port Connection Example</title>
+</head>
+<body>
+    <h1>Serial Port Connection Example</h1>
+    <div id="status">Attempting to connect to serial port...</div>
+    <div id="dataLog"></div>
+
+    <script>
+        // Get references to DOM elements
+        const statusDiv = document.getElementById("status");
+        const dataLogDiv = document.getElementById("dataLog");
+
+        let port = null;
+        let reader = null;
+        let inputStream = null;
+
+        // Function to update the status display
+        function updateStatus(message) {
+            statusDiv.textContent = message;
+        }
+
+        // Function to display received data
+        function logReceivedData(data) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `Received: ${data}`;
+            dataLogDiv.appendChild(messageElement);
+        }
+
+        // Function to attempt to connect to a specific serial port by name
+        async function connectToPort(portName) {
+            try {
+                const ports = await navigator.serial.getPorts();
+                const matchingPort = ports.find(p => p.name === portName); // Match port by name
+                
+                if (!matchingPort) {
+                    updateStatus(`No available serial port named "${portName}".`);
+                    return;
+                }
+
+                // If we found the port, open it
+                port = matchingPort;
+                await port.open({ baudRate: 2400 });
+                
+                // Create the input stream for reading from the serial port
+                inputStream = port.readable;
+                reader = inputStream.getReader();
+
+                updateStatus(`Connected to serial port: ${portName}.`);
+                
+                // Start reading data from the serial port
+                readData();
+
+            } catch (error) {
+                console.error("Error connecting to the serial port:", error);
+                updateStatus("Failed to connect to the serial port.");
+            }
+        }
+
+        // Disconnect from the serial port
+        async function disconnectFromPort() {
+            try {
+                if (reader) {
+                    reader.cancel();
+                    reader = null;
+                }
+                if (port) {
+                    await port.close();
+                    port = null;
+                }
+
+                updateStatus("Disconnected from serial port.");
+            } catch (error) {
+                console.error("Error disconnecting from the serial port:", error);
+                updateStatus("Failed to disconnect from the serial port.");
+            }
+        }
+
+        // Read data from the serial port and display it normally
+        async function readData() {
+            try {
+                while (port && port.readable) {
+                    const { value, done } = await reader.read();
+                    if (done) {
+                        break;
+                    }
+                    
+                    // Decode the incoming data (assuming it is text)
+                    const decoder = new TextDecoder();
+                    const data = decoder.decode(value);
+                    console.log("Received data:", data);
+
+                    // Display the received data as it is
+                    logReceivedData(data);
+                }
+            } catch (error) {
+                console.error("Error reading from the serial port:", error);
+                updateStatus("Error reading from serial port.");
+            }
+        }
+
+        // Attempt connection when the page loads with a specified port name
+        window.addEventListener("load", () => {
+            const portName = "cu.usbserial-1410";  // <-- Replace with the desired port name (e.g., "COM3", "ttyUSB0")
+            updateStatus(`Attempting to connect to serial port "${portName}"...`);
+            connectToPort(portName);
+        });
+    </script>
+</body>
+</html> -->
+{% include 'user_navbar.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Available Serial Ports</title>
+
+</head>
+<body>
+
+    <h1>Available Serial Ports</h1>
+    <button id="request-ports">Get Available Ports</button>
+    <ul id="port-list"></ul>
+
+    <script>
+        // Check if the Web Serial API is supported in the browser
+        if ('serial' in navigator) {
+            console.log("Web Serial API is supported.");
+        } else {
+            alert("Web Serial API is not supported in this browser.");
+        }
+
+        // Event listener for the button to request available serial ports
+        document.getElementById('request-ports').addEventListener('click', async () => {
+            try {
+                // Request a list of available serial ports
+                const ports = await navigator.serial.requestPort();
+                
+                // Open the port (if needed)
+                await ports.open({ baudRate: 9600 });
+
+                // Create an unordered list of serial ports
+                const portList = document.getElementById('port-list');
+                const portItem = document.createElement('li');
+                portItem.textContent = `Port: ${ports.name}`;
+                portList.appendChild(portItem);
+
+                // Optionally, you could list more information about the port here
+                console.log('Port details:', ports);
+            } catch (error) {
+                console.error('Error requesting serial port:', error);
+            }
+        });
+    </script>
+
+</body>
+</html>

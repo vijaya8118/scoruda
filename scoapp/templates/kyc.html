@@ -1,0 +1,164 @@
+{% include 'user_navbar.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User List</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'style.css' %}" />
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .container {
+      max-width: 90%;
+      margin: 40px auto;
+      padding: 30px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Company Overview Highlight */
+    .company-highlight {
+      background: linear-gradient(90deg, #6096BA 0%, #7BAACD 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 40px;
+      box-shadow: 0px 4px 15px rgba(96, 150, 186, 0.3);
+    }
+
+    .company-highlight h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .company-highlight .detail {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    .company-highlight i {
+      margin-right: 8px;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #6096BA;
+      padding-bottom: 5px;
+    }
+
+    .table th {
+      background-color: #6096BA;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #eef4fb;
+    }
+
+    .btn-success {
+      padding: 10px 20px;
+      font-size: 1rem;
+    }
+
+    .alert a {
+      text-decoration: none;
+      font-weight: bold;
+      color: #6096BA;
+    }
+
+    @media screen and (max-width: 576px) {
+      .btn-success {
+        width: 100%;
+      }
+
+      .company-highlight {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- 🔷 Eye-Catching Company Overview -->
+    {% if company_query %}
+      {% for c in company_query %}
+        <div class="company-highlight">
+        <center>  <h1><i class="bi bi-building"></i> {{ c.name }}</h1></center>
+          <p class="detail"><i class="bi bi-geo-alt-fill"></i><strong>Address:</strong> {{ c.address }}</p>
+          <p class="detail"><i class="bi bi-telephone-fill"></i><strong>Phone:</strong> {{ c.phone }}</p>
+          <p class="detail"><i class="bi bi-receipt-cutoff"></i><strong>GST Number:</strong> {{ c.gst }}</p>
+          <p class="detail"><i class="bi bi-bank"></i><strong>Bank:</strong> {{ c.bank }}</p>
+          <p class="detail"><i class="bi bi-key-fill"></i><strong>IFSC:</strong> {{ c.ifsc }}</p>
+          <p class="detail"><i class="bi bi-hourglass-split"></i><strong>Payment Duration:</strong> {{ c.due_date }} days</p>
+          <a href="{% url 'company_edit' c.id %}" class="btn btn-outline-light mt-3">
+            <i class="bi bi-pencil-square"></i> Change Company Details
+          </a>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="alert alert-info text-center">
+        <p>No company details added yet.</p>
+        <a href="{% url 'setupcompany' %}">+ Add Company Details</a>
+      </div>
+    {% endif %}
+
+    <!-- 👥 User Directory -->
+    <h2 class="section-title">User Directory</h2>
+
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Role</th>
+            <th>Date Joined</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <td>{{ user.first_name }} {{ user.last_name }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.phone_no }}</td>
+            <td>{{ user.get_role_display }}</td>
+            <td>{{ user.date_joined|date:"M d, Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 📋 CTA Button -->
+    <div class="text-center mt-4">
+      <button onclick="window.location.href='{% url 'setup' %}'" class="btn btn-success">
+        + Register a New Employee
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

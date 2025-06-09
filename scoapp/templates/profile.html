@@ -1,0 +1,27 @@
+{% include 'user_navbar.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <!-- Bootstrap CSS (optional, for better design) -->
+</head>
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Welcome, {{ user.username }}!</h1>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">User Information</h5>
+                <p><strong>Account Created:</strong> {{ user.date_joined }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Phone Number:</strong> {{ user.phone_no }}</p>
+                <p><strong>Role:</strong> {{ user.get_role_display }}</p>
+            </div>
+        </div>
+
+        <hr>
+</body>
+</html>

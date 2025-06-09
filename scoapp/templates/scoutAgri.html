@@ -1,0 +1,145 @@
+{% include 'user_navbar.html' %}
+<head>
+
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <style>
+        table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid ;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+tr:nth-child(even){background-color: #b1c6e1}
+
+.container {
+  width: 80%; 
+  margin: 0 auto; 
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+
+
+@media screen and (max-width: 768px) {
+  .container {
+    width: 90%; 
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .container {
+    width: 100%; 
+  }
+}
+    </style>
+</head>    <div class="container">
+
+<center><h1>{{head}}</h1></center>
+    <h2> SALES
+    </h2>
+    <table >
+        <tr >
+            <td>DATE</td>
+        <td>BILL NUMBER</td>
+        <td>NAME</td>
+        <td>QUANTITY</td>
+        <td>RATE</td>
+        <td>CUSTOMER</td>
+        <td>AMOUNT</td>
+
+        </tr>
+
+    {%for q in bill_query%}
+        <tr><td><a href="{% url 'dateie' q.date1 %}">{{q.date}}</td></a>
+
+        <td>{{q.billnum}}</td>
+        <td><a href="{% url 'prod' q.product_id %}">{{q.product}}</a></td>
+        <td>{{q.qty}}</td>
+        <td>{{q.rate}}</td>
+        <td><a href="{% url 'seller_shop' q.selbuy_id %}">{{q.selbuy}}</a></td>
+       <td>{{q.amt}}</td>
+   <td>{{q.amount}}</td>
+   <td><a href="{% url 'mode_shop' q.mode %}">{{q.mode}}</a></td>
+
+        <td><a href="{% url 'bill_edit' q.num %}">EDIT</a></td>
+        <td><a href="{% url 'bill_delete' q.num %}">DELETE</a></td>
+
+    {%endfor%}
+     </table>
+     <div class="pagination">
+        <span class="step-links">
+            {% if bill_query.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ bill_query.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ bill_query.number }} of {{ bill_query.paginator.num_pages }}.
+            </span>
+
+            {% if bill_query.has_next %}
+                <a href="?page={{ bill_query.next_page_number }}">next</a>
+                <a href="?page={{ bill_query.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+
+<h2> <font color="teal">PURCHASE</h2></font>
+
+
+
+    <table >
+        <tr >
+        <td>DATE</td>
+        <td>PURCHASE NUMBER</td>
+        <td>NAME</td>
+        <td>QUANTITY</td>
+        <td>RATE</td>
+        <td>VENDER</td>
+        <td>AMOUNT</td>
+        <td>MODE</td>
+
+        </tr>
+
+    {%for q in purch_query%}
+
+            <tr>
+                <td><a href="{% url 'purchdateie' q.date1 %}">{{q.date}}</td></a>
+                <td>{{q.num}}</td>
+
+                <td><a href="{% url 'purchprod' q.product_id %}">{{q.product}}</a></td>
+                <td>{{q.qty}}</td>
+                <td>{{q.rate}}</td>
+                <td><a href="{% url 'purchseller_shop' q.selbuy_id %}">{{q.selbuy}}</a></td>
+
+        <td>{{q.amt}}</td>
+     <td><a href="{% url 'purchmode_shop' q.mode %}">{{q.mode}}</a></td>
+
+        <td><a href="{% url 'purchase_edit' q.num %}">EDIT</a></td>
+        <td><a href="{% url 'purchase_delete' q.num %}">DELETE</a></td>
+
+        {%endfor%} </table>
+        <div class="pagination">
+            <span class="step-links">
+                {% if purch_query.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ purch_query.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ purch_query.number }} of {{ purch_query.paginator.num_pages }}.
+                </span>
+
+                {% if purch_query.has_next %}
+                    <a href="?page={{ purch_query.next_page_number }}">next</a>
+                    <a href="?page={{ purch_query.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+</div>
+                </body>

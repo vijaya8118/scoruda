@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serial Port Connection Example</title>
+</head>
+<body>
+  <h1>Serial Port Connection Example</h1>
+  <div id="status">Attempting to connect to serial port...</div>
+  
+  <!-- Form field to display received data -->
+ 
+  <form method="POST" >
+    {% csrf_token %}
+    
+    <label for="dataField">Received Data:</label>
+    <!-- Add 'name' attribute to capture the textarea data -->
+    <textarea id="dataField" name="data" rows="10" cols="50"></textarea>
+    <button type="submit">Save Data</button>
+</form>
+
+  <script>
+            window.onload = function() {
+            // Auto-focus the qty field (the field should have the id 'id_qty')
+            var qtyField = document.getElementById('dataField');
+            if (qtyField) {
+                qtyField.focus();  // Focus on the qty input field
+            }
+        };
+    // Get references to DOM elements
+    const statusDiv = document.getElementById("status");
+    const dataField = document.getElementById("dataField");
+
+    let port = null;
+    let reader = null;
+    let inputStream = null;
+    let storedData = ''; // Variable to store data between brackets
+
+    // Function to update the status display
+    function updateStatus(message) {
+      statusDiv.textContent = message;
+    }
+
+    // Function to display only the latest received data inside the textarea
+    function logReceivedData(data) {
+      // Display only the last received data (limited)
+      dataField.value = `Received: ${data}`;
+      // Optionally, scroll to the bottom to see the latest data
+      dataField.scrollTop = dataField.scrollHeight;
+    }
+
+    // Function to introduce a delay
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Attempt to automatically connect to a serial port when the page loads
+    async function connectToPort() {
+      try {
+        // Introduce a 3-second delay before attempting to connect
+        await delay(3000);
+        updateStatus("Attempting to connect to serial port...");
+
+        // Request the user to select a serial port automatically
+        const ports = await navigator.serial.getPorts();
+        if (ports.length === 0) {
+          updateStatus("Connection needed: No available serial ports.");
+          return;
+        }
+
+        // Automatically select the first available port
+        port = ports[0];
+
+        // Open the port with a baud rate of 2400 (you can adjust this as needed)
+        await port.open({ baudRate: 2400 });
+
+        // Create the input stream for reading from the serial port
+        inputStream = port.readable;
+
+        // Create a reader to read from the input stream
+        reader = inputStream.getReader();
+
+        // Update status with the port's name
+        updateStatus(`Connected to serial port: ${port.name}`);
+
+        // Start reading data from the serial port
+        readData();
+
+      } catch (error) {
+        console.error("Error connecting to the serial port:", error);
+        updateStatus("Failed to connect to the serial port.");
+      }
+    }
+
+    // Disconnect from the serial port
+    async function disconnectFromPort() {
+      try {
+        // Close the reader and port
+        if (reader) {
+          reader.cancel();
+          reader = null;
+        }
+        if (port) {
+          await port.close();
+          port = null;
+        }
+
+        updateStatus("Disconnected from serial port.");
+      } catch (error) {
+        console.error("Error disconnecting from the serial port:", error);
+        updateStatus("Failed to disconnect from the serial port.");
+      }
+    }
+
+    // Read data from the serial port and store it between brackets
+    async function readData() {
+      let reading = false; // Flag to indicate whether we are currently reading data between brackets
+
+      try {
+        while (port && port.readable) {
+          const { value, done } = await reader.read();
+          if (done) {
+            break;
+          }
+
+          // Decode the incoming data (assuming it's text)
+          const decoder = new TextDecoder();
+          const data = decoder.decode(value);
+
+          // Loop through each character in the received data
+          for (let char of data) {
+            if (char === '[') {
+              // If we encounter '[', we start storing data
+              if (reading) {
+                // If we are already reading, stop the process and process the collected data
+                logReceivedData(storedData);
+                storedData = ''; // Reset storedData
+              }
+              reading = true; // Start storing data
+            } else if (char === ']') {
+              // If we encounter ']', we stop storing data and log it
+              if (reading) {
+                logReceivedData(storedData);
+                storedData = ''; // Reset storedData after logging
+                reading = false; // Stop storing data
+              }
+            } else {
+              // If we are in reading mode, collect the characters
+              if (reading) {
+                storedData += char;
+              }
+            }
+          }
+
+          // Optional: Add a delay between reading
+          await delay(1000);
+        }
+      } catch (error) {
+        console.error("Error reading from the serial port:", error);
+        updateStatus("Error reading from serial port.");
+      }
+    }
+
+    // Attempt connection when the page loads
+    window.addEventListener("load", () => {
+      updateStatus("Attempting to connect to serial port...");
+      connectToPort();
+    });
+  </script>
+</body>
+</html>

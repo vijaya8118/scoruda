@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Page Layout</title>
+	<style>
+		.head1 {
+			font-size: 40px;
+			color: #6096BA;
+      		font-family: Verdana;
+		}
+
+		.head2 {
+			font-size: 17px;
+			margin-left: 10px;
+			margin-bottom: 15px;
+     		color: #2e4057;
+       font-family: Verdana;
+		}
+
+		body {
+			margin: 0 auto;
+			background-position: center;
+			background-size: contain;
+      		font-family: Verdana;
+		}
+
+		.menu {
+			position: sticky;
+			top: 0;
+			background-color: #6096BA;
+			padding: 10px 0px 10px 0px;
+			color: #F7F5FB;
+			margin: 0 auto;
+			overflow: hidden;
+       font-family: Verdana;
+		}
+
+		.menu a {
+			float: left;
+			color: #F7F5FB;
+			text-align: center;
+			padding: 14px 16px;
+			text-decoration: none;
+			font-size: 20px;
+       font-family: Verdana;
+		}
+
+		.menu-log {
+			right: auto;
+			float: right;
+		}
+
+
+
+		.body_sec {
+			margin-left: 20px;
+      		color: #2e4057;
+		}
+
+
+		.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #2e4057;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+}
+
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 20px;
+  color: #f7f5fb;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidenav a:hover {
+  color: #ffff82;
+}
+
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+#main {
+  transition: margin-left .5s;
+  padding: 16px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+
+    /* Centered, big, and stylish h1 tag */
+    h1 {
+        font-size: 3em; /* Large text */
+        font-weight: bold; /* Make it bold */
+        color: #2e4057; /* Dark color for contrast */
+        text-align: center; /* Center the text */
+        margin: 20px 0; /* Add some vertical spacing */
+        padding: 0 15px; /* Add some horizontal padding */
+        line-height: 1.3; /* Make the line height a bit taller for readability */
+        text-transform: uppercase; /* Optionally, transform text to uppercase */
+        letter-spacing: 2px; /* Add letter spacing for a more modern look */
+        font-family: 'Arial', sans-serif; /* Clean and modern font */
+    }
+
+    /* Responsive adjustments */
+    @media screen and (max-width: 768px) {
+        h1 {
+            font-size: 2.5em; /* Slightly smaller on medium screens */
+        }
+    }
+
+    @media screen and (max-width: 576px) {
+        h1 {
+            font-size: 2em; /* Even smaller on small screens */
+        }
+    }
+
+
+
+	</style>
+</head>
+
+<body>
+
+	<!-- Header Section -->
+	<header>
+		<div class="head1">
+			Scoruda
+		</div>
+		<div class="head2">
+		A necessitate for every entity
+    <br>
+		<pre>	<span class="hello-msg">Hello, {{request.user}}</span> <span class="hello-msg"></span><a href="{% url 'signout' %}">Logout</a></span></pre>
+		</div>
+	</header>
+
+	<!-- Menu Navigation Bar -->
+	<nav class="menu">
+        <a href="{% url 'b2b'%}" class="navbar-brand">SALES</a>
+        <a href="{% url 'b2c'%}" class="navbar-brand">COUNTER SALES</a>
+
+        <a href="{% url 'purchaseprod'%}"class="navbar-brand">PURCHASE</a>
+        <a href="{% url 'retailpurch'%}"class="navbar-brand">RETAIL PURCHASE</a>
+
+        <a href="{% url 'cashbook'%}" class="navbar-brand">CASH RECEPT</a>
+        <a href="{% url 'purchasebook'%}"class="navbar-brand">PURCHASE BOOK</a>
+
+		
+	
+		<div class="menu-log" >
+			<span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Menu </span>
+
+
+		</div>
+
+		<div id="mySidenav" class="sidenav">
+			<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+			<h2>Add</h2>
+
+	  <a href="{% url 'additem'%}">ADD PRODUCT</a>
+	  <a href="{% url 'seller'%}">ADD VENDER</a>
+	  <a href="{% url 'customer'%}">ADD CUSTOMER</a>
+
+	  <a href="{% url 'item' %}">VIEW PRODUCTS</a>
+	  <a href="{% url 'sellerall' %}">VIEW SELLER</a>
+	  <a href="{% url 'customerall'%}">VIEW CUSTOMER</a>
+
+
+			<h2>Overview</h2>
+			<pre><a href="{% url 'show' %}">SCOUT</a>
+			<a href= "{% url 'cshbal'%}" >CASH BALANCE</a>
+			<a href= "{% url 'stock'%}" >STOCK            </a>
+			<a href= "{% url 'search'%}" >SEARCH          </a>
+			<a href= "{% url 'productAnalysis'%}" >PRODUCT ANALYSIS        </a></pre
+
+		
+	</div>
+	</nav>
+
+	<script>
+function openNav() {
+      document.getElementById("mySidenav").style.width = "250px";
+      document.getElementById("main").style.marginLeft = "250px";
+      document.body.style.backgroundColor = "rgba(0,0,0,0.4)";
+    }
+
+    function closeNav() {
+      document.getElementById("mySidenav").style.width = "0";
+      document.getElementById("main").style.marginLeft = "0";
+      document.body.style.backgroundColor = "white";
+    }
+
+    // Toggle dropdown visibility
+    document.getElementById("accountsDropdown").addEventListener("click", function () {
+      var dropdownContent = document.querySelector(".subnavbar .dropdown-content");
+      dropdownContent.style.display = (dropdownContent.style.display === "block") ? "none" : "block";
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+      var dropdownContent = document.querySelector(".subnavbar .dropdown-content");
+      if (!event.target.matches("#accountsDropdown") && !event.target.matches(".subnavbar .dropdown-content a")) {
+        dropdownContent.style.display = "none";
+      }
+    });
+		</script>
+</body>
+
+</html>
+
+
+

@@ -1,0 +1,154 @@
+{% include 'user_navbar.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <style>
+        * {
+          box-sizing: border-box;
+        }
+        
+        .row {
+          display: flex;
+          margin-left: -5px;
+          margin-right: -5px;
+        }
+        
+        .column {
+          flex: 50%;
+          padding: 5px;
+        }
+        
+        table {
+          border-collapse: collapse;
+          border-spacing: 0;
+          width: 100%;
+          border: 1px solid #ddd;
+        }
+        
+        th, td {
+          text-align: left;
+          padding: 8px; /* Increased padding for better spacing */
+        }
+        
+        tr:nth-child(odd) {
+            background-color: #b1c6e1;
+        }
+        
+  
+    </style>
+</head>
+<body>    <div class="container">
+
+    <center><h1>{{ name_pk }} Ledger</h1></center>
+    <h1><center>Balance ₹{{ bal }}</center></h1>
+
+    <div class="row">
+        <div class="column">
+            {%if purchase_query%}
+
+            <h2>Total Quantity Purchase {{ totquant|floatformat }}</h2>
+            <h2>Total Amount Purchase ₹{{ totamt|floatformat }}</h2>
+
+            <table>
+                <tr>
+                    <th>BILL NUMBER</th>
+                    <th>DATE</th>
+                    <th>NAME</th>
+                    <th>QUANTITY</th>
+                    <th>RATE</th>
+                    <th>CUSTOMER</th>
+                    <th>TOTAL AMOUNT</th>
+                    <th>MODE</th> <!-- Added missing header -->
+                    <th>EDIT</th>
+                    <th>DELETE</th>
+                </tr>
+                {% for q in purchase_query %}
+                    {% if q.qty > 0 %}
+                        <tr>
+                            <td>{{ q.num }}</td>
+                            <td>{{ q.date }}</td>
+                            <td>{{ q.product }}</td>
+                            <td>{{ q.qty }}</td>
+                            <td>{{ q.rate }}</td>
+                            <td><a href="{% url 'purchseller_shop' q.selbuy_id %}">{{ q.selbuy }}</a></td>
+                            <td>{{ q.amt }}</td>
+                            <td><a href="{% url 'purchmode_shop' q.mode %}">{{ q.mode }}</a></td>
+                            <td><a href="{% url 'purchase_edit' q.num %}">EDIT</a></td>
+                            <td><a href="{% url 'purchase_delete' q.num %}">DELETE</a></td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+            <div class="pagination">
+                <span class="step-links">
+                    {% if purchase_query.has_previous %}
+                        <a href="?page=1">&laquo; first</a>
+                        <a href="?page={{ purchase_query.previous_page_number }}">previous</a>
+                    {% endif %}
+    
+                    <span class="current">
+                        Page {{ purchase_query.number }} of {{ purchase_query.paginator.num_pages }}.
+                    </span>
+    
+                    {% if purchase_query.has_next %}
+                        <a href="?page={{ purchase_query.next_page_number }}">next</a>
+                        <a href="?page={{ purchase_query.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}                    {% endif %}
+
+                </span>
+            </div>
+        </div>
+        
+        {% if purchbook_query %}
+            <div class="column">
+                <pre>
+
+                </pre>
+                <h2>Total Cash ₹{{ purchtot|floatformat }}</h2>
+                <table>
+                    <tr>
+                        <th>DATE</th>
+                        <th>NAME</th>
+                        <th>MODE</th>
+                        <th>TOTAL AMOUNT</th>
+                        <th>COMMENT</th>
+                        <th>EDIT</th>
+                        <th>DELETE</th>
+                    </tr>
+                    {% for qq in purchbook_query %}
+                        <tr>
+                            <td>{{ qq.date }}</td>
+                            <td>{{ qq.selbuy }}</td>
+                            <td>{{ qq.mode }}</td>
+                            <td>{{ qq.amt }}</td>
+                            <td>{{ qq.comment }}</td>
+                            <td><a href="{% url 'purchasebook_edit' qq.id %}">EDIT</a></td>
+                            <td><a href="{% url 'purchasebook_delete' qq.id %}">DELETE</a></td>
+                        </tr>
+                    {% endfor %} 
+                </table>
+                <div class="pagination">
+                    <span class="step-links">
+                        {% if purchbook_query.has_previous %}
+                            <a href="?page=1">&laquo; first</a>
+                            <a href="?page={{ purchbook_query.previous_page_number }}">previous</a>
+                        {% endif %}
+                
+                        <span class="current">
+                            Page {{ purchbook_query.number }} of {{ purchbook_query.paginator.num_pages }}.
+                        </span>
+                
+                        {% if purchbook_query.has_next %}
+                            <a href="?page={{ purchbook_query.next_page_number }}">next</a>
+                            <a href="?page={{ purchbook_query.paginator.num_pages }}">last &raquo;</a>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        {% endif %}
+    </div></div>
+</body>
+</html>

@@ -1,0 +1,154 @@
+{% include 'user_navbar.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <style>
+        * {
+          box-sizing: border-box;
+        }
+        
+        .row {
+          display: flex;
+          margin-left:-5px;
+          margin-right:-5px;
+        }
+        
+        .column {
+          flex: 50%;
+          padding: 5px;
+        }
+        
+        table {
+          border-collapse: collapse;
+          border-spacing: 0;
+          width: 100%;
+          border: 1px solid #ddd;
+        }
+        
+        th, td {
+          text-align: left;
+          padding: 16px;
+        }
+        
+     
+        tr:nth-child(odd) {
+            background-color: #b1c6e1;
+        }
+        </style>
+</head>
+<body>
+  <div class="container">
+
+
+<center><h1>{{name_pk}} Ledger</h1></center>
+<h2><center> {%if bal > 0 %}Balance ₹{{bal}}  {%else%} {%endif%}</center></h2>
+
+<div class="row">
+    <div class="column">
+{%if bill_query%}
+        <h3>Total Quantity Sold {{totquant|floatformat}}</h3>
+        <h3>Total Amount Sold ₹{{totamt|floatformat}}</h3>
+       <table >
+        <tr>
+            <td>BILL NUMBER</td>
+        <td>DATE</td>
+        <td>NAME</td>
+        <td>QUANTITY</td>
+        <td>RATE</td>
+        <td>CUSTOMER</td>
+        <td>TOTAL AMOUNT</td>
+
+        </tr>
+
+    {%for q in bill_query%}
+    {%if q.qty > 00%}
+
+        <tr><td>{{q.billnum}}</td>
+        <td>{{q.date}}</td>
+        <td>{{q.product}}</a></td>
+        <td>{{q.qty}}</td>
+        <td>{{q.rate}}</td>
+        <td><a href="{% url 'seller_shop' q.selbuy_id %}">{{q.selbuy}}</a></td>
+   <td>{{q.amt}}</td>
+   <td><a href="{% url 'mode_shop' q.mode %}">{{q.mode}}</a></td>
+
+        <td><a href="{% url 'bill_edit' q.num %}">EDIT</a></td>
+        <td><a href="{% url 'bill_delete' q.num %}">DELETE</a></td>
+        {%endif%}
+    {%endfor%}
+     </table>
+       <div class="pagination">
+        <span class="step-links">
+            {% if bill_query.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ bill_query.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="current">
+                Page {{ bill_query.number }} of {{ bill_query.paginator.num_pages }}.
+            </span>
+    
+            {% if bill_query.has_next %}
+                <a href="?page={{ bill_query.next_page_number }}">next</a>
+                <a href="?page={{ bill_query.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}            {% endif %}
+
+        </span>
+    </div>
+    </div>
+{%if cashquery%}
+<div class="column">
+    <pre>
+
+    </pre>
+    <h3>Total Cash ₹{{cashtot|floatformat}}</h3>
+    <table>
+      <table>
+        <tr >
+        <td>DATE</td>
+        <td>NAME</td>
+        <td>MODE</td>
+        <td>TOTAL AMOUNT</td>
+        <td>COMMENT</td>
+
+        </tr>
+        {%for qq in cashquery%}
+
+        <tr>
+        <td>{{qq.date}}</td>
+        <td>{{qq.selbuy}}</td>
+        <td>{{qq.mode}}</td>
+        <td>{{qq.amt}}</td>
+        <td>{{qq.comment}}</td>
+        <td><a href="{% url 'cashbook_edit' qq.id %}">EDIT</a></td>
+        <td><a href="{% url 'cashbook_delete' qq.id %}">DELETE</a></td>
+        {%endfor%} 
+    </table>
+        <div class="pagination">
+            <span class="step-links">
+                {% if cashquery.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ cashquery.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="current">
+                    Page {{ cashquery.number }} of {{ cashquery.paginator.num_pages }}.
+                </span>
+        
+                {% if cashquery.has_next %}
+                    <a href="?page={{ cashquery.next_page_number }}">next</a>
+                    <a href="?page={{ cashquery.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+                {% endif %}
+
+            </span>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>
+

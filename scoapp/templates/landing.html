@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoruda</title>
+    <style>
+        /* Reset basic styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 50px;
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        /* Hover animation for container */
+        .container:hover {
+            transform: translateY(-10px);
+        }
+
+        h1 {
+            font-size: 3.5em;
+            color: #6096BA;
+            margin-bottom: 20px;
+            transition: color 0.3s;
+        }
+
+        h1:hover {
+            color: #507d9b;
+        }
+
+        /* Display current URL below heading */
+        .current-url {
+            font-size: 1.2em;
+            color: #888;
+            margin-top: 10px;
+            margin-bottom: 40px;
+            word-wrap: break-word;
+        }
+
+        .button {
+            background-color: #6096BA;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            outline: none;
+            text-decoration: none; /* Remove underline from the link */
+            display: inline-block; /* Make the anchor behave like a block-level button */
+        }
+
+        .button:hover {
+            background-color: #507d9b;
+            transform: scale(1.05);
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        .url-field {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .url-input {
+            padding: 15px;
+            font-size: 1.2em;
+            width: 350px;
+            border-radius: 8px;
+            border: 2px solid #6096BA;
+            margin-right: 20px;
+            transition: border 0.3s ease;
+        }
+
+        .url-input:focus {
+            border-color: #FFCC00;
+            outline: none;
+        }
+
+        .go-button {
+            background-color: #FFCC00;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            outline: none;
+        }
+
+        .go-button:hover {
+            background-color: #e6b800;
+            transform: scale(1.05);
+        }
+
+        .go-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Smiley animation */
+        .go-button:after {
+            content: "🙂";
+            font-size: 1.8em;
+            margin-left: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .go-button:hover:after {
+            opacity: 1;
+        }
+
+        /* Add responsiveness */
+        @media screen and (max-width: 600px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .url-input {
+                width: 250px;
+            }
+
+            .button, .go-button {
+                padding: 12px 24px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Scoruda</h1>
+
+        <!-- Display the current URL -->
+        <p class="current-url" id="currentUrl"></p>
+
+        <!-- Button for creating new company as a link -->
+        <a href="create_company" class="button">Create New Company</a><br><br>
+        
+        <!-- Login button with dynamic text based on the current URL -->
+        <a href="" class="button" id="loginLink">Login for</a><br><br>
+
+        <!-- URL input field and Go button -->
+        <div class="url-field">
+            <input type="text" id="urlInput" class="url-input" placeholder="Enter Company URL" />
+            <button class="go-button" onclick="goToUrl()">Go</button>
+        </div>
+    </div>
+
+    <script>
+        // Display the current URL dynamically
+        const currentUrl = window.location.href;
+        document.getElementById("currentUrl").textContent = "Company website: " + currentUrl;
+
+        // Update the Login link text and href to reflect the current URL
+        const loginLink = document.getElementById("loginLink");
+        loginLink.textContent = "Login for " + window.location.hostname;  // Display hostname, e.g., "Login for example.com"
+        loginLink.href = currentUrl + "/login";  // Add the /login path to the current URL
+
+        function goToUrl() {
+            var url = document.getElementById("urlInput").value;
+            if (url) {
+                // Ensure URL starts with http:// or https://
+                if (!/^https?:\/\//i.test(url)) {
+                    url = "http://" + url;
+                }
+                // Redirect to the entered URL
+                window.location.href = url;
+            } else {
+                alert("Please enter a valid URL.");
+            }
+        }
+    </script>
+
+</body>
+</html>

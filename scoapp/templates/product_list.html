@@ -1,0 +1,82 @@
+{% include 'user_navbar.html' %}
+<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Document</title>
+            {% load static %}
+            <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+            <style>
+                table {
+          border-collapse: collapse;
+          border-spacing: 0;
+          width: 100%;
+          border: 1px solid ;
+        }
+        
+        th, td {
+          text-align: left;
+          padding: 8px;
+        }
+        tr:nth-child(even){background-color: #b1c6e1}
+        
+        .container {
+          width: 80%; 
+          margin: 0 auto; 
+          padding: 20px;
+          background-color: #f0f0f0;
+        }
+        
+        
+        @media screen and (max-width: 768px) {
+          .container {
+            width: 90%; 
+          }
+        }
+        
+        @media screen and (max-width: 576px) {
+          .container {
+            width: 100%; 
+          }
+        }
+            </style><body>
+            <table >    <div class="container">
+        
+                <h2><center>{{heading}} </center></h2> 
+                <tr bgcolor="#f0f0f0">
+                <td>PRODUCT</td>
+                <td>SELLING RATE </td>
+                <TD>PURCHASE RATE</TD>
+                </tr>
+                {%for q in query %}
+                <tr>
+                
+                </td>          <td>{{q.product}}</td>
+                <td>{{q.rate}}</td> 
+                <td>{{q.rate_purch}}</td> 
+                <td><a href="{% url 'price_edit' q.id %}">CHANGE CHANGE</a></td>
+
+
+              </tr>
+                {%endfor%}</div></table>
+
+        <div class="pagination">
+            <span class="step-links">
+                {% if query.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ query.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="current">
+                    Page {{ query.number }} of {{ query.paginator.num_pages }}.
+                </span>
+        
+                {% if query.has_next %}
+                    <a href="?page={{ query.next_page_number }}">next</a>
+                    <a href="?page={{ query.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+        </body>
+        </html>

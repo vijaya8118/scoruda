@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoruda</title>
+
+    <style>
+        h1 {
+            margin-top: 20px;
+        }
+
+        .form-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        form {
+            width: 60%;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        textarea {
+            width: 200px;
+            height: 30px;
+            font-size: 12px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            margin-top: 40px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            max-width: 50%;
+        }
+
+        .image-grid a {
+            display: block;
+            text-align: center;
+        }
+
+        .image-grid img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .selected-products-container {
+            width: 45%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .product-selection {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 5px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-selection input {
+            margin-right: 10px;
+            padding: 5px;
+            width: 80px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .product-selection button {
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .product-selection button:hover {
+            background-color: #e60000;
+        }
+
+        .total-amount {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .payment-button {
+            display: block;
+            width: 200px;
+            padding: 10px;
+            margin: 20px 0;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .payment-button:hover {
+            background-color: #45a049;
+        }
+
+        /* Hide the product grid initially */
+        #product-selection-container {
+            display: none;
+        }
+
+        /* Hide the payment method dropdown initially */
+        #payment-method-container {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>    
+    <h1>{{head}}</h1>
+
+    <div id="status">Receiving .......</div>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="dataField">Weight:</label>
+        <textarea id="dataField" name="data" rows="10" cols="50"></textarea>
+    </form>
+
+    <!-- Hidden payment method dropdown initially -->
+    <div id="payment-method-container">
+        <h1>
+            <label for="payment-method">Choose a payment method:</label>
+            <select id="payment-method" name="payment-method" required>
+                <option value="" selected disabled>-- Select Payment Method --</option>
+                <option value="cash">Cash</option>
+                <option value="UPI">UPI</option>
+                <option value="credit">Credit</option>
+            </select>
+        </h1>
+    </div>
+
+    <!-- Hidden product selection grid -->
+    <div id="product-selection-container" class="container">
+        <!-- Image Grid (left side) -->
+        <div class="image-grid">
+            {% for item in items %}
+                <a href="javascript:void(0);" onclick="selectProduct('{{ item.id }}', '{{ item.product }}', '{{ item.price }}', this)">
+                    <img src="{{ item.image.url }}" alt="{{ item.name }}" />
+                </a>
+            {% endfor %}
+        </div>
+        <!-- Selected Products List (right side) -->
+        <div class="selected-products-container">
+            <div id="selected-products-list"></div>
+            <div class="total-amount">Total Amount: <span id="total-amount">0</span></div>
+            <a href="javascript:void(0);" id="payment-button" class="payment-button">MAKE PAYMENT</a>
+        </div>
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById("status");
+        const dataField = document.getElementById("dataField");
+        const paymentMethodContainer = document.getElementById("payment-method-container");
+        const paymentMethodDropdown = document.getElementById("payment-method");
+        const productSelectionContainer = document.getElementById("product-selection-container");
+        const selectedProductsList = document.getElementById("selected-products-list");
+        const totalAmountSpan = document.getElementById("total-amount");
+
+        let port = null;
+        let reader = null;
+        let inputStream = null;
+        let storedData = ''; 
+        let selectedProducts = []; // Array to store selected products
+        let totalAmount = 0; // Variable to track the total amount
+
+        function updateStatus(message) {
+            statusDiv.textContent = message;
+        }
+
+        function logReceivedData(data) {
+            const numericData = parseFloat(data);
+            if (isNaN(numericData)) {
+                console.error("Received data is not a valid number:", data);
+                dataField.value = data;
+                return;
+            }
+
+            const processedData = (numericData - 4) / 10000;
+            dataField.value = ` ${processedData}`;
+            dataField.scrollTop = dataField.scrollHeight;
+
+            // Show the payment method dropdown after data is received
+            showPaymentMethodDropdown();
+        }
+
+        function showPaymentMethodDropdown() {
+            paymentMethodContainer.style.display = "block";
+        }
+
+        // Show the product grid when a payment method is selected
+        paymentMethodDropdown.addEventListener("change", function() {
+            if (paymentMethodDropdown.value !== "") {
+                showProductSelection();
+            }
+        });
+
+        // Show the product selection grid
+        function showProductSelection() {
+            productSelectionContainer.style.display = "flex";
+        }
+
+        // Function to handle the selection of a product
+        function selectProduct(productId, productName, price, linkElement) {
+            // Check if product is already in the list
+            const existingProduct = selectedProducts.find(p => p.id === productId);
+
+            if (!existingProduct) {
+                // Product is not selected, so add it
+                var theQuant = document.getElementById("dataField").value;
+
+                const newProduct = { id: productId, name: productName, price: price, quantity: theQuant };
+                selectedProducts.push(newProduct);
+
+                // Update the UI (list of selected products)
+                updateSelectedProductsList();
+
+                // Update the total amount after adding the product
+                updateTotalAmount(price);
+            } else {
+                console.log(`Product "${productName}" already selected.`);
+            }
+        }
+
+        function updateSelectedProductsList() {
+            selectedProductsList.innerHTML = ''; // Clear the current list
+
+            selectedProducts.forEach(product => {
+                const productElement = document.createElement("div");
+                productElement.className = "product-selection";
+
+                // Display the quantity as the user selected initially
+                const quantityInput = document.createElement('input');
+                quantityInput.type = 'text'; // Make it read-only to prevent dynamic changes
+                quantityInput.value = product.quantity;
+
+                productElement.innerHTML = `<span>${product.name}</span>`;
+                productElement.appendChild(quantityInput);
+
+                const removeButton = document.createElement('button');
+                removeButton.textContent = "Remove";
+                removeButton.onclick = function() {
+                    removeProduct(product.id, product.price);
+                };
+                productElement.appendChild(removeButton);
+
+                selectedProductsList.appendChild(productElement);
+            });
+           
+        }
+
+        function removeProduct(productId, productPrice) {
+            selectedProducts = selectedProducts.filter(p => p.id !== productId);
+            updateSelectedProductsList();
+            updateTotalAmount(-productPrice);
+        }
+
+        function updateTotalAmount(priceChange) {
+            totalAmount = selectedProducts.reduce((total, product) => total + (product.price * product.quantity), 0);
+            totalAmountSpan.textContent = totalAmount.toFixed(2);
+        }
+
+        async function connectToPort() {
+            try {
+                const ports = await navigator.serial.getPorts();
+                if (ports.length === 0) {
+                    updateStatus("Connection needed: No available serial ports.");
+                    return;
+                }
+
+                port = ports[0];
+                await port.open({ baudRate: 2400 });
+                inputStream = port.readable;
+                reader = inputStream.getReader();
+                updateStatus(`Connected to serial port: ${port.name}`);
+                readData();
+
+            } catch (error) {
+                console.error("Error connecting to the serial port:", error);
+                updateStatus("Weighing scale not connected properly.");
+            }
+        }
+
+        async function readData() {
+            let reading = false;
+            try {
+                while (port && port.readable) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    const decoder = new TextDecoder();
+                    const data = decoder.decode(value);
+
+                    for (let char of data) {
+                        if (char === '[') {
+                            if (reading) {
+                                logReceivedData(storedData);
+                                storedData = '';
+                            }
+                            reading = true;
+                        } else if (char === ']') {
+                            if (reading) {
+                                logReceivedData(storedData);
+                                storedData = '';
+                                reading = false;
+                            }
+                        } else {
+                            if (reading) {
+                                storedData += char;
+                            }
+                        }
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            } catch (error) {
+                console.error("Error reading from the serial port:", error);
+                updateStatus("Error reading from serial port.");
+            }
+        }
+
+        window.addEventListener("load", function() {
+            connectToPort();
+        });
+////////////////////////////////////////////////
+
+function sendOrderToDjango() {
+    const orderData = selectedProducts.map(product => ({
+        productId: product.id,
+        productName: product.name,
+        quantity: product.quantity ,// Using the quantity stored in selectedProducts
+        mode:product.mode,
+    }));
+
+    console.log('send data',orderData);
+    
+            fetch("{% url 'p' %}", {  // Django URL for processing the order
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie('csrftoken')  // CSRF token for security
+                },
+                body: JSON.stringify(orderData)  // Send only productId and quantity
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Order processed successfully.');
+                    window.location.href = "/purchaseprod";  // Redirect to the invoice page
+
+                } else {
+                    alert('Error processing order: ' + data.message);
+                    window.location.href = "/purchaseprod";  // Redirect to the invoice page
+
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Order processed successfully.');
+                window.location.href = "/purchaseprod";  // Redirect to the invoice page
+
+            });
+        }
+
+        // Get the CSRF token from the cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Attach the event listener for the "Make Payment" button
+        document.getElementById('payment-button').addEventListener('click', function(e) {
+            e.preventDefault();  // Prevent default link action
+            sendOrderToDjango(); // Send the order data to the Django view
+        });
+            window.onload = function() {
+            // Auto-focus the qty field (the field should have the id 'id_qty')
+            var qtyField = document.getElementById('dataField');
+            if (qtyField) {
+                qtyField.focus();  // Focus on the qty input field
+            }
+        };
+    </script>
+</body>
+</html>

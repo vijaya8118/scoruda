@@ -1,0 +1,141 @@
+{% include 'user_navbar.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        
+        function showMessage() {
+            alert("YOUR REPORT HAS BEEN SAVED SUCCESSFULLY");
+        }
+    </script>
+    <title>Document</title>
+    <style>
+        /* General body and text settings */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fafafa;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Container to center everything and adjust the width */
+        .container {
+            width: 80%; 
+            max-width: 1200px; /* Optional max-width for large screens */
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .button {
+            padding: 12px 30px;
+            font-size: 1.2em;
+            background-color: #6096BA;
+            color: white;
+            border: none;
+            border-radius: 5px;
+			background-color: #6096BA;
+      cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #2e4057;
+        }
+
+        /* Styling for input fields and textareas */
+        input, select, textarea {
+            font-size: 1.2em;
+            padding: 12px;
+            margin: 8px 0;
+            width: 100%;
+            max-width: 600px;  /* Set max width for form fields */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        /* Responsive design for smaller screens */
+        @media screen and (max-width: 768px) {
+            .container {
+                width: 90%;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .button {
+                font-size: 1.1em;
+                padding: 10px 25px;
+            }
+
+            input, select, textarea {
+                font-size: 1em;
+                padding: 10px;
+            }
+        }
+
+        @media screen and (max-width: 576px) {
+            .container {
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .button {
+                font-size: 1em;
+                padding: 10px 20px;
+            }
+
+            input, select, textarea {
+                font-size: 1em;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><center> {{heading}}{{q}}</center></h1>
+        <form method="post" style="text-align: center;" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{form.as_p}}
+
+            <button class="button" type="submit" onclick="showMessage()">SAVE</button>
+        </form>
+
+        <script>
+            window.onload = function() {
+                // Auto-focus the qty field (the field should have the id 'id_qty')
+                var qtyField = document.getElementById('id_qty');
+                if (qtyField) {
+                    qtyField.focus();  // Focus on the qty input field
+                }
+            };
+        </script>
+    </div>
+</body>
+</html>

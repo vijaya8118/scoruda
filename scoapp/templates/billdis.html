@@ -1,0 +1,276 @@
+{% include 'user_navbar.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>KARTHICK BIDADI FARM INVOICE</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        td {
+            background-color: #fafafa;
+        }
+
+        .top td {
+            padding-bottom: 10px;
+        }
+
+        .total td {
+            border-top: 2px solid #eee;
+            font-weight: bold;
+            text-align: right;
+            padding-top: 10px;
+        }
+
+        .amount, .price, .quantity, .discount {
+            text-align: center;
+        }
+
+        input[type="number"] {
+            padding: 8px;
+            width: 100%;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .change, .total-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .change {
+            color: #4CAF50;
+        }
+
+        .total-amount {
+            color: #FF5722;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .download-btn:hover {
+            background-color: #45a049;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                width: 90%;
+            }
+        }
+
+        @media screen and (max-width: 576px) {
+            .container {
+                width: 100%;
+            }
+        }
+    </style>
+    <script>
+        // Function to calculate the total bill amount
+        function calculateTotalBill() {
+            var totalAmount = 0;
+            var products = document.querySelectorAll('.item');
+
+            // Loop through each product row to sum up the current_price
+            products.forEach(function(product) {
+                var currentPrice = parseFloat(product.querySelector('.amount').innerText.replace('₹', '').trim());
+                totalAmount += currentPrice;
+            });
+
+            // Update the total bill price in the UI
+            document.getElementById("totalAmount").innerText = '₹ ' + totalAmount.toFixed(2);
+            return totalAmount;
+        }
+
+        // Function to calculate the total amount and change
+        function calculateTotalAndChange() {
+            // Get the total amount of the invoice
+            var totalAmount = calculateTotalBill();
+
+            // Get the cash received by the user
+            var cashReceived = parseFloat(document.getElementById("cashReceived").value);
+
+            // If cash received is greater than or equal to the total amount, calculate the change
+            if (!isNaN(cashReceived) && cashReceived >= totalAmount) {
+                var change = cashReceived - totalAmount;
+                document.getElementById("change").innerText = '₹ ' + change.toFixed(2);
+            } else {
+                // If cash received is less than the total, set change to 0.00
+                document.getElementById("change").innerText = '₹ 0.00';
+            }
+        }
+
+        // Function to download the invoice content with the same styling
+        function downloadInvoice() {
+            var content = document.getElementById('invoiceContent').innerHTML;
+            
+            // Get the current page's styles (all <style> tags)
+            var styles = document.querySelectorAll('style');
+            var css = '';
+            styles.forEach(function(style) {
+                css += style.innerHTML;
+            });
+
+            // Create the complete HTML for the downloadable file
+            var fullContent = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="utf-8" />
+                <title>KARTHICK BIDADI FARM INVOICE</title>
+                <style>
+                    ${css}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    ${content}
+                </div>
+            </body>
+            </html>
+            `;
+
+            // Create a Blob object with the HTML content
+            var blob = new Blob([fullContent], { type: 'text/html' });
+            
+            // Create an anchor tag and trigger a download
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'invoice.html';  // File name to be downloaded
+            link.click();
+        }
+
+        window.onload = calculateTotalAndChange;
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Main content container where the bill content is located -->
+        <div id="invoiceContent">
+            <h3>KARTHICK BIDADI FARM INVOICE</h3>
+            <table cellpadding="0" cellspacing="0">
+                <tr class="top">
+                    <td colspan="2">
+                        <table>
+                            <tr>
+                                <td class="title"></td>
+                                <td>
+                                    <strong>Invoice #:</strong> {{ invoice_num }}<br />
+                                    <strong>Invoice To:</strong> {{ invoice_to }}<br />
+                                    <strong>Created:</strong> {{ created }}<br />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr class="heading">
+                    <td>Product</td>
+                    <td>Rate</td>
+                    <td>Quantity</td>
+                    <td>Amount</td>
+                </tr>
+
+                <!-- Loop over each product dynamically -->
+                {% for product in products %}
+                <tr class="item">
+                    <td>{{ product.commodity }}</td>
+                    <td class="price">{{ product.price }}</td>
+                    <td class="quantity">{{ product.quantity }}</td>
+                    <td class="amount">{{ product.current_price }}</td>
+                </tr>
+                {% endfor %}
+
+                <tr class="total">
+                    <td colspan="4">Total:</td>
+                    <td>
+                        <strong id="totalAmount">₹ 0.00</strong>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Button to trigger download of the invoice content -->
+        <a href="javascript:void(0);" class="download-btn" onclick="downloadInvoice()">Download Invoice</a>
+
+        <!-- Cash Received and Change section -->
+        <div style="margin-top: 30px;">
+            <label for="cashReceived">Cash Received:</label>
+            <input type="number" id="cashReceived" name="cashReceived" oninput="calculateTotalAndChange()" />
+
+            <div style="margin-top: 10px;">
+                <strong>Change:</strong>
+                <span id="change" class="change">₹ 0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        calculateTotalAndChange();
+    </script>
+</body>
+</html>

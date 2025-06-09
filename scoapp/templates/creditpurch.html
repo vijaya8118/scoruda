@@ -1,0 +1,69 @@
+{% include 'user_navbar.html' %}
+<!DOCTYPE html>
+<html>
+<head>
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+  <style>
+    .tables-wrapper {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .table-container {
+      flex: 1;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: yellow;
+    }
+    .btn {
+      text-decoration: none;
+      color: blue;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <center><h1>Credit Balances</h1></center>
+    <h2>Total Balance is {{tot_bal}}</h2>
+    <div class="tables-wrapper">
+      <div class="table-container">
+        <table>
+          <tr>
+            <th>VENDOR</th>
+            <th>AMOUNT TO BE RECEIVED</th>
+          </tr>
+          {% for i, j in a.items %}
+          <tr>
+            <td>{{ i }}</td>
+            <td>{{ j }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <div class="table-container">
+        <table>
+          <tr>
+            <th>CLICK FOR VENDOR DATA PURCHASE</th>
+          </tr>
+          {% for i, j in d1.items %}
+          <tr>
+            <td><a href="{% url 'cr1' i  %}" class="btn">{{ j }}</a></td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

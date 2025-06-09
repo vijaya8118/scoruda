@@ -1,0 +1,22 @@
+<head>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+  </head>
+  
+  <form method="post" onsubmit="goBack()">
+      {% csrf_token %}
+      <h1>Are you sure you want to delete?
+        </h1><br>
+  
+      <button type="submit">Delete</button>
+      <button type="button" onclick="goBack()">Go Back</button>
+  </form>
+  
+  <script>
+  
+  
+    function goBack() {
+        history.back();
+    }
+  </script>
+  

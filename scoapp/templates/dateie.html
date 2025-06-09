@@ -1,0 +1,62 @@
+{% include 'user_navbar.html' %}
+<head>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <style>
+        table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid ;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+tr:nth-child(even){background-color: #b1c6e1}
+
+.container {
+  width: 80%; 
+  margin: 0 auto; 
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+
+
+@media screen and (max-width: 768px) {
+  .container {
+    width: 90%; 
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .container {
+    width: 100%; 
+  }
+}
+    </style>
+</head>
+<div class="container">
+
+<center><h1>Ledger of {{pk}}  </h1></center>
+    <h2>  Credit
+
+        {{bal}}
+
+    </h2>
+
+    <table >
+        <h2><center>{{heading}} {{pk}}</center></h2>  
+        <tr bgcolor="yellow">
+        <td>PRODUCT</td>
+        <td>TOTAL </td>
+        </tr>
+        {%for i,j in d1.items %}
+        <tr>
+        <td>{{i}}</td>
+    
+        <td>{{j}}</td> 
+        </tr>
+        {%endfor%}
+     </table></div>
