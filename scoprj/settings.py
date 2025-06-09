@@ -29,10 +29,9 @@ SECRET_KEY = 'django-insecure-1k8=f6i)0iltlhxnyuw(^=88^8@55)u941cel1g621qu7=5=99
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-
-IMAGEKIT_URL_ENDPOINT = 'https://ik.imagekit.io/scoruda'
-IMAGEKIT_PUBLIC_KEY = 'public_fhJjNfRQ81R2ofbKG90iOGGjzus='
-IMAGEKIT_PRIVATE_KEY = 'private_AkVoF7SqVVpIZl/hx4Z4CHs3aaA='  # needed for uploads
+IMAGEKIT_URL_ENDPOINT = os.environ.get('IMAGEKIT_URL_ENDPOINT')
+IMAGEKIT_PUBLIC_KEY = os.environ.get('IMAGEKIT_PUBLIC_KEY')
+IMAGEKIT_PRIVATE_KEY = os.environ.get('IMAGEKIT_PRIVATE_KEY')
 
 CSRF_TRUSTED_ORIGINS = [
     'https://scoruda81.onrender.com',
@@ -128,13 +127,14 @@ WSGI_APPLICATION = 'scoprj.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django_tenants.postgresql_backend',
-        'NAME': 'tester',
-        'USER': 'postgres',
-        'PASSWORD':'root1234',
-    }
+    'default': dj_database_url.parse(
+        config('DATABASE_URL', default='postgresql://scoruda_db_hrnz_user:e1jLUnw60dwYSs6nkbK0nLj79ODYkvyX@dpg-d12lp4be5dus73cjm820-a/scoruda_db_hrnz')
+    )
 }
+
+DATABASES['default']['ENGINE'] = 'django_tenants.postgresql_backend'
+
+
 
 DATABASE_ROUTERS = (
     'django_tenants.routers.TenantSyncRouter',
