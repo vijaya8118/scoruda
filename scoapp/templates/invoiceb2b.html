@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scoruda</title>
     <style>
         /* Reset some defaults */
@@ -125,12 +125,11 @@
         .payment-button:hover {
             background-color: #45a049;
         }
-
     </style>
 </head>
 
 <body>
-   <center><h1>{{head}} </center> 
+   <center><h1>{{ head }}</h1></center> 
 
     <!-- Form to Select Customer and Payment Method -->
     <form id="order-form" method="POST" action="{% url 't1' %}">
@@ -160,7 +159,6 @@
                                 <img src="path/to/placeholder-image.jpg" alt="{{ item.product }}" />
                             {% endif %}
                         </a>
-                        
                     {% endfor %}
                 </div>
 
@@ -180,43 +178,33 @@
         window.onload = function() {
             const customerField = document.querySelector('[name="selbuy"]');
             if (customerField) {
-                customerField.focus();  // Focus on the customer field
+                customerField.focus();
             }
-        }
+        };
 
         // Show Payment Method section after Customer is selected
         document.querySelector('[name="selbuy"]').addEventListener('change', function() {
-            const customerField = document.querySelector('[name="selbuy"]');
-            if (customerField.value) {
-                // Display Payment Method section
+            if (this.value) {
                 document.getElementById('payment-method-section').style.display = 'block';
             }
         });
 
         // Show Product images and make payment button after Payment Method is selected
         document.querySelector('[name="mode"]').addEventListener('change', function() {
-            const paymentMethodField = document.querySelector('[name="mode"]');
-            if (paymentMethodField.value) {
-                // Display the image grid and payment button
+            if (this.value) {
                 document.getElementById('image-grid').style.display = 'grid';
                 document.getElementById('payment-button').style.display = 'block';
-                document.querySelector('.main-container').style.display = 'flex';  // Show the main container
+                document.querySelector('.main-container').style.display = 'flex';
             }
         });
 
         // Select a product
         function selectProduct(productId, productName) {
-            const existingProduct = selectedProducts.find(product => product.id === productId);
-
-            if (!existingProduct) {
-                selectedProducts.push({
-                    id: productId,
-                    name: productName,
-                    qty: 1  // Default quantity is 1
-                });
+            if (!selectedProducts.find(p => p.id === productId)) {
+                selectedProducts.push({ id: productId, name: productName, qty: 1 });
 
                 const productDiv = document.createElement('div');
-                productDiv.classList.add('product-selection');
+                productDiv.className = 'product-selection';
                 productDiv.id = 'product-' + productId;
 
                 const productNameInput = document.createElement('input');
@@ -226,15 +214,14 @@
 
                 const quantityInput = document.createElement('input');
                 quantityInput.type = 'number';
-                quantityInput.oninput = function() {
-                    updateQuantity(productId, quantityInput.value);
-                };
+                quantityInput.min = 1;
+                quantityInput.value = 1;
+                quantityInput.oninput = () => updateQuantity(productId, quantityInput.value);
 
                 const removeButton = document.createElement('button');
+                removeButton.type = 'button';
                 removeButton.textContent = 'Remove';
-                removeButton.onclick = function() {
-                    removeProduct(productId);
-                };
+                removeButton.onclick = () => removeProduct(productId);
 
                 productDiv.appendChild(productNameInput);
                 productDiv.appendChild(quantityInput);
@@ -242,50 +229,40 @@
 
                 document.getElementById('selected-product-list').appendChild(productDiv);
 
-                // Focus on the quantity input after selecting the product
                 quantityInput.focus();
             }
         }
 
         // Update product quantity
         function updateQuantity(productId, newQty) {
-            const product = selectedProducts.find(product => product.id === productId);
-            if (product) {
-                product.qty = newQty;
-            }
+            const product = selectedProducts.find(p => p.id === productId);
+            if (product) product.qty = newQty;
         }
 
         // Remove a product
         function removeProduct(productId) {
-            const index = selectedProducts.findIndex(product => product.id === productId);
+            const index = selectedProducts.findIndex(p => p.id === productId);
             if (index !== -1) {
                 selectedProducts.splice(index, 1);
-                document.getElementById('product-' + productId).remove();
+                const el = document.getElementById('product-' + productId);
+                if (el) el.remove();
             }
-        }
-
-        // Get CSRF token
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
         }
 
         // Send order data to Django backend
         function sendOrderToDjango() {
-            const customer = document.querySelector('[name="selbuy"]') ? document.querySelector('[name="selbuy"]').value : null;
-            const paymentMethod = document.querySelector('[name="mode"]').value;
+            const customer = document.querySelector('[name="selbuy"]')?.value || null;
+            const paymentMethod = document.querySelector('[name="mode"]')?.value || null;
 
-            // Prepare the product data
+            if (!paymentMethod) {
+                alert('Please select a payment method.');
+                return;
+            }
+            if (selectedProducts.length === 0) {
+                alert('No products selected.');
+                return;
+            }
+
             const orderData = selectedProducts.map(product => ({
                 productId: product.id,
                 productName: product.name,
@@ -294,35 +271,37 @@
                 mode: paymentMethod
             }));
 
-            fetch("{% url 't1' %}", {  // Adjust this to your Django URL for order creation
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+            if (!csrfToken) {
+                alert('CSRF token not found!');
+                return;
+            }
+
+            fetch("{% url 't1' %}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie('csrftoken')
+                    "X-CSRFToken": csrfToken
                 },
                 body: JSON.stringify(orderData)
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert('Order processed successfully.');
-                    window.location.href = "/b2b";
-                } else {
-                    alert('Order processed successfully.');
-                    window.location.href = "/b2b";
-                }
+            .then(res => {
+                if (!res.ok) throw new Error(`Error ${res.status}`);
+                return res.json();
             })
-            .catch(error => {
-                console.error('Error:', error);
+            .then(data => {
                 alert('Order processed successfully.');
-                    window.location.href = "/b2b";
+                window.location.href = "/b2b";
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                alert('Failed to process order.');
             });
         }
 
-        // Event listener for the payment button
         document.getElementById('payment-button').addEventListener('click', function(e) {
             e.preventDefault();
-            sendOrderToDjango();  // Send the order data to Django
+            sendOrderToDjango();
         });
     </script>
 </body>
