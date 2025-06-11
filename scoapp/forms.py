@@ -103,7 +103,7 @@ class Purchase_form(forms.ModelForm):
     class Meta:
         model=Purchase_model
         fields='__all__'
-        exclude=('dis','rate')
+        exclude=('dis','amount','amt','rate')
 
 class Purchase_form2(forms.ModelForm):
     class Meta:
