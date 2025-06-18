@@ -101,12 +101,8 @@
     justify-content: center;
     align-items: center;
     height: 80px;
-    position: fixed;     /* Fix at top */
-    top: 0;
-    left: 0;
     width: 100%;        /* Full width by default */
     transition: margin-left 0.5s ease, width 0.5s ease;
-    z-index: 1000;      /* So it stays above sidebars */
 }
 
 
@@ -147,8 +143,8 @@
             overflow: hidden; /* Ensures content is hidden when the sidebar is closed */
         }
 
-    .side-nav.open ~ .navbar {
-    margin-left: 250px;           
+.side-nav.open ~ .navbar {
+    margin-left: 250px;
     width: calc(100% - 250px);
 }
         .side-nav .close-button {
