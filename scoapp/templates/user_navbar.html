@@ -7,65 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scoruda {{user.get_role_display}}</title> 
     <link rel="stylesheet" href="{% static 'css/navstyle.css' %}"> 
-    <style>
-        /* Ensure side nav appears over content on mobile */
-.side-nav {
-    position: fixed;
-    left: -250px;
-    top: 0;
-    width: 250px;
-    height: 100%;
-    background-color: #fff;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
-    overflow-y: auto;
-    transition: left 0.3s ease;
-    z-index: 999;
-}
-
-.side-nav.open {
-    left: 0;
-}
-
-/* Make hamburger menu visible on small screens */
-.menu-toggle {
-    display: block;
-    cursor: pointer;
-}
-
-/* Adjust layout for small screens */
-@media (max-width: 768px) {
-    .navbar-list {
-        flex-direction: column;
-        align-items: flex-start;
-        padding-left: 1rem;
-    }
-
-    .navbar-list li {
-        width: 100%;
-    }
-
-    .main-content {
-        margin-left: 0 !important; /* prevent overflow */
-    }
-
-    .top-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .header-right {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .logo {
-        height: 40px;
-    }
-}
-
-    </style>
 </head>
 <body>
 
