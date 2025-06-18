@@ -5,190 +5,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scoruda {{ user.get_role_display }}</title>
-
+    <title>Scoruda {{user.get_role_display}}</title> 
+    <link rel="stylesheet" href="{% static 'css/navstyle.css' %}"> 
     <style>
-        /* Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* Top Header */
-        .top-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #1a1a1a;
-            color: white;
-            padding: 10px 20px;
-            flex-wrap: wrap;
-        }
-
-        .header-left h1 {
-            font-size: 1.5em;
-        }
-
-        .user-info {
-            font-size: 0.9em;
-            color: #ddd;
-        }
-
-        .logo {
-            width: 40px;
-            height: auto;
-        }
-
-        .back-button {
-            background-color: #444;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 1.2em;
-        }
-
-        /* Navbar */
-        .navbar {
-            background-color: #f2f2f2;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-top: 1px solid #ccc;
-            border-bottom: 1px solid #ccc;
-        }
-
-        .navbar-list {
-            list-style: none;
-            display: flex;
-            gap: 20px;
-        }
-
-        .navbar-list li a {
-            text-decoration: none;
-            color: #333;
-            font-weight: bold;
-            padding: 5px 10px;
-            transition: background-color 0.2s ease-in-out;
-        }
-
-        .navbar-list li a:hover {
-            background-color: #e0e0e0;
-            border-radius: 5px;
-        }
-
-        /* Hamburger Toggle */
-        .menu-toggle {
-            display: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        /* Responsive Styles */
         @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+    .navbar-list {
+        display: none;
+        flex-direction: column;
+    }
 
-            .navbar-list {
-                display: none;
-                flex-direction: column;
-                width: 100%;
-                margin-top: 10px;
-            }
+    .navbar-list.show {
+        display: flex;
+        background-color: #333;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        z-index: 999;
+        padding: 10px;
+    }
 
-            .navbar-list.show {
-                display: flex;
-            }
+    .menu-toggle {
+        display: block;
+        color: white;
+        font-size: 1.5em;
+        cursor: pointer;
+    }
+}
+.top-header {
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-start;
+}
 
-            .menu-toggle {
-                display: block;
-                color: #333;
-            }
-
-            .navbar-list li {
-                width: 100%;
-            }
-
-            .navbar-list li a {
-                display: block;
-                width: 100%;
-                padding: 10px;
-            }
-        }
     </style>
 </head>
 <body>
 
-<!-- Header -->
+<!-- Top Header -->
 <header class="top-header">
     <div class="header-left">
         <h1>Scoruda</h1>
-        <span class="user-info">Hello, {{ user.username }} - {{ user.get_role_display }}</span><br>
-        {% now "Y-m-d" as current_date %}
-        Today's date {{ current_date }}<br>
-        <a href="{% url 'signout' %}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor"
-                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
-        </a>
+        <span class="user-info">Hello, {{ user.username }} - {{ user.get_role_display}}</span> <br>      
+         {% now "Y-m-d" as current_date %}
+         Todays date {{current_date}}<br>
+         <a href="{% url 'signout' %}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          </a>
     </div>
     <div class="header-right">
-        <button id="backBtn" class="back-button">←</button>
+        <button id="backBtn" class="back-button">← </button>
         <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
     </div>
 </header>
 
 <!-- Main Content -->
 {% if user.is_authenticated %}
-    <div class="main-content" id="main">
-        <nav class="navbar">
-            <div class="menu-toggle" id="menuToggle">
-                <span class="menu-icon">☰</span>
+    {% if user.get_role_display == 'manager' %}
+        <div class="main-content" id="main">
+            <nav class="navbar">
+                <div class="menu-toggle" id="menuToggle">
+                    <span class="menu-icon">☰</span> <!-- Hamburger icon -->
+                </div>
+                <ul class="navbar-list">
+                    <li><a href="{% url 'b2c' %}">Sale</a></li>
+                    <li><a href="{% url 'retailpurch' %}">Purchase</a></li>
+                    <li><a href="{% url 'cashbook' %}">Cashbook</a></li>
+                    <li><a href="{% url 'purchasebook' %}">Purchasebook</a></li>
+                </ul>
+            </nav>
+
+            <!-- Side Navbar with Close Button and Overlay -->
+            <div id="sideNav" class="side-nav">
+                <div class="side-nav-content">
+                    <button id="closeBtn" class="close-button">×</button> <!-- Close Button -->
+                    <div class="menu-section">
+                        <h2 class="menu-title" onclick="toggleSubMenu('overall')">
+                            Overall <span class="arrow">▼</span>
+                        </h2>
+                        <ul id="overall" class="sub-menu">
+                            <li><a href="{% url 'show' %}">Scout</a></li>
+                            <li><a href="{% url 'cshbal' %}">CashBalance</a></li>
+                            <li><a href="{% url 'stock' %}">Stock </a></li>
+                            <li><a href="{% url 'search' %}">Search </a></li>
+                        </ul>
+                    </div>
+                    <div class="menu-section">
+                        <h2 class="menu-title" onclick="toggleSubMenu('companySettings')">
+                            Company Settings <span class="arrow">▼</span>
+                        </h2>
+                        <ul id="companySettings" class="sub-menu">
+                            <li><a href="{% url 'profile' %}">My Profile </a></li>
+                            <li><a href="{% url 'kyc' %}">Company </a></li>
+                            <li><a href="{% url 'setup' %}">Add User </a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <ul class="navbar-list" id="navbarList">
-                <li><a href="{% url 'b2c' %}">Sale</a></li>
-                <li><a href="{% url 'retailpurch' %}">Purchase</a></li>
-                <li><a href="{% url 'cashbook' %}">Cashbook</a></li>
-                <li><a href="{% url 'purchasebook' %}">Purchasebook</a></li>
-            </ul>
-        </nav>
-    </div>
+        </div>
+
+    {% elif user.get_role_display == 'employee' %}
+        <div class="main-content" id="main">
+            <nav class="navbar">
+                <div class="menu-toggle" id="menuToggle">
+                    <span class="menu-icon">☰</span> <!-- Hamburger icon -->
+                </div>
+                <ul class="navbar-list">
+                    <li><a href="{% url 'b2c' %}">Sale</a></li>
+                    <li><a href="{% url 'retailpurch' %}">Purchase</a></li>
+                    <li><a href="{% url 'cashbook' %}">Cashbook</a></li>
+                    <li><a href="{% url 'purchasebook' %}">Purchasebook</a></li>
+                </ul>
+            </nav>
+        </div>
+
+    {% elif user.get_role_display == 'Admin' %}
+        <div class="main-content" id="main">
+            <nav class="navbar">
+                <div class="menu-toggle" id="menuToggle">
+                    <span class="menu-icon">☰</span> <!-- Hamburger icon -->
+                </div>
+                <ul class="navbar-list">
+                    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li><a href="{% url 'show' %}">Scout</a></li>
+                    <li><a href="{% url 'cshbal' %}">CashBlances</a></li>
+                </ul>
+            </nav>
+
+            <!-- Side Navbar with Close Button and Overlay -->
+            <div id="sideNav" class="side-nav">
+                <div class="side-nav-content">
+                    <button id="closeBtn" class="close-button">×</button> <!-- Close Button -->
+                    <div class="menu-section">
+                        <h2 class="menu-title" onclick="toggleSubMenu('overall')">
+                            Overall <span class="arrow">▼</span>
+                        </h2>
+                        <ul id="overall" class="sub-menu">
+                            <li><a href="{% url 'show' %}">Scout</a></li>
+                            <li><a href="{% url 'cshbal' %}">CashBalance</a></li>
+                            <li><a href="{% url 'stock' %}">Stock </a></li>
+                            <li><a href="{% url 'search' %}">Search </a></li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-section">
+                        <h2 class="menu-title" onclick="toggleSubMenu('entrySettings')">
+                            Entries <span class="arrow">▼</span>
+                        </h2>
+                        <ul id="entrySettings" class="sub-menu">
+                            <li><a href="{% url 'b2b' %}">Sale</a></li>
+                            <li><a href="{% url 'b2c' %}">Auto weigh Sale</a></li>
+                            <li><a href="{% url 'retailpurch' %}">Purchase</a></li>
+                            <li><a href="{% url 'cashbook' %}">Cashbook</a></li>
+                            <li><a href="{% url 'purchasebook' %}">Purchasebook</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-section">
+                        <h2 class="menu-title" onclick="toggleSubMenu('companySettings')">
+                            Company Settings <span class="arrow">▼</span>
+                        </h2>
+                        <ul id="companySettings" class="sub-menu">
+                            <li><a href="{% url 'profile' %}">My Profile </a></li>
+                            <li><a href="{% url 'kyc' %}">Company </a></li>
+                            <li><a href="{% url 'setup' %}">Add User </a></li>
+                        </ul>
+                    </div>
+                    <div class="menu-section">
+                        <h2 class="menu-title" onclick="toggleSubMenu('participantsSettings')">
+                            Your Participants <span class="arrow">▼</span>
+                        </h2>
+                        <ul id="participantsSettings" class="sub-menu">
+                            <li><a href="{% url 'item' %}">Your Items </a></li>
+                            <li><a href="{% url 'sellerall' %}">Your Sellers </a></li>
+                            <li><a href="{% url 'customerall' %}">Your Customer </a></li>
+                        </ul>
+                    </div>
+                    <div class="menu-section">
+                        <h2 class="menu-title" onclick="toggleSubMenu('initialSettings')">
+                            Initial Settings <span class="arrow">▼</span>
+                        </h2>
+                        <ul id="initialSettings" class="sub-menu">
+                            <li><a href="{% url 'additem' %}"> Add Items </a></li>
+                            <li><a href="{% url 'seller' %}"> Add Sellers </a></li>
+                            <li><a href="{% url 'customer' %}"> Add Customer </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
 {% else %}
-    <h1>Not logged in</h1>
-    <p>Raw role: {{ user }}</p>
-    <p>Role display: {{ user.get_role_display }}</p>
+    <h1>Not logged in <p>Raw role: {{ user}}</p>
+<p>Role display: {{ user.get_role_display }}</p>
+</h1>
     <nav>
         <ul>
-            <li><a href="{% url 'login' %}">Login</a></li>
-            <li><a href="#">Sign Up</a></li>
+            <li><a href="login">Login</a></li>
+            <li><a href="">Sign Up</a></li>
+
+</h1>
         </ul>
     </nav>
 {% endif %}
 
-<!-- JavaScript -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const menuToggle = document.getElementById("menuToggle");
-        const navbarList = document.getElementById("navbarList");
-        const backBtn = document.getElementById("backBtn");
+    // Toggle submenu visibility
+    function toggleSubMenu(menuId) {
+        const menu = document.getElementById(menuId);
+        menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    }
 
-        menuToggle.addEventListener("click", function () {
-            navbarList.classList.toggle("show");
+    document.addEventListener("DOMContentLoaded", function() {
+        // Get the menu toggle button and side navigation elements
+        const menuToggle = document.getElementById("menuToggle");
+        const sideNav = document.getElementById("sideNav");
+        const closeBtn = document.getElementById("closeBtn");
+
+        // Add event listener for the menu toggle button
+        menuToggle.addEventListener("click", function() {
+            sideNav.classList.toggle('open');
+            document.getElementById("main").style.marginLeft = sideNav.classList.contains('open') ? '250px' : '0';
         });
 
+        // Add event listener for the close button
+        closeBtn.addEventListener("click", function() {
+            sideNav.classList.remove('open');
+            document.getElementById("main").style.marginLeft = '0';
+        });
+
+        // Add event listener for the back button
+        const backBtn = document.getElementById("backBtn");
         if (backBtn) {
-            backBtn.addEventListener("click", function () {
+            backBtn.addEventListener("click", function() {
                 window.history.back();
             });
         }
     });
+    const menuToggle = document.getElementById("menuToggle");
+const navbarList = document.getElementById("navbarList");
+
+menuToggle.addEventListener("click", function () {
+    navbarList.classList.toggle("show");
+});
+
 </script>
 
 </body>
