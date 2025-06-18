@@ -1,180 +1,288 @@
-/* General Reset and Styling */
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-}
+{% load static %}
 
-header.top-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f5f5f5;
-    padding: 10px 20px;
-    border-bottom: 1px solid #ccc;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoruda {{ user.get_role_display }}</title>
 
-.header-left h1 {
-    margin: 0;
-}
+    <!-- You can move this CSS to a static file: static/css/navstyle.css -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-.user-info {
-    font-size: 0.9em;
-    color: #666;
-}
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
 
-.logo {
-    width: 50px;
-    height: auto;
-}
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #1a1a1a;
+            color: white;
+            padding: 10px 20px;
+            flex-wrap: wrap;
+        }
 
-/* Back button */
-.back-button {
-    font-size: 20px;
-    padding: 5px 10px;
-    margin-right: 10px;
-    cursor: pointer;
-    background: none;
-    border: none;
-    color: #333;
-}
+        .header-left h1 {
+            font-size: 1.5em;
+        }
 
-/* Main content area */
-.main-content {
-    transition: margin-left 0.3s;
-}
+        .user-info {
+            font-size: 0.9em;
+            color: #ddd;
+        }
 
-/* Navbar styles */
-.navbar {
-    background-color: #333;
-    overflow: hidden;
-    color: white;
-    display: flex;
-    align-items: center;
-    padding: 10px 20px;
-}
+        .logo {
+            width: 40px;
+            height: auto;
+        }
 
-.navbar-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-}
+        .back-button {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
 
-.navbar-list li {
-    margin: 0 10px;
-}
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.navbar-list li a {
-    color: white;
-    text-decoration: none;
-    padding: 8px 12px;
-    display: block;
-}
+        .navbar-list {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
 
-.navbar-list li a:hover {
-    background-color: #555;
-    border-radius: 4px;
-}
+        .navbar-list li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
 
-/* Hamburger icon - hidden by default on desktop */
-.menu-toggle {
-    display: none;
-    font-size: 28px;
-    cursor: pointer;
-    margin-right: 15px;
-}
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            font-size: 1.5em;
+        }
 
-/* Side Navigation */
-.side-nav {
-    width: 250px;
-    height: 100%;
-    background-color: #222;
-    position: fixed;
-    top: 0;
-    left: -250px;
-    overflow-y: auto;
-    transition: 0.3s;
-    z-index: 1000;
-}
+        .side-nav {
+            position: fixed;
+            left: -250px;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #222;
+            overflow-y: auto;
+            transition: left 0.3s ease-in-out;
+            z-index: 1000;
+        }
 
-.side-nav.open {
-    left: 0;
-}
+        .side-nav.open {
+            left: 0;
+        }
 
-.side-nav-content {
-    padding: 20px;
-}
+        .side-nav-content {
+            padding: 20px;
+            color: white;
+        }
 
-.menu-section {
-    margin-bottom: 20px;
-}
+        .side-nav .close-button {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: white;
+            float: right;
+            cursor: pointer;
+        }
 
-.menu-title {
-    font-size: 18px;
-    color: white;
-    cursor: pointer;
-}
+        .menu-section {
+            margin-top: 20px;
+        }
 
-.sub-menu {
-    list-style: none;
-    padding-left: 15px;
-    display: none;
-}
+        .menu-title {
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
 
-.sub-menu li {
-    margin: 8px 0;
-}
+        .sub-menu {
+            list-style: none;
+            padding-left: 15px;
+            display: none;
+        }
 
-.sub-menu li a {
-    color: #ccc;
-    text-decoration: none;
-}
+        .sub-menu li a {
+            color: #ccc;
+            text-decoration: none;
+            display: block;
+            padding: 5px 0;
+        }
 
-.sub-menu li a:hover {
-    color: white;
-}
+        .sub-menu li a:hover {
+            color: white;
+        }
 
-.arrow {
-    float: right;
-}
+        @media (max-width: 768px) {
+            .navbar-list {
+                display: none;
+                flex-direction: column;
+            }
 
-/* Close button */
-.close-button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    float: right;
-    cursor: pointer;
-    margin-top: -10px;
-    margin-right: -10px;
-}
+            .menu-toggle {
+                display: block;
+                color: white;
+            }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .menu-toggle {
-        display: block;
-        color: white;
-        font-size: 28px;
-        background: none;
-        border: none;
+            .navbar-list.show {
+                display: flex;
+                background-color: #333;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                z-index: 999;
+                padding: 10px;
+            }
+
+            .top-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .back-button {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="top-header">
+    <div class="header-left">
+        <h1>Scoruda</h1>
+        <span class="user-info">Hello, {{ user.username }} - {{ user.get_role_display }}</span><br>
+        {% now "Y-m-d" as current_date %}
+        Today's date {{ current_date }}<br>
+        <a href="{% url 'signout' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 stroke-linejoin="round" class="feather feather-log-out">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+        </a>
+    </div>
+    <div class="header-right">
+        <button id="backBtn" class="back-button">←</button>
+        <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
+    </div>
+</header>
+
+{% if user.is_authenticated %}
+    <div class="main-content" id="main">
+        <nav class="navbar">
+            <div class="menu-toggle" id="menuToggle">☰</div>
+            <ul class="navbar-list" id="navbarList">
+                {% if user.get_role_display == 'manager' or user.get_role_display == 'employee' %}
+                    <li><a href="{% url 'b2c' %}">Sale</a></li>
+                    <li><a href="{% url 'retailpurch' %}">Purchase</a></li>
+                    <li><a href="{% url 'cashbook' %}">Cashbook</a></li>
+                    <li><a href="{% url 'purchasebook' %}">Purchasebook</a></li>
+                {% elif user.get_role_display == 'Admin' %}
+                    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li><a href="{% url 'show' %}">Scout</a></li>
+                    <li><a href="{% url 'cshbal' %}">CashBalances</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        {% if user.get_role_display != 'employee' %}
+            <!-- SideNav if not employee -->
+            <div id="sideNav" class="side-nav">
+                <div class="side-nav-content">
+                    <button id="closeBtn" class="close-button">×</button>
+                    <!-- Dynamic SideNav Sections Here -->
+                    <div class="menu-section">
+                        <h2 class="menu-title" onclick="toggleSubMenu('overall')">
+                            Overall <span class="arrow">▼</span>
+                        </h2>
+                        <ul id="overall" class="sub-menu">
+                            <li><a href="{% url 'show' %}">Scout</a></li>
+                            <li><a href="{% url 'cshbal' %}">CashBalance</a></li>
+                            <li><a href="{% url 'stock' %}">Stock</a></li>
+                            <li><a href="{% url 'search' %}">Search</a></li>
+                        </ul>
+                    </div>
+                    <!-- Add more sections as per your user role -->
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% else %}
+    <h1>Not logged in</h1>
+    <p>Raw role: {{ user }}</p>
+    <p>Role display: {{ user.get_role_display }}</p>
+    <nav>
+        <ul>
+            <li><a href="{% url 'login' %}">Login</a></li>
+            <li><a href="#">Sign Up</a></li>
+        </ul>
+    </nav>
+{% endif %}
+
+<script>
+    // Toggle submenu visibility
+    function toggleSubMenu(menuId) {
+        const menu = document.getElementById(menuId);
+        menu.style.display = (menu.style.display === "block") ? "none" : "block";
     }
 
-    .navbar-list {
-        display: none; /* Hide normal navbar items */
-    }
+    document.addEventListener("DOMContentLoaded", function () {
+        const menuToggle = document.getElementById("menuToggle");
+        const navbarList = document.getElementById("navbarList");
+        const sideNav = document.getElementById("sideNav");
+        const closeBtn = document.getElementById("closeBtn");
+        const backBtn = document.getElementById("backBtn");
 
-    .side-nav {
-        width: 250px;
-        left: -250px;
-    }
+        if (menuToggle && navbarList) {
+            menuToggle.addEventListener("click", function () {
+                navbarList.classList.toggle("show");
+                if (sideNav) {
+                    sideNav.classList.toggle("open");
+                }
+            });
+        }
 
-    .main-content {
-        margin-left: 0 !important;
-    }
+        if (closeBtn && sideNav) {
+            closeBtn.addEventListener("click", function () {
+                sideNav.classList.remove("open");
+            });
+        }
 
-    .side-nav.open + .main-content {
-        margin-left: 250px;
-    }
-}
+        if (backBtn) {
+            backBtn.addEventListener("click", function () {
+                window.history.back();
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
