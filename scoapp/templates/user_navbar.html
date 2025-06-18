@@ -7,19 +7,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scoruda {{ user.get_role_display }}</title>
 
-    <!-- You can move this CSS to a static file: static/css/navstyle.css -->
     <style>
+        /* Reset */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-        }
-
+        /* Top Header */
         .top-header {
             display: flex;
             justify-content: space-between;
@@ -53,13 +49,15 @@
             font-size: 1.2em;
         }
 
+        /* Navbar */
         .navbar {
-            background-color: #333;
-            color: white;
+            background-color: #f2f2f2;
             padding: 10px 20px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
         }
 
         .navbar-list {
@@ -69,103 +67,56 @@
         }
 
         .navbar-list li a {
-            color: white;
             text-decoration: none;
-            font-weight: 500;
+            color: #333;
+            font-weight: bold;
+            padding: 5px 10px;
+            transition: background-color 0.2s ease-in-out;
         }
 
+        .navbar-list li a:hover {
+            background-color: #e0e0e0;
+            border-radius: 5px;
+        }
+
+        /* Hamburger Toggle */
         .menu-toggle {
             display: none;
-            cursor: pointer;
-            font-size: 1.5em;
-        }
-
-        .side-nav {
-            position: fixed;
-            left: -250px;
-            top: 0;
-            width: 250px;
-            height: 100%;
-            background-color: #222;
-            overflow-y: auto;
-            transition: left 0.3s ease-in-out;
-            z-index: 1000;
-        }
-
-        .side-nav.open {
-            left: 0;
-        }
-
-        .side-nav-content {
-            padding: 20px;
-            color: white;
-        }
-
-        .side-nav .close-button {
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            color: white;
-            float: right;
+            font-size: 1.5rem;
             cursor: pointer;
         }
 
-        .menu-section {
-            margin-top: 20px;
-        }
-
-        .menu-title {
-            cursor: pointer;
-            font-size: 1.2em;
-            margin-bottom: 10px;
-        }
-
-        .sub-menu {
-            list-style: none;
-            padding-left: 15px;
-            display: none;
-        }
-
-        .sub-menu li a {
-            color: #ccc;
-            text-decoration: none;
-            display: block;
-            padding: 5px 0;
-        }
-
-        .sub-menu li a:hover {
-            color: white;
-        }
-
+        /* Responsive Styles */
         @media (max-width: 768px) {
-            .navbar-list {
-                display: none;
-                flex-direction: column;
-            }
-
-            .menu-toggle {
-                display: block;
-                color: white;
-            }
-
-            .navbar-list.show {
-                display: flex;
-                background-color: #333;
-                position: absolute;
-                top: 60px;
-                left: 0;
-                width: 100%;
-                z-index: 999;
-                padding: 10px;
-            }
-
-            .top-header {
+            .navbar {
                 flex-direction: column;
                 align-items: flex-start;
             }
 
-            .back-button {
+            .navbar-list {
+                display: none;
+                flex-direction: column;
+                width: 100%;
                 margin-top: 10px;
+            }
+
+            .navbar-list.show {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: block;
+                color: #333;
+            }
+
+            .navbar-list li {
+                width: 100%;
+            }
+
+            .navbar-list li a {
+                display: block;
+                width: 100%;
+                padding: 10px;
             }
         }
     </style>
@@ -180,9 +131,8 @@
         {% now "Y-m-d" as current_date %}
         Today's date {{ current_date }}<br>
         <a href="{% url 'signout' %}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                 stroke-linejoin="round" class="feather feather-log-out">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                 <polyline points="16 17 21 12 16 7"></polyline>
                 <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -195,45 +145,20 @@
     </div>
 </header>
 
+<!-- Main Content -->
 {% if user.is_authenticated %}
     <div class="main-content" id="main">
         <nav class="navbar">
-            <div class="menu-toggle" id="menuToggle">☰</div>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="menu-icon">☰</span>
+            </div>
             <ul class="navbar-list" id="navbarList">
-                {% if user.get_role_display == 'manager' or user.get_role_display == 'employee' %}
-                    <li><a href="{% url 'b2c' %}">Sale</a></li>
-                    <li><a href="{% url 'retailpurch' %}">Purchase</a></li>
-                    <li><a href="{% url 'cashbook' %}">Cashbook</a></li>
-                    <li><a href="{% url 'purchasebook' %}">Purchasebook</a></li>
-                {% elif user.get_role_display == 'Admin' %}
-                    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-                    <li><a href="{% url 'show' %}">Scout</a></li>
-                    <li><a href="{% url 'cshbal' %}">CashBalances</a></li>
-                {% endif %}
+                <li><a href="{% url 'b2c' %}">Sale</a></li>
+                <li><a href="{% url 'retailpurch' %}">Purchase</a></li>
+                <li><a href="{% url 'cashbook' %}">Cashbook</a></li>
+                <li><a href="{% url 'purchasebook' %}">Purchasebook</a></li>
             </ul>
         </nav>
-
-        {% if user.get_role_display != 'employee' %}
-            <!-- SideNav if not employee -->
-            <div id="sideNav" class="side-nav">
-                <div class="side-nav-content">
-                    <button id="closeBtn" class="close-button">×</button>
-                    <!-- Dynamic SideNav Sections Here -->
-                    <div class="menu-section">
-                        <h2 class="menu-title" onclick="toggleSubMenu('overall')">
-                            Overall <span class="arrow">▼</span>
-                        </h2>
-                        <ul id="overall" class="sub-menu">
-                            <li><a href="{% url 'show' %}">Scout</a></li>
-                            <li><a href="{% url 'cshbal' %}">CashBalance</a></li>
-                            <li><a href="{% url 'stock' %}">Stock</a></li>
-                            <li><a href="{% url 'search' %}">Search</a></li>
-                        </ul>
-                    </div>
-                    <!-- Add more sections as per your user role -->
-                </div>
-            </div>
-        {% endif %}
     </div>
 {% else %}
     <h1>Not logged in</h1>
@@ -247,34 +172,16 @@
     </nav>
 {% endif %}
 
+<!-- JavaScript -->
 <script>
-    // Toggle submenu visibility
-    function toggleSubMenu(menuId) {
-        const menu = document.getElementById(menuId);
-        menu.style.display = (menu.style.display === "block") ? "none" : "block";
-    }
-
     document.addEventListener("DOMContentLoaded", function () {
         const menuToggle = document.getElementById("menuToggle");
         const navbarList = document.getElementById("navbarList");
-        const sideNav = document.getElementById("sideNav");
-        const closeBtn = document.getElementById("closeBtn");
         const backBtn = document.getElementById("backBtn");
 
-        if (menuToggle && navbarList) {
-            menuToggle.addEventListener("click", function () {
-                navbarList.classList.toggle("show");
-                if (sideNav) {
-                    sideNav.classList.toggle("open");
-                }
-            });
-        }
-
-        if (closeBtn && sideNav) {
-            closeBtn.addEventListener("click", function () {
-                sideNav.classList.remove("open");
-            });
-        }
+        menuToggle.addEventListener("click", function () {
+            navbarList.classList.toggle("show");
+        });
 
         if (backBtn) {
             backBtn.addEventListener("click", function () {
