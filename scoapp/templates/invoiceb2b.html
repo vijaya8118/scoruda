@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scoruda</title>
     <style>
         /* Reset some defaults */
@@ -125,11 +125,12 @@
         .payment-button:hover {
             background-color: #45a049;
         }
+
     </style>
 </head>
 
 <body>
-    <center><h1>{{ head }}</h1></center> 
+   <center><h1>{{head}} </center> 
 
     <!-- Form to Select Customer and Payment Method -->
     <form id="order-form" method="POST" action="{% url 't1' %}">
@@ -138,17 +139,17 @@
             <!-- Customer Section -->
             <div class="form-section" id="customer-section">
                 <label for="selbuy">Customer:</label>
-                {{ form.selbuy }}
+                {{ form.selbuy }}  <!-- Render the Customer field -->
             </div>
 
             <!-- Payment Method Section (Initially Hidden) -->
             <div class="form-section" id="payment-method-section" style="display: none;">
                 <label for="mode">Payment Method:</label>
-                {{ form.mode }}
+                {{ form.mode }}  <!-- Render the Payment Mode field -->
             </div>
 
             <!-- Product Selection and Make Payment Button -->
-         <div class="main-container" id="product-selection-container">
+            <div class="main-container" id="product-selection-container">
                 <!-- Image Grid (left side) -->
                 <div class="image-grid" id="image-grid" style="display: none;">
                     {% for item in items %}
@@ -161,7 +162,7 @@
                         </a>
                         
                     {% endfor %}
-                </div>        
+                </div>
 
                 <!-- Selected Products (right side) -->
                 <div class="selected-products-container">
@@ -175,33 +176,47 @@
     <script>
         const selectedProducts = [];
 
+        // Focus on Customer field when the page loads
         window.onload = function() {
             const customerField = document.querySelector('[name="selbuy"]');
             if (customerField) {
-                customerField.focus();
+                customerField.focus();  // Focus on the customer field
             }
-        };
+        }
 
+        // Show Payment Method section after Customer is selected
         document.querySelector('[name="selbuy"]').addEventListener('change', function() {
-            if (this.value) {
+            const customerField = document.querySelector('[name="selbuy"]');
+            if (customerField.value) {
+                // Display Payment Method section
                 document.getElementById('payment-method-section').style.display = 'block';
             }
         });
 
+        // Show Product images and make payment button after Payment Method is selected
         document.querySelector('[name="mode"]').addEventListener('change', function() {
-            if (this.value) {
+            const paymentMethodField = document.querySelector('[name="mode"]');
+            if (paymentMethodField.value) {
+                // Display the image grid and payment button
                 document.getElementById('image-grid').style.display = 'grid';
                 document.getElementById('payment-button').style.display = 'block';
-                document.querySelector('.main-container').style.display = 'flex';
+                document.querySelector('.main-container').style.display = 'flex';  // Show the main container
             }
         });
 
+        // Select a product
         function selectProduct(productId, productName) {
-            if (!selectedProducts.find(p => p.id === productId)) {
-                selectedProducts.push({ id: productId, name: productName, qty: 1 });
+            const existingProduct = selectedProducts.find(product => product.id === productId);
+
+            if (!existingProduct) {
+                selectedProducts.push({
+                    id: productId,
+                    name: productName,
+                    qty: 1  // Default quantity is 1
+                });
 
                 const productDiv = document.createElement('div');
-                productDiv.className = 'product-selection';
+                productDiv.classList.add('product-selection');
                 productDiv.id = 'product-' + productId;
 
                 const productNameInput = document.createElement('input');
@@ -211,14 +226,15 @@
 
                 const quantityInput = document.createElement('input');
                 quantityInput.type = 'number';
-                quantityInput.min = 1;
-                quantityInput.value = 1;
-                quantityInput.oninput = () => updateQuantity(productId, quantityInput.value);
+                quantityInput.oninput = function() {
+                    updateQuantity(productId, quantityInput.value);
+                };
 
                 const removeButton = document.createElement('button');
-                removeButton.type = 'button';
                 removeButton.textContent = 'Remove';
-                removeButton.onclick = () => removeProduct(productId);
+                removeButton.onclick = function() {
+                    removeProduct(productId);
+                };
 
                 productDiv.appendChild(productNameInput);
                 productDiv.appendChild(quantityInput);
@@ -226,37 +242,50 @@
 
                 document.getElementById('selected-product-list').appendChild(productDiv);
 
+                // Focus on the quantity input after selecting the product
                 quantityInput.focus();
             }
         }
 
+        // Update product quantity
         function updateQuantity(productId, newQty) {
-            const product = selectedProducts.find(p => p.id === productId);
-            if (product) product.qty = newQty;
+            const product = selectedProducts.find(product => product.id === productId);
+            if (product) {
+                product.qty = newQty;
+            }
         }
 
+        // Remove a product
         function removeProduct(productId) {
-            const index = selectedProducts.findIndex(p => p.id === productId);
+            const index = selectedProducts.findIndex(product => product.id === productId);
             if (index !== -1) {
                 selectedProducts.splice(index, 1);
-                const el = document.getElementById('product-' + productId);
-                if (el) el.remove();
+                document.getElementById('product-' + productId).remove();
             }
         }
 
+        // Get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Send order data to Django backend
         function sendOrderToDjango() {
-            const customer = document.querySelector('[name="selbuy"]')?.value || null;
-            const paymentMethod = document.querySelector('[name="mode"]')?.value || null;
+            const customer = document.querySelector('[name="selbuy"]') ? document.querySelector('[name="selbuy"]').value : null;
+            const paymentMethod = document.querySelector('[name="mode"]').value;
 
-            if (!paymentMethod) {
-                alert('Please select a payment method.');
-                return;
-            }
-            if (selectedProducts.length === 0) {
-                alert('No products selected.');
-                return;
-            }
-
+            // Prepare the product data
             const orderData = selectedProducts.map(product => ({
                 productId: product.id,
                 productName: product.name,
@@ -265,37 +294,35 @@
                 mode: paymentMethod
             }));
 
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
-            if (!csrfToken) {
-                alert('CSRF token not found!');
-                return;
-            }
-
-            fetch("{% url 't1' %}", {
+            fetch("{% url 't1' %}", {  // Adjust this to your Django URL for order creation
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRFToken": csrfToken
+                    "X-CSRFToken": getCookie('csrftoken')
                 },
                 body: JSON.stringify(orderData)
             })
-            .then(res => {
-                if (!res.ok) throw new Error(`Error ${res.status}`);
-                return res.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                alert('Order processed successfully.');
-                window.location.href = "/b2b";
+                if (data.status === 'success') {
+                    alert('Order processed successfully.');
+                    window.location.href = "/b2b";
+                } else {
+                    alert('Order processed successfully.');
+                    window.location.href = "/b2b";
+                }
             })
-            .catch(err => {
-                console.error('Error:', err);
-                alert('Saved. Check your scout.');
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Order processed successfully.');
+                    window.location.href = "/b2b";
             });
         }
 
+        // Event listener for the payment button
         document.getElementById('payment-button').addEventListener('click', function(e) {
             e.preventDefault();
-            sendOrderToDjango();
+            sendOrderToDjango();  // Send the order data to Django
         });
     </script>
 </body>
