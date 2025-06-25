@@ -127,16 +127,18 @@
         /* Side Navbar with Close Button and Overlay */
         .side-nav {
             height: 100%;
-            width: 0;
+            width: 100vw; /* Full screen width */
+                visibility: visible;
+                opacity: 1;
+                transition: width 0.5s, visibility 0s 0s, opacity 0.5s;
+
             position: fixed;
             top: 0;
             left: 0;
             background-color: #6096BA;
             z-index: 2;
-            transition: width 0.5s, visibility 0s 0.5s, opacity 0.5s;
             padding-top: 60px;
-            visibility: hidden;
-            opacity: 0;
+            
             overflow: hidden; /* Ensures content is hidden when the sidebar is closed */
         }
 
