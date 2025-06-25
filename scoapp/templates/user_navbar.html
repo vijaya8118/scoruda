@@ -35,15 +35,16 @@
     {% if user.get_role_display == 'manager' %}
         <div class="main-content" id="main">
             <nav class="navbar">
-                <div class="menu-toggle" id="menuToggle">
-                    <h1>                             </h1><span class="menu-icon">☰</span> <!-- Hamburger icon -->
-                </div>
+                
                 <ul class="navbar-list">
                     <li><a href="{% url 'b2c' %}">Sale</a></li>
                     <li><a href="{% url 'retailpurch' %}">Purchase</a></li>
                     <li><a href="{% url 'cashbook' %}">Cashbook</a></li>
                     <li><a href="{% url 'purchasebook' %}">Purchasebook</a></li>
                 </ul>
+                <div class="menu-toggle" id="menuToggle">
+                    <h1>                             </h1><span class="menu-icon">☰</span> <!-- Hamburger icon -->
+                </div>
             </nav>
 
             <!-- Side Navbar with Close Button and Overlay -->
@@ -78,29 +79,31 @@
     {% elif user.get_role_display == 'employee' %}
         <div class="main-content" id="main">
             <nav class="navbar">
-                <div class="menu-toggle" id="menuToggle">
-                   <h1>                             </h1> <span class="menu-icon">☰</span> <!-- Hamburger icon -->
-                </div>
+               
                 <ul class="navbar-list">
                     <li><a href="{% url 'b2c' %}">Sale</a></li>
                     <li><a href="{% url 'retailpurch' %}">Purchase</a></li>
                     <li><a href="{% url 'cashbook' %}">Cashbook</a></li>
                     <li><a href="{% url 'purchasebook' %}">Purchasebook</a></li>
                 </ul>
+                 <div class="menu-toggle" id="menuToggle">
+                   <h1>                             </h1> <span class="menu-icon">☰</span> <!-- Hamburger icon -->
+                </div>
             </nav>
         </div>
 
     {% elif user.get_role_display == 'Admin' %}
         <div class="main-content" id="main">
             <nav class="navbar">
-                <div class="menu-toggle" id="menuToggle">
-                   <h1>                             </h1> <span class="menu-icon">☰</span> <!-- Hamburger icon -->
-                </div>
+              
                 <ul class="navbar-list">
                     <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
                     <li><a href="{% url 'show' %}">Scout</a></li>
                     <li><a href="{% url 'cshbal' %}">CashBlances</a></li>
                 </ul>
+                  <div class="menu-toggle" id="menuToggle">
+                   <h1>                             </h1> <span class="menu-icon">☰</span> <!-- Hamburger icon -->
+                </div>
             </nav>
 
             <!-- Side Navbar with Close Button and Overlay -->
