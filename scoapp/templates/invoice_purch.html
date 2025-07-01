@@ -280,13 +280,20 @@
                 return;
             }
 
-            const orderData = selectedProducts.map(product => ({
-                productId: product.id,
-                productName: product.name,
-                qty: product.qty,
-                customer: customer,
-                mode: paymentMethod
-            }));
+            // Ensure latest qty from inputs is synced before sending
+const orderData = selectedProducts.map(product => {
+    const qtyInput = document.querySelector(`#product-${product.id} input[type='number']`);
+    const updatedQty = qtyInput ? qtyInput.value : product.qty;
+
+    return {
+        productId: product.id,
+        productName: product.name,
+        qty: updatedQty,
+        customer: customer,
+        mode: paymentMethod
+    };
+});
+
 
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
 
