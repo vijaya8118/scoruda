@@ -620,7 +620,7 @@ from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from .models import Purchase_model, Seller, Add_item_model, PurchaseBook
 
-@require_POST
+
 def process_purchase(request):
     print("enter Purchase view")
     if request.method == 'POST':
