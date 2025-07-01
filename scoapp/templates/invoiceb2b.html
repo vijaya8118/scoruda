@@ -282,48 +282,38 @@
 
         // Send order data to Django backend
         function sendOrderToDjango() {
-            const customer = document.querySelector('[name="selbuy"]') ? document.querySelector('[name="selbuy"]').value : null;
-            const paymentMethod = document.querySelector('[name="mode"]').value;
+        const form = document.getElementById('order-form');
 
-            // Prepare the product data
-            const orderData = selectedProducts.map(product => ({
-                productId: product.id,
-                productName: product.name,
-                qty: product.qty,
-                customer: customer,
-                mode: paymentMethod
-            }));
+        // Remove old dynamic inputs
+        document.querySelectorAll('.dynamic-product-input').forEach(el => el.remove());
 
-            fetch("{% url 't1' %}", {  // Adjust this to your Django URL for order creation
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie('csrftoken')
-                },
-                body: JSON.stringify(orderData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert('Order processed successfully.');
-                    window.location.href = "/b2b";
-                } else {
-                    alert('Order processed successfully.');
-                    window.location.href = "/b2b";
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Order processed successfully.');
-                    window.location.href = "/b2b";
-            });
-        }
+        selectedProducts.forEach((product, index) => {
+            const idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = `products-${index}-id`;
+            idInput.value = product.id;
+            idInput.classList.add('dynamic-product-input');
+            form.appendChild(idInput);
 
-        // Event listener for the payment button
-        document.getElementById('payment-button').addEventListener('click', function(e) {
-            e.preventDefault();
-            sendOrderToDjango();  // Send the order data to Django
+            const qtyInput = document.createElement('input');
+            qtyInput.type = 'hidden';
+            qtyInput.name = `products-${index}-qty`;
+            qtyInput.value = product.qty;
+            qtyInput.classList.add('dynamic-product-input');
+            form.appendChild(qtyInput);
         });
-    </script>
+
+        form.submit(); // Standard form submission
+    }
+
+    document.getElementById('payment-button').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (selectedProducts.length === 0) {
+            alert("Please select at least one product.");
+            return;
+        }
+        sendOrderToDjango();
+    });
+</script>
 </body>
 </html>
