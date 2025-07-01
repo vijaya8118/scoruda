@@ -242,38 +242,49 @@
             return cookieValue;
         }
 
-        function sendOrderToDjango() {
-            const form = document.getElementById('order-form');
-            const csrfToken = getCookie('csrftoken');
-            const formData = new FormData(form);
+function sendOrderToDjango() {
+    const form = document.getElementById('order-form');
+    const csrfToken = getCookie('csrftoken');
+    const formData = new FormData(form);
 
-            selectedProducts.forEach((product, index) => {
-                formData.append(`products-${index}-id`, product.id);
-                formData.append(`products-${index}-qty`, product.qty);
-            });
+    // Add selected products to the form data
+    selectedProducts.forEach((product, index) => {
+        formData.append(`products-${index}-id`, product.id);
+        formData.append(`products-${index}-qty`, product.qty);
+    });
 
-            fetch("{% url 't1' %}", {
-                method: "POST",
-                headers: {
-                    'X-CSRFToken': csrfToken
-                },
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    window.location.reload();  // ✅ Refresh the page
-                } else {
-                    return response.text().then(text => {
-                        console.error("Error:", text);
-                        alert("Failed to save. Check the console for details.");
-                    });
-                }
-            })
-            .catch(error => {
-                console.error("Fetch error:", error);
-                alert("An error occurred while submitting the order.");
-            });
+    fetch("{% url 't1' %}", {
+        method: "POST",
+        headers: {
+            'X-CSRFToken': csrfToken
+        },
+        body: formData
+    })
+    .then(async response => {
+        if (response.ok) {
+            window.location.reload();  // ✅ Refresh the page on success
+        } else {
+            let errorMessage = `Error ${response.status}: ${response.statusText}`;
+            const contentType = response.headers.get("content-type");
+
+            if (contentType && contentType.includes("application/json")) {
+                const errorData = await response.json();
+                errorMessage += `\n\n${JSON.stringify(errorData, null, 2)}`;
+            } else {
+                const errorText = await response.text();
+                errorMessage += `\n\n${errorText}`;
+            }
+
+            console.error("Submission error:", errorMessage);
+            alert("Order submission failed:\n\n" + errorMessage);
         }
+    })
+    .catch(error => {
+        console.error("Network error:", error);
+        alert("A network error occurred while submitting the order.\n\n" + error);
+    });
+}
+
 
         document.getElementById('payment-button').addEventListener('click', function (e) {
             e.preventDefault();
