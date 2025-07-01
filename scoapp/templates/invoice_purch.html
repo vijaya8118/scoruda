@@ -133,7 +133,7 @@
    <center><h1>{{head}} </center> 
 
     <!-- Form to Select Customer and Payment Method -->
-    <form id="order-form" method="POST" action="{% url 't1' %}">
+    <form id="order-form" method="POST" action="{% url 'p1' %}">
         {% csrf_token %}
         <div class="form-container">
             <!-- Customer Section -->
@@ -294,7 +294,7 @@
                 mode: paymentMethod
             }));
 
-            fetch("{% url 't1' %}", {  // Adjust this to your Django URL for order creation
+            fetch("{% url 'p1' %}", {  // Adjust this to your Django URL for order creation
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
