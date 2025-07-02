@@ -621,10 +621,6 @@ from django.http import JsonResponse
 from .models import Purchase_model, Seller, Add_item_model, PurchaseBook
 
 
-from django.http import JsonResponse
-import json
-from .models import Purchase  # Assuming your model is named Purchase
-
 def process_purchase(request):
     if request.method == "POST":
         try:
