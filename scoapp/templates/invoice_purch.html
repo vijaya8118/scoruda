@@ -256,41 +256,45 @@
             return cookieValue;
         }
 
-        function sendOrderToDjango() {
-            const customer = document.querySelector('[name="selbuy"]')?.value;
-            const paymentMethod = document.querySelector('[name="mode"]')?.value;
+       function sendOrderToDjango() {
+    const customer = document.querySelector('[name="selbuy"]')?.value;
+    const paymentMethod = document.querySelector('[name="mode"]')?.value;
 
-            const orderData = selectedProducts.map(product => ({
-                productId: product.id,
-                qty: product.qty,
-                customer: customer,
-                mode: paymentMethod
-            }));
+    const orderData = selectedProducts.map(product => ({
+        productId: product.id,
+        qty: product.qty,
+        customer: customer,
+        mode: paymentMethod
+    }));
 
-            fetch("{% url 'p1' %}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie('csrftoken')
-                },
-                body: JSON.stringify(orderData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('Order processed successfully.');
-                window.location.href = "/b2b";
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Something went wrong. Redirecting...');
-                window.location.href = "/b2b";
+    fetch("{% url 'p1' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie('csrftoken')
+        },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errData => {
+                throw new Error(errData.message || 'Server returned an error');
             });
         }
+        return response.json();
+    })
+    .then(data => {
+        alert('Order processed successfully.');
+        window.location.href = "/b2b";
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error occurred: ' + error.message);
+        // Optionally remove redirect for debugging:
+        // window.location.href = "/b2b";
+    });
+}
 
-        document.getElementById('payment-button').addEventListener('click', function (e) {
-            e.preventDefault();
-            sendOrderToDjango();
-        });
     </script>
 </body>
 </html>
