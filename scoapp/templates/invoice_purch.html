@@ -187,6 +187,14 @@
             const customerField = document.querySelector('[name="selbuy"]');
             if (customerField.value) {
                 document.getElementById('payment-method-section').style.display = 'block';
+            } else {
+                // Reset if customer deselected
+                document.getElementById('payment-method-section').style.display = 'none';
+                document.getElementById('image-grid').style.display = 'none';
+                document.getElementById('payment-button').style.display = 'none';
+                document.querySelector('.main-container').style.display = 'none';
+                selectedProducts.length = 0;
+                document.getElementById('selected-product-list').innerHTML = '';
             }
         });
 
@@ -197,6 +205,12 @@
                 document.getElementById('image-grid').style.display = 'grid';
                 document.getElementById('payment-button').style.display = 'block';
                 document.querySelector('.main-container').style.display = 'flex';
+            } else {
+                document.getElementById('image-grid').style.display = 'none';
+                document.getElementById('payment-button').style.display = 'none';
+                document.querySelector('.main-container').style.display = 'none';
+                selectedProducts.length = 0;
+                document.getElementById('selected-product-list').innerHTML = '';
             }
         });
 
@@ -310,8 +324,32 @@
                 return response.json();
             })
             .then(data => {
-                alert('Order processed successfully.');
-                window.location.href = "/retailpurch";
+                // Assuming data format:
+                // { success: [ { productId, productName }, ... ], errors: [ { productId, errorName }, ... ] }
+                let message = '';
+
+                if (data.success && data.success.length > 0) {
+                    message += 'Successfully saved entries:\n';
+                    data.success.forEach(item => {
+                        message += `- ${item.productName} (ID: ${item.productId})\n`;
+                    });
+                } else {
+                    message += 'No entries were saved successfully.\n';
+                }
+
+                if (data.errors && data.errors.length > 0) {
+                    message += '\nErrors:\n';
+                    data.errors.forEach(err => {
+                        message += `- Product ID ${err.productId}: ${err.errorName}\n`;
+                    });
+                }
+
+                alert(message);
+
+                if (!data.errors || data.errors.length === 0) {
+                    // Redirect only if no errors
+                    window.location.href = "/retailpurch";
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
