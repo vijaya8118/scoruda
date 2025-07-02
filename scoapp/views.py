@@ -649,7 +649,7 @@ def process_purchase(request):
                 if qty <= 0:
                     raise ValueError("Quantity must be greater than zero.")
 
-                Purchase.objects.create(
+                Purchase_model.objects.create(
                     product_id=product_id,
                     product_name=product_name,
                     quantity=qty,
