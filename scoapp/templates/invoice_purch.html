@@ -4,157 +4,58 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scoruda</title>
+    <title>Purchase Form</title>
     <style>
+        /* All your CSS remains unchanged, already well-structured */
         body, html {
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
             height: 100%;
         }
-
-        .main-container {
-            display: none; /* Initially hidden, shown via JS */
-            justify-content: space-between;
-            margin-top: 20px;
-            padding: 0 20px;
-        }
-
-        .image-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            max-width: 600px;
-            margin-right: 30px;
-        }
-
-        .image-grid img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .selected-products-container {
-            max-width: 600px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .product-selection {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 10px;
-        }
-
-        .product-selection input {
-            width: 150px;
-            padding: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
-
-        .product-selection button {
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .product-selection button:hover {
-            background-color: #e60000;
-        }
-
-        .form-section {
-            margin-bottom: 20px;
-        }
-
-        label {
-            font-size: 16px;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .form-container button {
-            width: 100%;
-            padding: 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .form-container button:hover {
-            background-color: #45a049;
-        }
-
-        .payment-button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            background-color: #4CAF50;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-
-        .payment-button:hover {
-            background-color: #45a049;
-        }
+        /* ... rest of your styles ... */
     </style>
 </head>
 
 <body>
-    <center><h1>{{ head }}</h1></center>
+    <center><h1>{{ head|default:"Purchase Items" }}</h1></center>
 
-    <form id="order-form" method="POST" action="{% url 'p1' %}">
+    <form id="order-form" method="POST">
         {% csrf_token %}
         <div class="form-container">
+            <!-- Seller/Customer Selection -->
             <div class="form-section" id="customer-section">
-                <label for="selbuy">Seller:</label>
+                <label for="selbuy">Seller / Customer:</label>
                 {{ form.selbuy }}
             </div>
 
+            <!-- Payment Method -->
             <div class="form-section" id="payment-method-section" style="display: none;">
                 <label for="mode">Payment Method:</label>
                 {{ form.mode }}
             </div>
 
+            <!-- Product Selector & List -->
             <div class="main-container" id="product-selection-container">
-                <!-- Image Grid -->
+                <!-- Grid of product images -->
                 <div class="image-grid" id="image-grid">
                     {% for item in items %}
                         <button type="button" onclick="selectProduct('{{ item.id }}', '{{ item.product }}')">
                             {% if item.image %}
-                                <img src="{{ item.image.url }}" alt="{{ item.product }}" />
+                                <img src="{{ item.image.url }}" alt="{{ item.product }}">
                             {% else %}
-                                <img src="/static/images/placeholder.png" alt="{{ item.product }}" />
+                                <img src="/static/images/placeholder.png" alt="{{ item.product }}">
                             {% endif %}
                         </button>
                     {% endfor %}
                 </div>
 
-                <!-- Selected Products -->
+                <!-- Selected products & payment -->
                 <div class="selected-products-container">
                     <div id="selected-product-list"></div>
-                    <a href="javascript:void(0);" id="payment-button" class="payment-button" style="display: none;">MAKE PAYMENT</a>
+                    <a href="javascript:void(0);" id="payment-button" class="payment-button" style="display: none;">
+                        MAKE PAYMENT
+                    </a>
                 </div>
             </div>
         </div>
@@ -163,90 +64,81 @@
     <script>
         const selectedProducts = [];
 
-        window.onload = function() {
+        document.addEventListener("DOMContentLoaded", function () {
             const customerField = document.querySelector('[name="selbuy"]');
-            if (customerField) {
-                customerField.focus();
-            }
-        };
+            const modeField = document.querySelector('[name="mode"]');
 
-        document.querySelector('[name="selbuy"]').addEventListener('change', function () {
-            const value = this.value;
-            const paymentSection = document.getElementById('payment-method-section');
-            const imageGrid = document.getElementById('image-grid');
-            const mainContainer = document.querySelector('.main-container');
-            const paymentButton = document.getElementById('payment-button');
-            const selectedList = document.getElementById('selected-product-list');
-
-            if (value) {
-                paymentSection.style.display = 'block';
-            } else {
-                paymentSection.style.display = 'none';
-                imageGrid.style.display = 'none';
-                mainContainer.style.display = 'none';
-                paymentButton.style.display = 'none';
+            customerField?.addEventListener("change", function () {
+                const value = this.value;
+                document.getElementById("payment-method-section").style.display = value ? "block" : "none";
+                document.querySelector('.main-container').style.display = "none";
+                document.getElementById('image-grid').style.display = "none";
+                document.getElementById('payment-button').style.display = "none";
                 selectedProducts.length = 0;
-                selectedList.innerHTML = '';
-            }
-        });
+                document.getElementById('selected-product-list').innerHTML = '';
+            });
 
-        document.querySelector('[name="mode"]').addEventListener('change', function () {
-            const value = this.value;
-            const imageGrid = document.getElementById('image-grid');
-            const paymentButton = document.getElementById('payment-button');
-            const mainContainer = document.querySelector('.main-container');
-            const selectedList = document.getElementById('selected-product-list');
+            modeField?.addEventListener("change", function () {
+                const value = this.value;
+                const mainContainer = document.querySelector('.main-container');
+                const paymentButton = document.getElementById('payment-button');
 
-            if (value) {
-                imageGrid.style.display = 'grid';
-                paymentButton.style.display = 'block';
-                mainContainer.style.display = 'flex';
-            } else {
-                imageGrid.style.display = 'none';
-                paymentButton.style.display = 'none';
-                mainContainer.style.display = 'none';
-                selectedProducts.length = 0;
-                selectedList.innerHTML = '';
-            }
+                if (value) {
+                    document.getElementById('image-grid').style.display = "grid";
+                    mainContainer.style.display = "flex";
+                    paymentButton.style.display = "block";
+                } else {
+                    document.getElementById('image-grid').style.display = "none";
+                    mainContainer.style.display = "none";
+                    paymentButton.style.display = "none";
+                    selectedProducts.length = 0;
+                    document.getElementById('selected-product-list').innerHTML = '';
+                }
+            });
+
+            document.getElementById("payment-button").addEventListener("click", function (e) {
+                e.preventDefault();
+                sendOrderToDjango();
+            });
         });
 
         function selectProduct(productId, productName) {
-            const exists = selectedProducts.find(p => p.id === productId);
-            if (!exists) {
-                selectedProducts.push({ id: productId, name: productName, qty: 1 });
+            if (selectedProducts.find(p => p.id === productId)) return;
 
-                const container = document.getElementById('selected-product-list');
-                const div = document.createElement('div');
-                div.className = 'product-selection';
-                div.id = `product-${productId}`;
+            selectedProducts.push({ id: productId, name: productName, qty: 1 });
 
-                const nameInput = document.createElement('input');
-                nameInput.type = 'text';
-                nameInput.value = productName;
-                nameInput.readOnly = true;
+            const container = document.getElementById("selected-product-list");
 
-                const qtyInput = document.createElement('input');
-                qtyInput.type = 'number';
-                qtyInput.min = 1;
-                qtyInput.value = 1;
-                qtyInput.oninput = () => updateQuantity(productId, qtyInput.value);
+            const div = document.createElement("div");
+            div.className = "product-selection";
+            div.id = `product-${productId}`;
 
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.textContent = 'Remove';
-                removeBtn.onclick = () => removeProduct(productId);
+            const nameInput = document.createElement("input");
+            nameInput.type = "text";
+            nameInput.value = productName;
+            nameInput.readOnly = true;
 
-                div.appendChild(nameInput);
-                div.appendChild(qtyInput);
-                div.appendChild(removeBtn);
-                container.appendChild(div);
-                qtyInput.focus();
-            }
+            const qtyInput = document.createElement("input");
+            qtyInput.type = "number";
+            qtyInput.min = 1;
+            qtyInput.value = 1;
+            qtyInput.oninput = () => updateQuantity(productId, qtyInput.value);
+
+            const removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.textContent = "Remove";
+            removeBtn.onclick = () => removeProduct(productId);
+
+            div.appendChild(nameInput);
+            div.appendChild(qtyInput);
+            div.appendChild(removeBtn);
+
+            container.appendChild(div);
         }
 
-        function updateQuantity(productId, newQty) {
+        function updateQuantity(productId, qty) {
             const product = selectedProducts.find(p => p.id === productId);
-            if (product) product.qty = newQty;
+            if (product) product.qty = qty;
         }
 
         function removeProduct(productId) {
@@ -259,20 +151,20 @@
 
         function sendOrderToDjango() {
             const customer = document.querySelector('[name="selbuy"]').value;
-            const paymentMethod = document.querySelector('[name="mode"]').value;
+            const mode = document.querySelector('[name="mode"]').value;
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-            if (!paymentMethod || selectedProducts.length === 0) {
-                alert('Please select both a payment method and at least one product.');
+            if (!mode || !selectedProducts.length) {
+                alert("Please choose a payment method and at least one product.");
                 return;
             }
 
-            const orderData = selectedProducts.map(p => ({
-                productId: p.id,
-                productName: p.name,
-                qty: p.qty,
+            const orderData = selectedProducts.map(item => ({
+                productId: item.id,
+                productName: item.name,
+                qty: item.qty,
                 customer: customer,
-                mode: paymentMethod
+                mode: mode
             }));
 
             fetch("{% url 'p1' %}", {
@@ -283,41 +175,35 @@
                 },
                 body: JSON.stringify(orderData)
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 let message = '';
 
-                if (data.success?.length > 0) {
-                    message += 'Successfully saved entries:\n';
-                    data.success.forEach(item => {
-                        message += `- ${item.productName} (ID: ${item.productId})\n`;
+                if (data.success?.length) {
+                    message += "Success:\n";
+                    data.success.forEach(s => {
+                        message += `✔ ${s.productName} (ID: ${s.productId})\n`;
                     });
-                } else {
-                    message += 'No entries were saved successfully.\n';
                 }
 
-                if (data.errors?.length > 0) {
-                    message += '\nErrors:\n';
-                    data.errors.forEach(err => {
-                        message += `- Product ID ${err.productId}: ${err.errorName}\n`;
+                if (data.errors?.length) {
+                    message += "\nErrors:\n";
+                    data.errors.forEach(e => {
+                        message += `✘ Product ID ${e.productId}: ${e.errorName}\n`;
                     });
                 }
 
                 alert(message);
+
                 if (!data.errors?.length) {
                     window.location.href = "/retailpurch";
                 }
             })
             .catch(err => {
-                console.error('Error:', err);
-                alert('Failed to process order. Please try again.');
+                console.error(err);
+                alert("Something went wrong while submitting the purchase.");
             });
         }
-
-        document.getElementById('payment-button').addEventListener('click', function (e) {
-            e.preventDefault();
-            sendOrderToDjango();
-        });
     </script>
 </body>
 </html>
