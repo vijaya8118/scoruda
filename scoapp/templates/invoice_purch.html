@@ -144,7 +144,7 @@
         <div class="image-grid" id="image-grid">
           {% for item in items %}
             <a href="javascript:void(0)" onclick="selectProduct('{{ item.id }}','{{ item.product }}')">
-              <img src="{{ item.image.url if item.image else '/static/placeholder.jpg' }}" alt="{{ item.product }}">
+                                <img src="{{ item.image.url }}" alt="{{ item.product }}" />
             </a>
           {% endfor %}
         </div>
