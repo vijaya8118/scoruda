@@ -621,72 +621,48 @@ from django.http import JsonResponse
 from .models import Purchase_model, Seller, Add_item_model, PurchaseBook
 
 
-@require_POST
+
 def process_purchase(request):
-    try:
-        selected_products = json.loads(request.body.decode('utf-8'))
-
+    if request.method == "POST":
         try:
-            latest_invoice = Purchase_model.objects.latest('num')
-            bill_number = latest_invoice.num + 1
-        except Purchase_model.DoesNotExist:
-            bill_number = 1
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"success": [], "errors": [{"errorName": "Invalid JSON"}]}, status=400)
 
-        total_amount = 0  # Initialize total_amount before the loop
+        success = []
+        errors = []
 
-        for product in selected_products:
-            product_id = product.get('productId')
-            payment_mode = product.get('mode')
-            quantity = product.get('qty', 1)
-            seller_buyer_id = product.get('customer')
-
-            if not product_id or not payment_mode or not seller_buyer_id:
-                # Skip invalid products
-                continue
+        for item in data:
+            product_id = item.get("productId")
+            product_name = item.get("productName")
+            qty = item.get("qty")
 
             try:
-                seller_buyer = Seller.objects.get(id=seller_buyer_id)
-            except Seller.DoesNotExist:
-                continue
+                if not product_id or not product_name or not qty:
+                    raise ValueError("Missing required fields.")
 
-            product_qs = Add_item_model.objects.filter(id=product_id)
-            if not product_qs.exists():
-                continue
-            product_obj = product_qs.first()
+                if int(qty) <= 0:
+                    raise ValueError("Quantity must be greater than zero.")
 
-            rate = product_obj.rate_purch
-            try:
-                amount = float(quantity) * float(rate)
-            except Exception:
-                continue
+                # Simulate save: Replace this with your actual model save
+                # Example: MyOrderModel.objects.create(product_id=product_id, qty=qty, ...)
+                print(f"Saved: {product_id}, {product_name}, Qty: {qty}")  # Debug
 
-            new_invoice = Purchase_model(
-                product_id=product_id,
-                qty=quantity,
-                amt=amount,
-                mode=payment_mode,
-                selbuy=seller_buyer,
-                rate=rate,
-            )
-            new_invoice.save()
+                success.append({
+                    "productId": product_id,
+                    "productName": product_name
+                })
 
-            total_amount += amount
+            except Exception as e:
+                errors.append({
+                    "productId": product_id or "Unknown",
+                    "errorName": str(e)
+                })
 
-            if payment_mode in ['cash', 'UPI']:
-                purchase_book_entry = PurchaseBook(
-                    selbuy=seller_buyer,
-                    amt=amount,
-                    mode=payment_mode,
-                    comment=f"Payment for Purchase Invoice {new_invoice.num}"
-                )
-                purchase_book_entry.save()
+        return JsonResponse({"success": success, "errors": errors})
 
-        return JsonResponse({'status': 'success', 'total_amount': total_amount})
-
-    except Exception as e:
-        # Optional: You can print the error for debugging in local environment
-        print(f"Error in process_purchase: {e}")
-        return JsonResponse({'status': 'error', 'message': 'Error processing order.'})
+    # For GET or other methods
+    return JsonResponse({"error": "Only POST allowed"}, status=405)
 
 ###overviews
 ##@allowed_users(allowed_roles=['admin'])
