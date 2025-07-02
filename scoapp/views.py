@@ -621,56 +621,89 @@ from django.http import JsonResponse
 from .models import Purchase_model, Seller, Add_item_model, PurchaseBook
 
 
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+import json
+
+from yourappname.models import Purchase_model, Seller, Add_item_model, PurchaseBook
+
+@require_POST
 def process_purchase(request):
-    if request.method == "POST":
+    try:
+        selected_products = json.loads(request.body.decode('utf-8'))
+
+        if not isinstance(selected_products, list) or not selected_products:
+            return JsonResponse({'status': 'error', 'message': 'No products received.'})
+
+        total_amount = 0
+
+        # Calculate bill_number (for reference only, do NOT assign to Purchase_model.num)
         try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({
-                "success": [],
-                "errors": [{"errorName": "Invalid JSON"}]
-            }, status=400)
+            latest_invoice = Purchase_model.objects.latest('num')
+            bill_number = latest_invoice.num + 1
+        except Purchase_model.DoesNotExist:
+            bill_number = 1
 
-        success = []
-        errors = []
+        print(f"Bill number for this purchase: {bill_number}")
 
-        for item in data:
-            product_id = item.get("productId")
-            product_name = item.get("productName")
-            qty = item.get("qty")
-            customer = item.get("customer")
-            mode = item.get("mode")
+        for product in selected_products:
+            product_id = product.get('productId')
+            payment_mode = product.get('mode')
+            quantity = product.get('qty', 1)
+            seller_buyer_id = product.get('customer')
+
+            # Skip if required fields missing
+            if not product_id or not payment_mode or not seller_buyer_id:
+                continue
+
+            # Get Seller object
+            try:
+                seller_buyer = Seller.objects.get(id=seller_buyer_id)
+            except Seller.DoesNotExist:
+                continue
+
+            # Get Product object
+            product_qs = Add_item_model.objects.filter(id=product_id)
+            if not product_qs.exists():
+                continue
+            product_obj = product_qs.first()
+
+            rate = product_obj.rate_purch
 
             try:
-                if not product_id or not product_name or not qty or not customer or not mode:
-                    raise ValueError("Missing required fields.")
+                amount = float(quantity) * float(rate)
+            except Exception:
+                continue
 
-                qty = int(qty)
-                if qty <= 0:
-                    raise ValueError("Quantity must be greater than zero.")
+            # Create Purchase_model record (do NOT assign 'num' here)
+            new_invoice = Purchase_model(
+                product_id=product_id,
+                qty=quantity,
+                amt=amount,
+                mode=payment_mode,
+                selbuy=seller_buyer,
+                rate=rate
+            )
+            new_invoice.save()
 
-                Purchase_model.objects.create(
-                    product_id=product_id,
-                    product_name=product_name,
-                    quantity=qty,
-                    customer=customer,
-                    mode=mode
+            total_amount += amount
+
+            # For certain payment modes, create a PurchaseBook entry
+            if payment_mode in ['cash', 'UPI']:
+                purchase_book_entry = PurchaseBook(
+                    selbuy=seller_buyer,
+                    amt=amount,
+                    mode=payment_mode,
+                    comment=f"Payment for Purchase Invoice {new_invoice.num}"
                 )
+                purchase_book_entry.save()
 
-                success.append({
-                    "productId": product_id,
-                    "productName": product_name
-                })
+        return JsonResponse({'status': 'success', 'total_amount': total_amount})
 
-            except Exception as e:
-                errors.append({
-                    "productId": product_id or "Unknown",
-                    "errorName": str(e)
-                })
+    except Exception as e:
+        # Optionally log error e here
+        return JsonResponse({'status': 'error', 'message': 'Error processing order.'})
 
-        return JsonResponse({"success": success, "errors": errors})
-
-    return JsonResponse({"error": "Only POST allowed"}, status=405)
 
 
 ###overviews
