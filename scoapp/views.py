@@ -621,13 +621,19 @@ from django.http import JsonResponse
 from .models import Purchase_model, Seller, Add_item_model, PurchaseBook
 
 
+from django.http import JsonResponse
+import json
+from .models import Purchase  # Assuming your model is named Purchase
 
 def process_purchase(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError:
-            return JsonResponse({"success": [], "errors": [{"errorName": "Invalid JSON"}]}, status=400)
+            return JsonResponse({
+                "success": [],
+                "errors": [{"errorName": "Invalid JSON"}]
+            }, status=400)
 
         success = []
         errors = []
@@ -636,17 +642,24 @@ def process_purchase(request):
             product_id = item.get("productId")
             product_name = item.get("productName")
             qty = item.get("qty")
+            customer = item.get("customer")
+            mode = item.get("mode")
 
             try:
-                if not product_id or not product_name or not qty:
+                if not product_id or not product_name or not qty or not customer or not mode:
                     raise ValueError("Missing required fields.")
 
-                if int(qty) <= 0:
+                qty = int(qty)
+                if qty <= 0:
                     raise ValueError("Quantity must be greater than zero.")
 
-                # Simulate save: Replace this with your actual model save
-                # Example: MyOrderModel.objects.create(product_id=product_id, qty=qty, ...)
-                print(f"Saved: {product_id}, {product_name}, Qty: {qty}")  # Debug
+                Purchase.objects.create(
+                    product_id=product_id,
+                    product_name=product_name,
+                    quantity=qty,
+                    customer=customer,
+                    mode=mode
+                )
 
                 success.append({
                     "productId": product_id,
@@ -661,8 +674,8 @@ def process_purchase(request):
 
         return JsonResponse({"success": success, "errors": errors})
 
-    # For GET or other methods
     return JsonResponse({"error": "Only POST allowed"}, status=405)
+
 
 ###overviews
 ##@allowed_users(allowed_roles=['admin'])
