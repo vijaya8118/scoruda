@@ -625,21 +625,11 @@ from .models import Purchase_model, Seller, Add_item_model, PurchaseBook
 @require_POST
 def process_purchase(request):
     try:
-        selected_products = json.loads(request.body.decode('utf-8'))
-
-        if not isinstance(selected_products, list) or not selected_products:
-            logger.warning("No products received or invalid format.")
-            return JsonResponse({'status': 'error', 'message': 'No products received.'})
-
-        total_amount = 0
-
-        try:
+            selected_products = json.loads(request.body.decode('utf-8'))
             latest_invoice = Purchase_model.objects.latest('num')
             bill_number = latest_invoice.num + 1
-        except Purchase_model.DoesNotExist:
+    except Purchase_model.DoesNotExist:
             bill_number = 1
-
-        logger.info(f"Bill number for this purchase: {bill_number}")
 
         for product in selected_products:
             product_id = product.get('productId')
