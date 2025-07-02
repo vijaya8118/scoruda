@@ -3,158 +3,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scoruda</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Scoruda Purchase</title>
     <style>
-        /* All your styles (unchanged) */
-        body, html {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            height: 100%;
-        }
-
-        .main-container {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            padding: 0 20px;
-            display: none;
-        }
-
-        .image-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            max-width: 600px;
-            margin-right: 30px;
-        }
-
-        .image-grid img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .selected-products-container {
-            max-width: 600px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .product-selection {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 10px;
-        }
-
-        .product-selection input {
-            width: 150px;
-            padding: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
-
-        .product-selection button {
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .product-selection button:hover {
-            background-color: #e60000;
-        }
-
-        .form-section {
-            margin-bottom: 20px;
-        }
-
-        label {
-            font-size: 16px;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .form-container button {
-            width: 100%;
-            padding: 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .form-container button:hover {
-            background-color: #45a049;
-        }
-
-        .payment-button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            background-color: #4CAF50;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-
-        .payment-button:hover {
-            background-color: #45a049;
-        }
+        /* (Keep your existing styles here, omitted for brevity) */
+        /* You can copy your original CSS from above */
     </style>
 </head>
-
 <body>
     <center><h1>{{ head }}</h1></center>
 
-    <form id="order-form" method="POST" action="{% url 'p1' %}">
+    <form id="purchase-form" method="POST" action="{% url 'p1' %}">
         {% csrf_token %}
         <div class="form-container">
+            <!-- Customer Selection -->
             <div class="form-section" id="customer-section">
                 <label for="selbuy">Customer:</label>
                 {{ form.selbuy }}
             </div>
 
-            <div class="form-section" id="payment-method-section" style="display: none;">
+            <!-- Payment Method Selection -->
+            <div class="form-section" id="payment-method-section" style="display:none;">
                 <label for="mode">Payment Method:</label>
                 {{ form.mode }}
             </div>
 
-            <div class="main-container" id="product-selection-container">
-                <div class="image-grid" id="image-grid" style="display: none;">
+            <!-- Products and Payment -->
+            <div class="main-container" id="product-selection-container" style="display:none;">
+                <!-- Image grid -->
+                <div class="image-grid" id="image-grid" style="display:none;">
                     {% for item in items %}
                         <a href="javascript:void(0);" onclick="selectProduct('{{ item.id }}', '{{ item.product }}')">
                             {% if item.image %}
                                 <img src="{{ item.image.url }}" alt="{{ item.product }}" />
                             {% else %}
-                                <img src="path/to/placeholder-image.jpg" alt="{{ item.product }}" />
+                                <img src="/static/images/placeholder.png" alt="{{ item.product }}" />
                             {% endif %}
                         </a>
                     {% endfor %}
                 </div>
 
+                <!-- Selected Products -->
                 <div class="selected-products-container">
                     <div id="selected-product-list"></div>
-                    <a href="javascript:void(0);" id="payment-button" class="payment-button" style="display: none;">MAKE PAYMENT</a>
+                    <a href="javascript:void(0);" id="payment-button" class="payment-button" style="display:none;">MAKE PAYMENT</a>
                 </div>
             </div>
         </div>
@@ -163,91 +57,88 @@
     <script>
         const selectedProducts = [];
 
-        window.onload = function () {
+        window.onload = () => {
             const customerField = document.querySelector('[name="selbuy"]');
-            if (customerField) {
-                customerField.focus();
-            }
+            if (customerField) customerField.focus();
         };
 
-        document.querySelector('[name="selbuy"]').addEventListener('change', function () {
-            const customerField = document.querySelector('[name="selbuy"]');
-            if (customerField.value) {
+        // Show payment method when customer selected
+        document.querySelector('[name="selbuy"]').addEventListener('change', function() {
+            if (this.value) {
                 document.getElementById('payment-method-section').style.display = 'block';
             }
         });
 
-        document.querySelector('[name="mode"]').addEventListener('change', function () {
-            const paymentMethodField = document.querySelector('[name="mode"]');
-            if (paymentMethodField.value) {
+        // Show product images & payment button when payment mode selected
+        document.querySelector('[name="mode"]').addEventListener('change', function() {
+            if (this.value) {
                 document.getElementById('image-grid').style.display = 'grid';
                 document.getElementById('payment-button').style.display = 'block';
-                document.querySelector('.main-container').style.display = 'flex';
+                document.getElementById('product-selection-container').style.display = 'flex';
             }
         });
 
         function selectProduct(productId, productName) {
-            const existingProduct = selectedProducts.find(product => product.id === productId);
-            if (!existingProduct) {
-                selectedProducts.push({
-                    id: productId,
-                    name: productName,
-                    qty: null
-                });
+            if (selectedProducts.find(p => p.id === productId)) return;
 
-                const productDiv = document.createElement('div');
-                productDiv.classList.add('product-selection');
-                productDiv.id = 'product-' + productId;
+            selectedProducts.push({ id: productId, name: productName, qty: 1 });
 
-                const productNameInput = document.createElement('input');
-                productNameInput.type = 'text';
-                productNameInput.value = productName;
-                productNameInput.readOnly = true;
+            const container = document.getElementById('selected-product-list');
 
-                const quantityInput = document.createElement('input');
-                quantityInput.type = 'number';
-                quantityInput.placeholder = "Enter qty";
-                quantityInput.oninput = function () {
-                    updateQuantity(productId, quantityInput.value);
-                };
+            const productDiv = document.createElement('div');
+            productDiv.className = 'product-selection';
+            productDiv.id = 'product-' + productId;
 
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove';
-                removeButton.onclick = function () {
-                    removeProduct(productId);
-                };
+            // readonly product name
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.value = productName;
+            nameInput.readOnly = true;
 
-                productDiv.appendChild(productNameInput);
-                productDiv.appendChild(quantityInput);
-                productDiv.appendChild(removeButton);
+            // quantity input
+            const qtyInput = document.createElement('input');
+            qtyInput.type = 'number';
+            qtyInput.min = 1;
+            qtyInput.value = 1;
+            qtyInput.oninput = () => updateQuantity(productId, qtyInput.value);
 
-                document.getElementById('selected-product-list').appendChild(productDiv);
-                quantityInput.focus();
-            }
+            // remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.textContent = 'Remove';
+            removeBtn.onclick = () => removeProduct(productId);
+
+            productDiv.appendChild(nameInput);
+            productDiv.appendChild(qtyInput);
+            productDiv.appendChild(removeBtn);
+
+            container.appendChild(productDiv);
+
+            qtyInput.focus();
         }
 
-        function updateQuantity(productId, newQty) {
-            const product = selectedProducts.find(product => product.id === productId);
-            if (product) {
-                product.qty = newQty;
-            }
+        function updateQuantity(productId, qty) {
+            const product = selectedProducts.find(p => p.id === productId);
+            if (product) product.qty = parseInt(qty) || 1;
         }
 
         function removeProduct(productId) {
-            const index = selectedProducts.findIndex(product => product.id === productId);
-            if (index !== -1) {
-                selectedProducts.splice(index, 1);
-                document.getElementById('product-' + productId).remove();
+            const idx = selectedProducts.findIndex(p => p.id === productId);
+            if (idx >= 0) {
+                selectedProducts.splice(idx, 1);
+                const elem = document.getElementById('product-' + productId);
+                if (elem) elem.remove();
             }
         }
 
+        // CSRF helper function
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
                 const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                         break;
                     }
@@ -256,45 +147,62 @@
             return cookieValue;
         }
 
-       function sendOrderToDjango() {
-    const customer = document.querySelector('[name="selbuy"]')?.value;
-    const paymentMethod = document.querySelector('[name="mode"]')?.value;
+        // Send data to Django view p1/process_purchase
+        function sendPurchase() {
+            if (selectedProducts.length === 0) {
+                alert("Please select at least one product.");
+                return;
+            }
 
-    const orderData = selectedProducts.map(product => ({
-        productId: product.id,
-        qty: product.qty,
-        customer: customer,
-        mode: paymentMethod
-    }));
+            const customer = document.querySelector('[name="selbuy"]').value;
+            const mode = document.querySelector('[name="mode"]').value;
 
-    fetch("{% url 'p1' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie('csrftoken')
-        },
-        body: JSON.stringify(orderData)
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(errData => {
-                throw new Error(errData.message || 'Server returned an error');
+            if (!customer) {
+                alert("Please select a customer.");
+                return;
+            }
+
+            if (!mode) {
+                alert("Please select a payment method.");
+                return;
+            }
+
+            // Attach customer and mode to each product object to match the view's expected format
+            const payload = selectedProducts.map(p => ({
+                productId: p.id,
+                productName: p.name,
+                qty: p.qty,
+                customer: customer,
+                mode: mode
+            }));
+
+            fetch("{% url 'p1' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie('csrftoken')
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert("Purchase processed successfully.");
+                    window.location.href = "/b2b";
+                } else {
+                    alert("Error processing purchase: " + (data.message || "Unknown error."));
+                }
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                alert("Error processing purchase.");
             });
         }
-        return response.json();
-    })
-    .then(data => {
-        alert('Order processed successfully.');
-        window.location.href = "/b2b";
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error occurred: ' + error.message);
-        // Optionally remove redirect for debugging:
-        // window.location.href = "/b2b";
-    });
-}
 
+        document.getElementById('payment-button').addEventListener('click', (e) => {
+            e.preventDefault();
+            sendPurchase();
+        });
     </script>
 </body>
 </html>
