@@ -621,87 +621,98 @@ from django.http import JsonResponse
 from .models import Purchase_model, Seller, Add_item_model, PurchaseBook
 
 
+@require_POST
 def process_purchase(request):
-    print("enter view")
-    if request.method == 'POST' and request.content_type == 'application/json':
-        print('POST request received (JSON)')
+    print("enter Purchase view")
+    if request.method == 'POST':
+        print('POST request received')
         try:
+            print('Entering POST try block')
             selected_products = json.loads(request.body.decode('utf-8'))
-        except (json.JSONDecodeError) as e:
-            print(f"JSON decode error: {e}")
-            return JsonResponse({'status':'error', 'message':'Invalid JSON'}, status=400)
+            print(selected_products)
 
-        print(selected_products)
-        if not isinstance(selected_products, list):
-            return JsonResponse({'status':'error', 'message':'Expected a list of products'}, status=400)
+            if not isinstance(selected_products, list):
+                raise ValueError("Expected a list of products, got something else.")
 
-        total_amount = 0
-        bill_number = 1
-        try:
-            latest = Purchase_model.objects.latest('date')
-            bill_number = latest.billnum + 1
-        except Purchase_model.DoesNotExist:
-            pass
+            total_amount = 0
 
-        for product in selected_products:
-            if not isinstance(product, dict):
-                print(f"Skipping invalid product: {product}")
-                continue
-
-            product_id = product.get('productId')
-            payment_mode = product.get('mode')
-            quantity = product.get('qty', 1)
-            seller_id = product.get('customer')
-
-            if not product_id or not payment_mode or not seller_id:
-                print("Missing fields in product, skipping")
-                continue
+            if not selected_products:
+                print("No products received in the order.")
+                return JsonResponse({'status': 'error', 'message': 'No products received.'})
 
             try:
-                seller_buyer = Seller.objects.get(id=seller_id)
-            except Seller.DoesNotExist:
-                print(f"Seller/Buyer with id {seller_id} does not exist")
-                continue
-            
-            try:
-                p = Add_item_model.objects.get(id=product_id)
-            except Add_item_model.DoesNotExist:
-                print(f"Product with ID {product_id} not found.")
-                continue
+                latest_invoice = Purchase_model.objects.latest('date')
+                bill_number = latest_invoice.num + 1
+            except Purchase_model.DoesNotExist:
+                bill_number = 1
 
-            try:
-                rate = float(p.rate)
-                qty = int(quantity)
-                amount = rate * qty
-            except Exception as e:
-                print(f"Error calculating amount for {product_id}: {e}")
-                continue
+            print('Bill number:', bill_number)
 
-            Purchase_model.objects.create(
-                product_id=product_id,
-                qty=qty,
-                rate=rate,
-                amt=amount,
-                billnum=bill_number,
-                mode=payment_mode,
-                selbuy=seller_buyer,
-            )
-            total_amount += amount
+            for product in selected_products:
+                if not isinstance(product, dict):
+                    print(f"Skipping invalid product: {product}")
+                    continue
 
-            if payment_mode in ['cash', 'UPI']:
+                product_id = product.get('productId')
+                payment_mode = product.get('mode')
+                quantity = product.get('qty', 1)
+                seller_buyer_id = product.get('customer')
+
                 try:
-                    PurchaseBook.objects.create(
-                        selbuy=seller_buyer,
+                    seller_buyer = Seller.objects.get(id=seller_buyer_id)
+                except Seller.DoesNotExist:
+                    print(f"Seller with ID {seller_buyer_id} not found.")
+                    continue
+
+                if not product_id:
+                    print("Missing product ID, skipping this product.")
+                    continue
+
+                product_list = Add_item_model.objects.filter(id=product_id)
+                if not product_list.exists():
+                    print(f"Product with ID {product_id} not found.")
+                    continue
+
+                for p in product_list:
+                    rate = p.rate_purch
+                    try:
+                        amount = float(quantity) * float(rate)
+                    except Exception as e:
+                        print(f"Error calculating amount: {e}")
+                        continue
+
+                    new_invoice = Purchase_model(
+                        product_id=product_id,
+                        qty=quantity,
                         amt=amount,
                         mode=payment_mode,
-                        comment=f"Payment for Invoice {bill_number}"
+                        selbuy=seller_buyer,
+                        rate=rate,
+                        num=bill_number
                     )
-                except Exception as e:
-                    print(f"Error saving CashBook: {e}")
+                    new_invoice.save()
+                    total_amount += amount
+                    print(f"Saved invoice: {new_invoice}")
 
-        return JsonResponse({'status':'success', 'total': total_amount})
-    else:
-        return render(request, 'invoice_purch.html', context={})
+                    if payment_mode in ['cash', 'UPI']:
+                        try:
+                            purchase_book_entry = PurchaseBook(
+                                selbuy=seller_buyer,
+                                amt=amount,
+                                mode=payment_mode,
+                                comment=f"Payment for Purchase Invoice {bill_number}"
+                            )
+                            purchase_book_entry.save()
+                            print(f"PurchaseBook entry saved: {purchase_book_entry}")
+                        except Exception as e:
+                            print(f"Error saving PurchaseBook entry: {e}")
+
+            return JsonResponse({'status': 'success'})
+
+        except Exception as e:
+            print(f"Error processing order: {e}")
+            return JsonResponse({'status': 'error', 'message': 'Error processing order.'})
+    return render(request, 'invoice_purch.html', context={})
 
 ###overviews
 ##@allowed_users(allowed_roles=['admin'])
