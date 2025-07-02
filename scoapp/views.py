@@ -621,12 +621,6 @@ from django.http import JsonResponse
 from .models import Purchase_model, Seller, Add_item_model, PurchaseBook
 
 
-from django.views.decorators.http import require_POST
-from django.http import JsonResponse
-import json
-
-from yourappname.models import Purchase_model, Seller, Add_item_model, PurchaseBook
-
 @require_POST
 def process_purchase(request):
     try:
