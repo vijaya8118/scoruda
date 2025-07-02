@@ -287,21 +287,21 @@
 
             // Prepare the product data
             const orderData = selectedProducts.map(product => ({
-                productId: product.id,
-                productName: product.name,
-                qty: product.qty,
-                customer: customer,
-                mode: paymentMethod
-            }));
+    productId: product.id,
+    qty: product.qty,
+    customer: customer,
+    mode: paymentMethod
+}));
 
-            fetch("{% url 'p1' %}", {  // Adjust this to your Django URL for order creation
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie('csrftoken')
-                },
-                body: JSON.stringify(orderData)
-            })
+fetch("{% url 'p1' %}", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie('csrftoken')
+    },
+    body: JSON.stringify(orderData)
+});
+
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
