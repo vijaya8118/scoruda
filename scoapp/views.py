@@ -620,24 +620,26 @@ from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from .models import Purchase_model, Seller, Add_item_model, PurchaseBook
 
+
+
 @require_POST
 def process_purchase(request):
     try:
         selected_products = json.loads(request.body.decode('utf-8'))
 
         if not isinstance(selected_products, list) or not selected_products:
+            logger.warning("No products received or invalid format.")
             return JsonResponse({'status': 'error', 'message': 'No products received.'})
 
         total_amount = 0
 
-        # Calculate bill_number for reference (do NOT assign to Purchase_model.num)
         try:
             latest_invoice = Purchase_model.objects.latest('num')
             bill_number = latest_invoice.num + 1
         except Purchase_model.DoesNotExist:
             bill_number = 1
 
-        print(f"Bill number for this purchase: {bill_number}")
+        logger.info(f"Bill number for this purchase: {bill_number}")
 
         for product in selected_products:
             product_id = product.get('productId')
@@ -646,22 +648,26 @@ def process_purchase(request):
             seller_buyer_id = product.get('customer')
 
             if not product_id or not payment_mode or not seller_buyer_id:
+                logger.warning(f"Missing required fields in product: {product}")
                 continue
 
             try:
                 seller_buyer = Seller.objects.get(id=seller_buyer_id)
             except Seller.DoesNotExist:
+                logger.warning(f"Seller with id {seller_buyer_id} does not exist.")
                 continue
 
             product_qs = Add_item_model.objects.filter(id=product_id)
             if not product_qs.exists():
+                logger.warning(f"Product with id {product_id} does not exist.")
                 continue
             product_obj = product_qs.first()
 
             rate = product_obj.rate_purch
             try:
                 amount = float(quantity) * float(rate)
-            except Exception:
+            except Exception as e:
+                logger.error(f"Error calculating amount: {e}")
                 continue
 
             new_invoice = Purchase_model(
@@ -671,9 +677,9 @@ def process_purchase(request):
                 mode=payment_mode,
                 selbuy=seller_buyer,
                 rate=rate,
-                # DO NOT assign num here
             )
             new_invoice.save()
+            logger.info(f"Saved Purchase_model with num={new_invoice.num}")
 
             total_amount += amount
 
@@ -685,11 +691,14 @@ def process_purchase(request):
                     comment=f"Payment for Purchase Invoice {new_invoice.num}"
                 )
                 purchase_book_entry.save()
+                logger.info(f"Saved PurchaseBook entry for invoice {new_invoice.num}")
 
         return JsonResponse({'status': 'success', 'total_amount': total_amount})
 
     except Exception as e:
+        logger.error(f"Exception in process_purchase: {e}")
         return JsonResponse({'status': 'error', 'message': 'Error processing order.'})
+
 
 ###overviews
 ##@allowed_users(allowed_roles=['admin'])
