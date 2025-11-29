@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
-
+import dj_database_url
+from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -110,19 +111,12 @@ WSGI_APPLICATION = 'scoprj.wsgi.application'
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django_tenants.postgresql_backend',
-        'NAME': 'scoruda_db_nu8i',
-        'USER': 'scoruda_db_nu8i_user',
-        'PASSWORD': 'mxqR47Nr01HglL8afy3oyEIz9ckK6C58',
-        'HOST': 'postgresql://scoruda_db_nu8i_user:mxqR47Nr01HglL8afy3oyEIz9ckK6C58@dpg-d4lfqvchg0os73b8nch0-a/scoruda_db_nu8i',
-        'PORT': '5432',
-        'OPTIONS': {
-            'sslmode': 'require',  # Render requires SSL
-        },
-    }
-}
-# DATABASES['default']['ENGINE'] = 'django_tenants.postgresql_backend'
+     'default': dj_database_url.parse(
+         config('DATABASE_URL', default='postgresql://scoruda_db_nu8i_user:mxqR47Nr01HglL8afy3oyEIz9ckK6C58@dpg-d4lfqvchg0os73b8nch0-a/scoruda_db_nu8i')
+     )
+ }
+
+DATABASES['default']['ENGINE'] = 'django_tenants.postgresql_backend'
 
 
 DATABASE_ROUTERS = (
