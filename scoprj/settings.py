@@ -116,7 +116,7 @@ DATABASES = {
         'NAME': 'scoruda_db_nu8i',
         'USER': 'scoruda_db_nu8i_user',
         'PASSWORD': 'mxqR47Nr01HglL8afy3oyEIz9ckK6C58',
-        'HOST': 'dpg-d4lfqvchg0os73b8nch0-a.oregon-postgres.render.com',
+        'HOST': 'dpg-d4lfqvchg0os73b8nch0-a',
         'PORT': '5432',
         'OPTIONS': {
             'sslmode': 'require',  # Render requires SSL
