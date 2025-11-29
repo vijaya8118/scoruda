@@ -33,12 +33,12 @@ DEBUG = True
 ALLOWED_HOSTS = ['*',]
 CSRF_TRUSTED_ORIGINS = [
     'https://scoruda-ga7i.onrender.com', 
-    'https://scoruda.com',
-    'https://*.scoruda.com',
+    # 'https://scoruda.com',
+    # 'https://*.scoruda.com',
 
 ]
-SESSION_COOKIE_DOMAIN = '.scoruda.com'
-CSRF_COOKIE_DOMAIN = '.scoruda.com'
+# SESSION_COOKIE_DOMAIN = '.scoruda.com'
+# CSRF_COOKIE_DOMAIN = '.scoruda.com'
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
