@@ -31,8 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*',]
 CSRF_TRUSTED_ORIGINS = [
-    'https://scoruda81-4tng.onrender.com',
-    'https://scoruda81-4tng.onrender.com', 
+    'https://scoruda-ga7i.onrender.com', 
     'https://scoruda.com',
     'https://*.scoruda.com',
 
