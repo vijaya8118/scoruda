@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <!-- Bootstrap and FontAwesome -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" crossorigin="anonymous">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: #7abecc !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            height: 100vh;
+        }
+
+        .user_card {
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+            background: #74cfbf;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #form-title {
+            color: #fff;
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .form_container {
+            margin-top: 20px;
+        }
+
+        .login_btn {
+            width: 100%;
+            background: #33ccff !important;
+            color: white !important;
+        }
+
+        .input-group-text {
+            background: #f7ba5b !important;
+            color: white !important;
+            border: none;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+        }
+
+        #messages {
+            background-color: #444;
+            color: #fff;
+            padding: 10px;
+            margin-top: 15px;
+            text-align: center;
+            border-radius: 5px;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 576px) {
+            #form-title {
+                font-size: 1.25rem;
+            }
+
+            .input-group-text i {
+                font-size: 0.9rem;
+            }
+
+            .form-check-label {
+                font-size: 0.9rem;
+            }
+
+            .user_card {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 375px) {
+            .form-control {
+                font-size: 0.9rem;
+            }
+
+            .login_btn {
+                font-size: 0.95rem;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container d-flex justify-content-center align-items-center">
+        <div class="user_card">
+            <div class="d-flex justify-content-center">
+                <h3 id="form-title">Login for <span id="current-url"></span></h3>
+            </div>
+            <div class="d-flex justify-content-center form_container">
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input type="text" name="username" placeholder="Username..." class="form-control" required>
+                    </div>
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                        </div>
+                        <input type="password" name="password" placeholder="Password..." class="form-control" required>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" name="remember_me" id="remember_me">
+                        <label class="form-check-label" for="remember_me">Remember me</label>
+                    </div>
+                    <div class="d-flex justify-content-center mt-3">
+                        <input class="btn login_btn" type="submit" value="Login">
+                    </div>
+                </form>
+            </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <p id="messages">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Dynamic Domain Display -->
+    <script>
+        document.getElementById("current-url").textContent = window.location.hostname;
+    </script>
+</body>
+</html>

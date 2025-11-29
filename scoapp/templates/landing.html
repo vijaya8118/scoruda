@@ -1,0 +1,74 @@
+{% load static %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoruda</title>
+
+     <link rel="stylesheet" href="{% static 'infopage.css' %}">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <h1>Scoruda</h1>
+            <p id="currentUrl"></p>
+        </header>
+
+        <div class="buttons-wrapper">
+            <a href="create_company" class="button">Create New Company</a>
+            <a href="#" class="button" id="loginLink">Login</a>
+        </div>
+
+        <section class="url-section">
+            <label for="urlInput">Enter Company Website</label>
+            <div class="url-field">
+                <input 
+                    type="text" 
+                    id="urlInput" 
+                    placeholder="example.com or https://example.com" 
+                />
+                <button class="go-button" onclick="goToUrl()">Go</button>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Show the current site address
+        const currentUrl = window.location.href;
+        document.getElementById("currentUrl").textContent = 
+            "Company website: " + currentUrl;
+
+        // Update login link
+        const loginLink = document.getElementById("loginLink");
+        loginLink.textContent = "Login for " + window.location.hostname;
+        loginLink.href = currentUrl + "login";
+
+        // Convert input into a valid URL and redirect
+        function goToUrl() {
+            let url = document.getElementById("urlInput").value.trim();
+
+            if (!url) {
+                alert("Please enter a website.");
+                return;
+            }
+
+            // If the user enters only "google", make it google.com
+            if (!url.includes("."))
+                url = url + ".com";
+
+            // If no protocol, add https://
+            if (!/^https?:\/\//i.test(url))
+                url = "https://" + url;
+
+            window.location.href = url;
+        }
+    </script>
+
+</body>
+</html>

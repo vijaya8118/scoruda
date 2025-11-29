@@ -1,0 +1,21 @@
+
+{% load static %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company URL Sent</title>
+    <link rel="stylesheet" href="{% static 'infopage.css' %}">
+      
+</head>
+<body>
+
+    <div class="container">
+        <h1>Company URL Sent to Your Email</h1>
+        <p>The company URL has been sent to your registered email. Please open your inbox and use the link provided to access the site.If not received check the Spam folder</p>
+        <a href="mailto:your-email@example.com?subject=Issue with Receiving Email for [Company Name] Account Registration&body=Dear%20[Support%20Team/%20Customer%20Service],%0A%0A%20I%20recently%20created%20an%20account%20for%20my%20company%2C%20[Company%20Name]%2C%20but%20I%20have%20not%20yet%20received%20any%20email%20confirmation%20or%20details.%20Could%20you%20please%20verify%20whether%20the%20email%20has%20been%20sent%3F%0A%0AThank%20you!" class="button">Send Issue</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoruda Dashboard</title>
+    <style>
+        /* Reset & Body */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Verdana, Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #2e4057;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 20px 10px;
+            background-color: #f7f7f7;
+            border-bottom: 2px solid #6096BA;
+        }
+
+        header .head1 {
+            font-size: 40px;
+            color: #6096BA;
+            font-weight: bold;
+        }
+
+        header .head2 {
+            font-size: 17px;
+            color: #2e4057;
+            margin-top: 5px;
+        }
+
+        header .user-actions {
+            margin-top: 10px;
+        }
+
+        header .user-actions a {
+            color: #6096BA;
+            text-decoration: none;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        /* Top Menu */
+        .menu {
+            position: sticky;
+            top: 0;
+            background-color: #6096BA;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            color: #f7f5fb;
+            z-index: 1000;
+        }
+
+        .menu a {
+            color: #f7f5fb;
+            text-decoration: none;
+            padding: 10px 15px;
+            font-size: 18px;
+            transition: background 0.3s;
+        }
+
+        .menu a:hover {
+            background-color: #497a9d;
+            border-radius: 5px;
+        }
+
+        /* Side Nav */
+        /* Side Nav */
+.sidenav {
+    height: calc(100% - 50px); /* Adjust based on top menu height */
+    width: 0;
+    position: fixed;
+    z-index: 1001; /* higher than the top menu */
+    top: 50px; /* height of top menu */
+    left: 0;
+    background-color: #2e4057;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 20px;
+}
+
+
+        .sidenav a {
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #f7f5fb;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidenav a:hover {
+            color: #ffff82;
+        }
+
+        .sidenav .closebtn {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 36px;
+            cursor: pointer;
+            color: #f7f5fb;
+
+        }
+
+        /* Main Content */
+        #main {
+            transition: margin-left 0.5s;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            color: #2e4057;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media screen and (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .menu a { font-size: 16px; padding: 8px 10px; }
+        }
+
+        @media screen and (max-width: 576px) {
+            h1 { font-size: 1.7em; }
+            .menu { flex-direction: column; align-items: flex-start; }
+        }
+
+        /* Menu button */
+        .menu .menu-btn {
+            font-size: 25px;
+            cursor: pointer;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="head1">Scoruda</div>
+        <div class="head2">A Necessity for Every Entity</div>
+        <div class="user-actions">
+            <span>Hello,  {{ user.get_role_display}} {{request.user}} </span> |   {% now "Y-m-d" as current_date %}
+         Todays date {{current_date}}<a href="signout">Logout</a>
+        </div>
+    </header>
+
+    {% if user.get_role_display == 'Admin' %}
+    <nav class="menu">
+        <div>
+            
+            <a href="{% url 'show'  %}">Scout</a>
+            <a href="{% url 'cshbal'  %}">Cash Balance</a>
+            <a href="{% url 'stock'  %}">Stock</a>
+            <a href="{% url 'search'  %}">Search</a>
+        </div>
+        <span class="menu-btn" onclick="openNav()">&#9776; Menu</span>
+    </nav>
+
+    <!-- Side Navigation -->
+    <div id="mySidenav" class="sidenav">
+        <span class="closebtn" onclick="closeNav()">&times; </span>
+        <h2 style="color: #ffff82; padding-left: 20px;">Add</h2>
+        <a href="{% url 'additem'  %}">Add Product</a>
+        <a href="{% url 'seller'  %}">Add Seller</a>
+        <a href="{% url 'customer'  %}">Add Customer</a>
+
+        <h2 style="color: #ffff82; padding-left: 20px;">View</h2>
+        <a href="{% url 'item'  %}">View Products</a>
+        <a href="{% url 'sellerall'  %}">View Seller</a>
+        <a href="{% url 'customerall'  %}">View Customers</a>
+
+        <h2 style="color: #ffff82; padding-left: 20px;">Entry</h2>
+        <a href="b2c">Sales</a>
+            <a href="#">Counter Sales</a>
+            <a href="#">Purchase</a>
+            <a href="{% url 'retailpurch'  %}">Retail Purchase</a>
+
+        <h2 style="color: #ffff82; padding-left: 20px;">Company</h2>
+             <a href="{% url 'profile' %}">My Profile </a>
+                           <a href="{% url 'kyc' %}">Company </a>
+                         <a href="{% url 'setup' %}">Add User </a>
+ </div>
+
+    {% elif user.get_role_display == 'Manager' %}
+    <nav class="menu">
+        <div>
+            <a href="{% url 'b2c'  %}">Sales</a>
+            <a href="{% url 'retailpurch'  %}">Retail Purchase</a>
+        </div>
+        <span class="menu-btn" onclick="openNav()">&#9776; Menu</span>
+    </nav>
+
+    <!-- Side Navigation -->
+    <div id="mySidenav" class="sidenav">
+        <span class="closebtn" onclick="closeNav()">&times; </span>
+        <h2 style="color: #ffff82; padding-left: 20px;">Add</h2>
+        <a href="{% url 'additem'  %}">Add Product</a>
+        <a href="{% url 'seller'  %}">Add Seller</a>
+        <a href="{% url 'customer'  %}">Add Customer</a>
+
+        <h2 style="color: #ffff82; padding-left: 20px;">View</h2>
+        <a href="{% url 'item'  %}">View Products</a>
+        <a href="{% url 'sellerall'  %}">View Seller</a>
+        <a href="{% url 'customerall'  %}">View Customers</a>
+ </div>
+
+
+    {% elif user.get_role_display == 'Employee' %}
+    <nav class="menu">
+        <div>
+            a href="b2c">Sales</a>
+            <a href="#">Counter Sales</a>
+            <a href="#">Purchase</a>
+            <a href="{% url 'retailpurch'  %}">Retail Purchase</a>
+        </div>
+        <span class="menu-btn" onclick="openNav()">&#9776; Menu</span>
+    </nav>
+
+{%else%}
+<h1><a href="{% url 'login'  %}">LOGIN</a></h1><br>
+<h1><a href="{% url ''  %}">SIGNUP</a></h1>
+{%endif%}
+
+    <!-- Scripts -->
+    <script>
+        function openNav() {
+    document.getElementById("mySidenav").style.width = "250px";
+    document.getElementById("main").style.marginLeft = "250px";
+    // keep top menu visible
+    // only darken the content below menu
+    document.body.style.backgroundColor = "#f4f6f8";
+}
+
+
+        function closeNav() {
+            document.getElementById("mySidenav").style.width = "0";
+            document.getElementById("main").style.marginLeft = "0";
+            document.body.style.backgroundColor = "#f4f6f8";
+            
+        }
+    </script>
+
+</body>
+
+</html>

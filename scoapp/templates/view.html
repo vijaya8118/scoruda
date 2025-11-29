@@ -1,0 +1,85 @@
+{% include 'navbar.html' %}
+<head>
+    {% load static %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+    <table >    
+        <div class="container">
+
+        <h2><center>{{heading}} </center></h2> 
+        {%if heading == "Product List"%}
+        <tr bgcolor="yellow">
+        <td>PRODUCT</td>
+        <td>SELLING RATE </td>
+        <td>PURCHASE RATE</td>
+        </tr>
+        {%for q in query %}
+        <tr>
+        
+        </td>          <td>{{q.product}}</td>
+        <td>{{q.rate}}</td> 
+        <td>{{q.rate_purch}}</td> 
+        <td>{{q.user}}</td> 
+        <td><a href="{% url 'item_edit' q.id %}">EDIT</a></td>
+        <td><a href="{% url 'item_delete' q.id %}">DELETE</a></td>
+      </tr>
+        {%endfor%}
+        {%endif%}
+        
+        {%if heading == "Seller List"%}
+        <tr bgcolor="yellow">
+        <td>NAME</td>
+        <td>ADDRESS </td>
+        <td>PHONE NUMBER </td>
+        <td>GST NUMBER </td>
+        </tr>
+        {%for q in query %}
+        <tr>
+        <td>{{q.name}}</td>
+        <td>{{q.address}}</td> 
+        <td>{{q.phone}}</td> 
+        <td>{{q.gst}}</td> 
+        <td>{{q.user}}</td> 
+        <td><a href="{% url 'seller_edit' q.id %}">EDIT</a></td>
+        <td><a href="{% url 'seller_delete' q.id %}">DELETE</a></td>
+        </tr>
+        {%endfor%}
+        {%endif%} 
+        {%if heading == "Customer List"%}
+        <tr bgcolor="yellow">
+        <td>NAME</td>
+        <td>ADDRESS </td>
+        <td>PHONE NUMBER </td>
+        <td>GST NUMBER </td>
+
+        </tr>
+        {%for q in query %}
+        <tr>
+        <td>{{q.name}}</td>
+        <td>{{q.address}}</td> 
+        <td>{{q.phone}}</td> 
+        <td>{{q.gst}}</td>
+        <td>{{q.user}}</td> 
+        <td><a href="{% url 'customer_edit' q.id %}">EDIT</a></td>
+        <td><a href="{% url 'customer_delete' q.id %}">DELETE</a></td>
+        </tr>
+        {%endfor%}
+        {%endif%} </div></table>
+
+        <div class="pagination">
+          <span class="step-links">
+              {% if query.has_previous %}
+                  <a href="?page=1">&laquo; first</a>
+                  <a href="?page={{ query.previous_page_number }}">previous</a>
+              {% endif %}
+      
+              <span class="current">
+                  Page {{ query.number }} of {{ query.paginator.num_pages }}.
+              </span>
+      
+              {% if query.has_next %}
+                  <a href="?page={{ query.next_page_number }}">next</a>
+                  <a href="?page={{ query.paginator.num_pages }}">last &raquo;</a>
+              {% endif %}
+          </span>
+      </div>

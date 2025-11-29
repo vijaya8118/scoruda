@@ -1,0 +1,280 @@
+{% include 'navbar.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>GST Invoice - {{ invoice_num }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #fff;
+        }
+        .invoice-box {
+            max-width: 900px;
+            padding: 30px;
+            border: 1px solid #000;
+            background: #fff;
+        }
+        h2, h3 {
+            text-align: center;
+            margin: 0;
+        }
+        .section {
+            margin-top: 25px;
+        }
+        .info, .bank-details {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+        .info div, .bank-details div {
+            width: 48%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            background: #fff;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .no-border {
+            border: none;
+        }
+        .signature {
+            text-align: right;
+            margin-top: 50px;
+        }
+        hr {
+            border: 1px solid #000;
+        }
+        #download-pdf-btn {
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<button id="download-pdf-btn">Download Invoice PDF</button>
+
+<div class="invoice-box" id="invoice-content">
+    <h2> INVOICE</h2>
+
+    <hr />
+
+    <div class="section info">
+        <div>
+            <h4>From:</h4>
+            <strong>{{ company.name }}</strong><br />
+
+            {% if company.address %}
+                {{ company.address }}<br />
+            {% endif %}
+
+            {% if company.phone %}
+                Phone: {{ company.phone }}<br />
+            {% endif %}
+
+            {% if company.gst %}
+                GSTIN: {{ company.gst }}
+            {% endif %}
+        </div>
+
+        <div>
+            <h4>To:</h4>
+            <strong>{{ outward.name }}</strong><br />
+
+            {% if outward.address %}
+                {{ outward.address }}<br />
+            {% endif %}
+
+            {% if outward.phone %}
+                Phone: {{ outward.phone }}<br />
+            {% endif %}
+
+            {% if outward.gst %}
+                GSTIN: {{ outward.gst }}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="section">
+        {% if invoice_num %}
+            <strong>Invoice No:</strong> {{ invoice_num }}<br />
+        {% endif %}
+
+        {% if created %}
+            <strong>Invoice Date:</strong> {{ created }}<br />
+        {% endif %}
+
+        {% if payment %}
+            <strong>Payment Mode:</strong> {{ payment }}
+        {% endif %}
+    </div>
+
+    <hr />
+
+    <table>
+        <thead>
+            <tr>
+                <th>Sr No.</th>
+                <th>Description of Goods</th>
+                <th>Quantity</th>
+                <th>Rate (₹)</th>
+                        {% if item.gst and item.gst != 0 %}
+                           <th>GST Amount (₹)</th>
+                        {%else%}
+                        <th> </th>
+                        {% endif %}                
+                        <th>Total (₹)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in products %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+
+                    <td>
+                        {% if item.commodity %}
+                            {{ item.commodity }}
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if item.quantity and item.quantity != 0 %}
+                            {{ item.quantity }}
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if item.price and item.price != 0 %}
+                            {{ item.price }}
+                        {% endif %}
+                    </td>
+
+                    <td class="gst-amount">
+                        {% if item.gst and item.gst != 0 %}
+                            {{ item.gst }}
+                        {% endif %}
+                    </td>
+
+                    <td class="item-amount">
+                        {% if item.current_price and item.current_price != 0 %}
+                            {{ item.current_price }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table style="margin-top: 20px;">
+        <tr>
+            <td class="no-border text-right"><strong>Base Amount (Before GST):</strong></td>
+            <td class="text-right">₹ <span id="base-amount">0.00</span></td>
+        </tr>
+        <tr>
+            <td class="no-border text-right"><strong>Total GST:</strong></td>
+            <td class="text-right">₹ <span id="total-gst">0.00</span></td>
+        </tr>
+        <tr>
+            <td class="no-border text-right"><strong>Total Amount:</strong></td>
+            <td class="text-right">₹ <span id="total-amount">0.00</span></td>
+        </tr>
+    </table>
+
+    <hr />
+
+    <div class="section bank-details">
+        <div>
+            <h4>Bank Details:</h4>
+
+            {% if company.bank %}
+                Bank: {{ company.bank }}<br />
+            {% endif %}
+
+            {% if company.account %}
+                A/C No: {{ company.account }}<br />
+            {% endif %}
+
+            {% if company.ifsc %}
+                IFSC: {{ company.ifsc }}<br />
+            {% endif %}
+        </div>
+
+        <div>
+            <h4>Beneficiary:</h4>
+            {{ company.name }}<br />
+
+            {% if company.gst %}
+                GSTIN: {{ company.gst }}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="section">
+        This is an electronically generated document, no signature is required.
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const amountCells = document.querySelectorAll(".item-amount");
+        const gstCells = document.querySelectorAll(".gst-amount");
+
+        let totalAmount = 0;
+        let totalGST = 0;
+
+        amountCells.forEach(cell => {
+            const val = parseFloat(cell.textContent.trim()) || 0;
+            totalAmount += val;
+        });
+
+        gstCells.forEach(cell => {
+            const val = parseFloat(cell.textContent.trim()) || 0;
+            totalGST += val;
+        });
+
+        const baseAmount = totalAmount - totalGST;
+
+        function formatINR(num) {
+            return num.toLocaleString("en-IN", { minimumFractionDigits: 2 });
+        }
+
+        document.getElementById("base-amount").textContent = formatINR(baseAmount);
+        document.getElementById("total-gst").textContent = formatINR(totalGST);
+        document.getElementById("total-amount").textContent = formatINR(totalAmount);
+    });
+
+    document.getElementById('download-pdf-btn').addEventListener('click', function () {
+        const { jsPDF } = window.jspdf;
+        const invoice = document.getElementById('invoice-content');
+
+        html2canvas(invoice, { scale: 2 }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const width = pdf.internal.pageSize.getWidth();
+            const height = (canvas.height * width) / canvas.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+            pdf.save('invoice-{{ invoice_num }}.pdf');
+        });
+    });
+</script>
+
+</body>
+</html>
