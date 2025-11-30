@@ -240,86 +240,65 @@ def total_quantity(modelname,prod):
 def landing(request):
     return render(request,'landing.html',context={})
 
-
-from django.db import IntegrityError
-from django.core.management import call_command
-from django_tenants.utils import schema_context
-from django.conf import settings
-
 def createCompany(request):
+    form = TenantForm()  # Default form for GET requests
+    print('Before POST')
     heading = "Create Subdomain for your Company"
-    form = TenantForm()  # Default form for GET
 
     if request.method == "POST":
+        print('After POST')
         tenant_form = TenantForm(request.POST)
-        print('POST received')
+        print('Before Valid')
 
         if tenant_form.is_valid():
-            print('Form is valid')
+            print('After Valid')
+            tenant = tenant_form.save()
 
-            # Save tenant instance
-            tenant = tenant_form.save(commit=False)
-            tenant.save()
-            print(f"Tenant '{tenant.schema_name}' saved in DB")
+            # ✅ First, create the schema for the tenant
+            tenant.create_schema(check_if_exists=True)  # Make sure the schema is created
+            print(f"Schema for {tenant.schema_name} created.")
 
-            # ✅ Create tenant schema
+            # ✅ Now run migrations for the newly created schema
+            from django.core.management import call_command
+            call_command('migrate_schemas', schema_name=tenant.schema_name)
+            print('Migrations applied to schema.')
+
+            print('Tenant Saved')
+
             try:
-                tenant.create_schema(check_if_exists=True)
-                print(f"Schema '{tenant.schema_name}' created successfully")
-            except Exception as e:
-                print(f"Error creating schema: {e}")
-                return render(request, 'formjust.html', context={
-                    'form': tenant_form,
-                    'heading': heading,
-                    'error': 'Failed to create schema'
-                })
+                # Create the domain associated with the tenant
+                domain = Domain.objects.create(
+                    tenant=tenant,
+                    domain=f"{tenant.schema_name}.{settings.BASE_URL}",
+                    is_primary=True
+                )
+                print('Domain Created')
+                print(f"Created domain: http://{domain.domain}:8000/setup")
 
-            # ✅ Apply tenant migrations inside schema context
-            try:
-                with schema_context(tenant.schema_name):
-                    print(f"Applying migrations for tenant schema '{tenant.schema_name}'")
-                    call_command(
-                        'migrate_schemas',
-                        schema_name=tenant.schema_name,
-                        shared=False,   # Only tenant apps
-                        interactive=False
-                    )
-                    print('Migrations applied successfully')
-            except Exception as e:
-                print(f"Error applying migrations: {e}")
-                return render(request, 'formjust.html', context={
-                    'form': tenant_form,
-                    'heading': heading,
-                    'error': 'Failed to apply migrations'
-                })
+                # Prepare and send the email notification
+                tenant_email = tenant.email
+                print(f"Created email: {tenant_email}")
+                print('Preparing email')
 
-            # ✅ Create domain inside schema context
-            try:
-                with schema_context(tenant.schema_name):
-                    domain = Domain.objects.create(
-                        tenant=tenant,
-                        domain=f"{tenant.schema_name}.{settings.BASE_URL}",
-                        is_primary=True
-                    )
-                    print(f"Domain created: http://{domain.domain}:8000/setup")
+                email = EmailMessage(
+                    'Domain name from Scoruda',  # Subject of the email
+                    f"Domain has been created successfully for your company. Please use the given domain name for login: https://{domain}/setupcompany",  # Body
+                    to=[tenant_email]
+                )
+                print('Email launching....')
+                email.send()
+                print('Email Launched')
+
             except IntegrityError as e:
-                print(f"Error creating domain: {e}")
-                return render(request, 'formjust.html', context={
-                    'form': tenant_form,
-                    'heading': heading,
-                    'error': 'Domain creation failed due to a conflict'
-                })
+                print(f"Error with domain creation: {e}")
+                return render(request, 'form.html', context={'form': tenant_form, 'error': 'Domain creation failed due to a conflict or issue'})
 
-            # ✅ All tenant setup done, redirect
-            return redirect('emailsent')
-
+            return redirect('emailsent')  # Change to actual URL name if necessary
         else:
             print('Form is not valid')
-            print(f"Form errors: {tenant_form.errors}")
-            return render(request, 'formjust.html', context={'form': tenant_form, 'heading': heading})
-
-    # Default GET request
-    return render(request, 'formjust.html', context={'form': form, 'heading': heading})
+            print(f'Errors: {tenant_form.errors}')
+    
+    return render(request, 'formjust.html', context={'form': tenant_form if request.method == 'POST' else form,'heading':heading,})
 
 
 def emailsent(request):
