@@ -240,12 +240,10 @@ def total_quantity(modelname,prod):
 def landing(request):
     return render(request,'landing.html',context={})
 
-from django.shortcuts import render, redirect
+
 from django.db import IntegrityError
 from django.core.management import call_command
 from django_tenants.utils import schema_context
-from .forms import TenantForm
-from .models import Domain, Tenant
 from django.conf import settings
 def createCompany(request):
     heading = "Create Subdomain for your Company"
