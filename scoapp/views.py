@@ -240,66 +240,60 @@ def total_quantity(modelname,prod):
 def landing(request):
     return render(request,'landing.html',context={})
 
+from django.shortcuts import render, redirect
+from django.db import IntegrityError
+from django.core.management import call_command
+from django_tenants.utils import schema_context
+from .forms import TenantForm
+from .models import Domain, Tenant
+from django.conf import settings
 def createCompany(request):
-    form = TenantForm()  # Default form for GET requests
-    print('Before POST')
     heading = "Create Subdomain for your Company"
+    form = TenantForm()  # Default form for GET
 
     if request.method == "POST":
-        print('After POST')
         tenant_form = TenantForm(request.POST)
-        print('Before Valid')
+        print('POST received')
 
         if tenant_form.is_valid():
-            print('After Valid')
-            tenant = tenant_form.save()
+            print('Form is valid')
+            tenant = tenant_form.save(commit=False)  # Don't save yet if you need to set extra fields
+            tenant.save()
+            print(f"Tenant {tenant.schema_name} saved")
 
-            # ✅ First, create the schema for the tenant
-            tenant.create_schema(check_if_exists=True)  # Make sure the schema is created
-            print(f"Schema for {tenant.schema_name} created.")
+            # ✅ Create schema
+            tenant.create_schema(check_if_exists=True)
+            print(f"Schema for {tenant.schema_name} created")
 
-            # ✅ Now run migrations for the newly created schema
-            from django.core.management import call_command
-            call_command('migrate_schemas', schema_name=tenant.schema_name)
-            print('Migrations applied to schema.')
-
-            print('Tenant Saved')
+            # ✅ Apply tenant migrations safely
+            with schema_context(tenant.schema_name):
+                print(f"Applying migrations for tenant: {tenant.schema_name}")
+                call_command('migrate_schemas', migrate_shared=False, interactive=False)
+                print('Migrations applied successfully')
 
             try:
-                # Create the domain associated with the tenant
+                # ✅ Create domain
                 domain = Domain.objects.create(
                     tenant=tenant,
                     domain=f"{tenant.schema_name}.{settings.BASE_URL}",
                     is_primary=True
                 )
-                print('Domain Created')
-                print(f"Created domain: http://{domain.domain}:8000/setup")
-
-                # Prepare and send the email notification
-                tenant_email = tenant.email
-                print(f"Created email: {tenant_email}")
-                print('Preparing email')
-
-                # email = EmailMessage(
-                #     'Domain name from Scoruda',  # Subject of the email
-                #     f"Domain has been created successfully for your company. Please use the given domain name for login: https://{domain}/setupcompany",  # Body
-                #     to=[tenant_email]
-                # )
-                # print('Email launching....')
-                # email.send()
-                # print('Email Launched')
+                print(f"Domain created: http://{domain.domain}:8000/setup")
 
             except IntegrityError as e:
-                print(f"Error with domain creation: {e}")
-                return render(request, 'form.html', context={'form': tenant_form, 'error': 'Domain creation failed due to a conflict or issue'})
+                print(f"Domain creation failed: {e}")
+                return render(request, 'form.html', context={'form': tenant_form, 'error': 'Domain creation failed'})
 
-            return redirect('emailsent')  # Change to actual URL name if necessary
+            # Redirect after success
+            return redirect('emailsent')
+
         else:
             print('Form is not valid')
-            print(f'Errors: {tenant_form.errors}')
-    
-    return render(request, 'formjust.html', context={'form': tenant_form if request.method == 'POST' else form,'heading':heading,})
+            print(tenant_form.errors)
+            return render(request, 'formjust.html', context={'form': tenant_form, 'heading': heading})
 
+    # Default GET request
+    return render(request, 'formjust.html', context={'form': form, 'heading': heading})
 
 def emailsent(request):
     return render(request,'emailsent.html',context={})
