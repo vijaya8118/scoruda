@@ -244,7 +244,9 @@ def landing(request):
 from django.db import IntegrityError
 from django.core.management import call_command
 from django_tenants.utils import schema_context
+
 from django.conf import settings
+
 def createCompany(request):
     heading = "Create Subdomain for your Company"
     form = TenantForm()  # Default form for GET
@@ -255,43 +257,70 @@ def createCompany(request):
 
         if tenant_form.is_valid():
             print('Form is valid')
-            tenant = tenant_form.save(commit=False)  # Don't save yet if you need to set extra fields
+
+            # Save tenant instance
+            tenant = tenant_form.save(commit=False)
             tenant.save()
-            print(f"Tenant {tenant.schema_name} saved")
+            print(f"Tenant '{tenant.schema_name}' saved in DB")
 
-            # ✅ Create schema
-            tenant.create_schema(check_if_exists=True)
-            print(f"Schema for {tenant.schema_name} created")
-
-            # ✅ Apply tenant migrations safely
-            with schema_context(tenant.schema_name):
-                print(f"Applying migrations for tenant: {tenant.schema_name}")
-                call_command('migrate_schemas', migrate_shared=False, interactive=False)
-                print('Migrations applied successfully')
-
+            # ✅ Create tenant schema
             try:
-                # ✅ Create domain
+                tenant.create_schema(check_if_exists=True)
+                print(f"Schema '{tenant.schema_name}' created successfully")
+            except Exception as e:
+                print(f"Error creating schema: {e}")
+                return render(request, 'formjust.html', context={
+                    'form': tenant_form,
+                    'heading': heading,
+                    'error': 'Failed to create schema'
+                })
+
+            # ✅ Apply migrations for tenant apps only
+            try:
+                with schema_context(tenant.schema_name):
+                    print(f"Applying migrations for tenant schema '{tenant.schema_name}'")
+                    call_command(
+                        'migrate_schemas',
+                        schema_name=tenant.schema_name,
+                        shared=False,   # Only tenant apps, not shared/public apps
+                        interactive=False
+                    )
+                    print('Migrations applied successfully')
+            except Exception as e:
+                print(f"Error applying migrations: {e}")
+                return render(request, 'formjust.html', context={
+                    'form': tenant_form,
+                    'heading': heading,
+                    'error': 'Failed to apply migrations'
+                })
+
+            # ✅ Create domain for the tenant
+            try:
                 domain = Domain.objects.create(
                     tenant=tenant,
                     domain=f"{tenant.schema_name}.{settings.BASE_URL}",
                     is_primary=True
                 )
                 print(f"Domain created: http://{domain.domain}:8000/setup")
-
             except IntegrityError as e:
-                print(f"Domain creation failed: {e}")
-                return render(request, 'form.html', context={'form': tenant_form, 'error': 'Domain creation failed'})
+                print(f"Error creating domain: {e}")
+                return render(request, 'formjust.html', context={
+                    'form': tenant_form,
+                    'heading': heading,
+                    'error': 'Domain creation failed due to a conflict'
+                })
 
-            # Redirect after success
+            # ✅ Redirect to success page
             return redirect('emailsent')
 
         else:
             print('Form is not valid')
-            print(tenant_form.errors)
+            print(f"Form errors: {tenant_form.errors}")
             return render(request, 'formjust.html', context={'form': tenant_form, 'heading': heading})
 
     # Default GET request
     return render(request, 'formjust.html', context={'form': form, 'heading': heading})
+
 
 def emailsent(request):
     return render(request,'emailsent.html',context={})
