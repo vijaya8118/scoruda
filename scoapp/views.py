@@ -244,7 +244,6 @@ def landing(request):
 from django.db import IntegrityError
 from django.core.management import call_command
 from django_tenants.utils import schema_context
-
 from django.conf import settings
 
 def createCompany(request):
@@ -275,14 +274,14 @@ def createCompany(request):
                     'error': 'Failed to create schema'
                 })
 
-            # ✅ Apply migrations for tenant apps only
+            # ✅ Apply tenant migrations inside schema context
             try:
                 with schema_context(tenant.schema_name):
                     print(f"Applying migrations for tenant schema '{tenant.schema_name}'")
                     call_command(
                         'migrate_schemas',
                         schema_name=tenant.schema_name,
-                        shared=False,   # Only tenant apps, not shared/public apps
+                        shared=False,   # Only tenant apps
                         interactive=False
                     )
                     print('Migrations applied successfully')
@@ -294,14 +293,15 @@ def createCompany(request):
                     'error': 'Failed to apply migrations'
                 })
 
-            # ✅ Create domain for the tenant
+            # ✅ Create domain inside schema context
             try:
-                domain = Domain.objects.create(
-                    tenant=tenant,
-                    domain=f"{tenant.schema_name}.{settings.BASE_URL}",
-                    is_primary=True
-                )
-                print(f"Domain created: http://{domain.domain}:8000/setup")
+                with schema_context(tenant.schema_name):
+                    domain = Domain.objects.create(
+                        tenant=tenant,
+                        domain=f"{tenant.schema_name}.{settings.BASE_URL}",
+                        is_primary=True
+                    )
+                    print(f"Domain created: http://{domain.domain}:8000/setup")
             except IntegrityError as e:
                 print(f"Error creating domain: {e}")
                 return render(request, 'formjust.html', context={
@@ -310,7 +310,7 @@ def createCompany(request):
                     'error': 'Domain creation failed due to a conflict'
                 })
 
-            # ✅ Redirect to success page
+            # ✅ All tenant setup done, redirect
             return redirect('emailsent')
 
         else:
