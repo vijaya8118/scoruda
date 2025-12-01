@@ -31,15 +31,15 @@ SECRET_KEY = 'django-insecure-#rt(o9c+(t^&f174d$^(%%k@wo!bzcaltle*-^p6s$3)rr*w9y
 DEBUG = True
 
 ALLOWED_HOSTS = ['*','scoruda.com','*.scoruda.com',]
-']
+
 CSRF_TRUSTED_ORIGINS = [
     'https://scoruda-ga7i.onrender.com', 
-    # 'https://scoruda.com',
-    # 'https://*.scoruda.com',
+    'https://scoruda.com',
+    'https://*.scoruda.com',
 
 ]
-# SESSION_COOKIE_DOMAIN = '.scoruda.com'
-# CSRF_COOKIE_DOMAIN = '.scoruda.com'
+SESSION_COOKIE_DOMAIN = '.scoruda.com'
+CSRF_COOKIE_DOMAIN = '.scoruda.com'
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
