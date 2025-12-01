@@ -75,10 +75,10 @@ INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in S
 
 
 MIDDLEWARE = [
-    'django_tenants.middleware.main.TenantMainMiddleware', #at first
+    'django_tenants.middleware.main.TenantMainMiddleware',
+    'django.middleware.common.CommonMiddleware',    
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -197,7 +197,7 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'  
-BASE_URL = 'localhost'
+BASE_URL = 'scoruda.com'
 LOGIN_URL = '/create_member/'
 CSRF_TRUSTED_ORIGINS = ['https://*']
 PORT = ':8000'
