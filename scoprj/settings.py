@@ -30,7 +30,8 @@ SECRET_KEY = 'django-insecure-#rt(o9c+(t^&f174d$^(%%k@wo!bzcaltle*-^p6s$3)rr*w9y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*',]
+ALLOWED_HOSTS = ['*','scoruda.com','*.scoruda.com',]
+']
 CSRF_TRUSTED_ORIGINS = [
     'https://scoruda-ga7i.onrender.com', 
     # 'https://scoruda.com',
