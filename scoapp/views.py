@@ -248,16 +248,9 @@ def createCompany(request):
 
         if tenant_form.is_valid():
             tenant = tenant_form.save(commit=False)
-
-            # -------------------------------
-            # 1) CREATE SCHEMA (safe)
-            # -------------------------------
             tenant.auto_create_schema = True  # lets django-tenants handle schema
             tenant.save()  # schema is created automatically—NO MIGRATIONS REQUIRED
 
-            # -------------------------------
-            # 2) CREATE DOMAIN (safe)
-            # -------------------------------
             try:
                 domain_name = f"{tenant.schema_name}.{settings.BASE_URL}"
 
@@ -273,27 +266,9 @@ def createCompany(request):
                 })
 
             # -------------------------------
-            # 3) SEND EMAIL (safe + debug)
+            # Email sending removed/commented
             # -------------------------------
-            try:
-                tenant_email = tenant.email
-
-                email = EmailMessage(
-                    subject="Your Company Domain is Ready",
-                    body=(
-                        "Your company's domain has been created successfully.\n\n"
-                        f"Login using this link:\nhttps://{domain.domain}/setupcompany"
-                    ),
-                    to=[tenant_email]
-                )
-                email.send(fail_silently=False)
-
-            except Exception as e:
-                # Show error but tenant is already created
-                return render(request, "form.html", {
-                    "form": tenant_form,
-                    "error": f"Tenant created, but email failed: {e}"
-                })
+            # Previously here, email was being sent. Now skipped.
 
             return redirect("emailsent")
 
@@ -308,6 +283,7 @@ def createCompany(request):
         "form": TenantForm(),
         "heading": heading
     })
+
 
 def emailsent(request):
     return render(request,'emailsent.html',context={})
