@@ -127,7 +127,7 @@ DATABASE_ROUTERS = (
 TENANT_APPS=['scoapp']
 TENANT_MODEL = "scoapp.Client"
 TENANT_DOMAIN_MODEL = "scoapp.Domain"  
-SHOW_PUBLIC_IF_NO_TENANT_FOUND = True
+SHOW_PUBLIC_IF_NO_TENANT_FOUND = False
 AUTH_USER_MODEL = 'scoapp.Members'
 
 # Password validation
