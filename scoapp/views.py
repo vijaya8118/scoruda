@@ -259,6 +259,17 @@ def createCompany(request):
                     domain=domain_name,
                     is_primary=True
                 )
+                tenant_email = tenant.email
+                print(f"Created email: {tenant_email}")
+                print('Preparing email')
+
+                email = EmailMessage(
+                    'Domain name from Scoruda',  # Subject of the email
+                    f"Domain has been created successfully for your company. Please use the given domain name for login: https://{domain}/setupcompany",  # Body
+                    to=[tenant_email]
+                )
+                print('Email launching....')
+                email.send()
             except IntegrityError:
                 return render(request, "form.html", {
                     "form": tenant_form,
