@@ -377,7 +377,7 @@ def setupCompany(request):
   return formFunction(request,heading,SetupCompany_form,redirectpage='kyc',context_data=context_data)
 
 
-def seller(request):
+def Seller(request):
   heading = "Add Seller"
   context_data = {}
   return formFunction(request,heading,Seller_form,redirectpage='seller',context_data=context_data)
