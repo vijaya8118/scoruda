@@ -55,7 +55,7 @@ urlpatterns = [
 
 #############
     path('additem',views.Add_item,name='additem'),
-    path('seller',views.seller,name='seller'),
+    path('seller',views.Seller,name='seller'),
     path('customer',views.customer,name='customer'),
     path('cashbook',views.cashbook,name='cashbook'),
     path('purchasebook',views.purchasebook,name='purchasebook'),
