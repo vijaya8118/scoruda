@@ -84,6 +84,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'scoprj.urls'
@@ -172,12 +173,12 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')]
 STORAGES = {
     "default": {
-        "BACKEND": "scoapp.imagekit_storage.ImageKitStorage"
+        "BACKEND": "scoapp.imagekit_storage.ImageKitStorage"   # keep your custom media storage
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
     }
- }
+}
 
 # DEFAULT_FILE_STORAGE = 'scoapp.imagekit_storage.ImageKitStorage'
 
