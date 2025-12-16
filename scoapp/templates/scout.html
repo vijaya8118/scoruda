@@ -87,8 +87,8 @@
         <td>{{q.amt}}</td>
                 <td><a href="{% url 'modepurch' q.mode %}">{{q.mode}}</a></td>
 
-        <td>EDIT</a></td>
-        <td>DELETE</a></td>
+                <td><a href="{% url 'purchase_edit' q.num %}">EDIT</a></td>
+        <td><a href="{% url 'purchase_delete' q.num %}">DELETE</a></td>
 
         {%endfor%} </table>
         <div class="pagination">
