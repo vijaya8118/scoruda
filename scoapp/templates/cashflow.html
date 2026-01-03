@@ -1,57 +1,37 @@
-{% include 'navbar.html' %}
-
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
-
+    <link rel="stylesheet" href="{% static 'style.css' %}">
     <style>
-        /* When both tables exist → side-by-side layout */
         .tables-wrapper {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
             gap: 20px;
             width: 100%;
-            padding: 10px;
             box-sizing: border-box;
         }
-
-        /* Table section */
         .column {
             flex: 1;
-            min-width: 0;
             overflow-x: auto;
         }
-
-        /* Full-width when only one table exists */
         .full-width {
             width: 100%;
             overflow-x: auto;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
+            background: #fff;
             font-size: 14px;
-            background: white;
         }
-
         th, td {
-            padding: 6px;
             border: 1px solid #ccc;
+            padding: 6px;
             text-align: center;
             white-space: nowrap;
         }
-
-        h3 {
-            text-align: center;
-        }
-
-        /* Mobile: stack tables */
-        @media(max-width: 900px){
-            .tables-wrapper{
+        @media (max-width: 900px) {
+            .tables-wrapper {
                 flex-direction: column;
             }
         }
@@ -59,223 +39,186 @@
 </head>
 
 <body>
+{% include 'navbar.html' %}
+
 <div class="container">
 
-{% if sale %}
-<center><h1>{{name_pk}} Sale Ledger</h1></center>
-{% else %}
-<center><h1>{{name_pk}} Purchase Ledger</h1></center>
-{% endif %}
+<h1 style="text-align:center">
+    {{ name_pk }} {% if sale %}Sale{% else %}Purchase{% endif %} Ledger
+</h1>
 
-<h2><center>
-    {% if bal >= 0 %}
-        ⚖️Balance ₹{{bal}}
+<h2 style="text-align:center">
+    ⚖️ Balance ₹
+    {% if bal < 0 %}
+        <span style="color:red">{{ bal }}</span>
     {% else %}
-        ⚖️Balance ₹<font color="red">{{bal}}</font>
+        {{ bal }}
     {% endif %}
-</center></h2>
+</h2>
 
-<!-- ================================================ -->
-<!-- CASE 1: BOTH TABLES EXIST → SIDE BY SIDE          -->
-<!-- ================================================ -->
-
-{% if bill_query and cashquery %}
+{% if bill_query.paginator.count and cashquery.paginator.count %}
+<!-- ================= BOTH TABLES ================= -->
 <div class="tables-wrapper">
 
-    <!-- ========== LEFT TABLE ========== -->
-    <div class="column">
-        <h3>📦 Quantity Sold {{totquant|floatformat}}</h3>
-        <h3>💰 Amount Sold ₹{{totamt|floatformat}}</h3>
-
-        <table>
-            <tr>
-                <th>BILL NUMBER</th>
-                <th>DATE</th>
-                <th>NAME</th>
-                <th>QUANTITY</th>
-                <th>RATE</th>
-                <th>CUSTOMER</th>
-                <th>TOTAL AMOUNT</th>
-                <th>MODE</th>
-                <th>EDIT</th>
-                <th>DELETE</th>
-            </tr>
-
-            {% for q in bill_query %}
-            {% if q.qty > 0 %}
-            <tr>
-                <td>{{q.billnum}}</td>
-                <td>{{q.date}}</td>
-                <td>{{q.product}}</td>
-                <td>{{q.qty}}</td>
-                <td>{{q.rate}}</td>
-                <td>{{q.selbuy}}</td>
-                <td>{{q.amt}}</td>
-                <td>{{q.mode}}</td>
-                <td>EDIT</td>
-                <td>DELETE</td>
-            </tr>
-            {% endif %}
-            {% endfor %}
-        </table>
-
-        <!-- Pagination -->
-        <div class="pagination">
-            <span class="step-links">
-                {% if bill_query.has_previous %}
-                    <a href="?page=1">&laquo; first</a>
-                    <a href="?page={{ bill_query.previous_page_number }}">previous</a>
-                {% endif %}
-
-                <span class="current">
-                    Page {{ bill_query.number }} of {{ bill_query.paginator.num_pages }}.
-                </span>
-
-                {% if bill_query.has_next %}
-                    <a href="?page={{ bill_query.next_page_number }}">next</a>
-                    <a href="?page={{ bill_query.paginator.num_pages }}">last &raquo;</a>
-                {% endif %}
-            </span>
-        </div>
-    </div>
-
-
-    <!-- ========== RIGHT TABLE ========== -->
-    <div class="column">
-    <h3><font color='white'>Quantity n/a</font></h3>
-
-    <h3>💰 Amount Received ₹{{totamt1|floatformat}}</h3>
-
-        <table>
-            <tr>
-                <th>DATE</th>
-                <th>NAME</th>
-                <th>MODE</th>
-                <th>TOTAL AMOUNT</th>
-                <th>COMMENT</th>
-                <th>EDIT</th>
-                <th>DELETE</th>
-            </tr>
-
-            {% for qq in cashquery %}
-            <tr>
-                <td>{{qq.date}}</td>
-                <td>{{qq.selbuy}}</td>
-                <td>{{qq.mode}}</td>
-                <td>{{qq.amt}}</td>
-                <td>{{qq.comment}}</td>
-                <td>EDIT</td>
-                <td>DELETE</td>
-            </tr>
-            {% endfor %}
-        </table>
-
-        <!-- Pagination -->
-        <div class="pagination">
-            <span class="step-links">
-                {% if cashquery.has_previous %}
-                    <a href="?page=1">&laquo; first</a>
-                    <a href="?page={{ cashquery.previous_page_number }}">previous</a>
-                {% endif %}
-
-                <span class="current">
-                    Page {{ cashquery.number }} of {{ cashquery.paginator.num_pages }}.
-                </span>
-
-                {% if cashquery.has_next %}
-                    <a href="?page={{ cashquery.next_page_number }}">next</a>
-                    <a href="?page={{ cashquery.paginator.num_pages }}">last &raquo;</a>
-                {% endif %}
-            </span>
-        </div>
-
-    </div>
-
-</div> <!-- end wrapper -->
-
-{% endif %}
-
-
-<!-- ================================================================ -->
-<!-- CASE 2: ONLY BILL TABLE EXISTS → FULL WIDTH                      -->
-<!-- ================================================================ -->
-
-{% if bill_query and not cashquery %}
-<div class="full-width">
-
-    <h3>📦 Quantity Sold {{totquant|floatformat}}</h3>
-    <h3>💰 Amount Sold ₹{{totamt|floatformat}}</h3>
+<!-- ================= BILL TABLE ================= -->
+<div class="column">
+    <h3>📦 Quantity {{ totquant|floatformat }}</h3>
+    <h3>💰 Amount ₹{{ totamt|floatformat }}</h3>
 
     <table>
         <tr>
-            <th>BILL NUMBER</th>
+            <th>BILL</th>
             <th>DATE</th>
             <th>NAME</th>
-            <th>QUANTITY</th>
+            <th>QTY</th>
             <th>RATE</th>
-            <th>CUSTOMER</th>
-            <th>TOTAL AMOUNT</th>
+            <th>PARTY</th>
+            <th>AMOUNT</th>
             <th>MODE</th>
             <th>EDIT</th>
-            <th>DELETE</th>
+            <th>DEL</th>
         </tr>
 
         {% for q in bill_query %}
         {% if q.qty > 0 %}
         <tr>
-            <td>{{q.billnum}}</td>
-            <td>{{q.date}}</td>
-            <td>{{q.product}}</td>
-            <td>{{q.qty}}</td>
-            <td>{{q.rate}}</td>
-            <td>{{q.selbuy}}</td>
-            <td>{{q.amt}}</td>
-            <td>{{q.mode}}</td>
-            <td>EDIT</td>
-            <td>DELETE</td>
+            <td>{{ q.billnum }}</td>
+            <td>{{ q.date }}</td>
+
+            <td>
+                <a href="{% url sale|yesno:'prod,purchprod' q.product_id %}">
+                    {{ q.product }}
+                </a>
+            </td>
+
+            <td>{{ q.qty }}</td>
+            <td>{{ q.rate }}</td>
+
+            <td>
+                <a href="{% url sale|yesno:'seller_shop,purchseller_shop' q.selbuy_id %}">
+                    {{ q.selbuy }}
+                </a>
+            </td>
+
+            <td>{{ q.amt }}</td>
+            <td>{{ q.mode }}</td>
+
+            <td>
+                <a href="{% url sale|yesno:'bill_edit,purchase_edit' q.billnum %}">EDIT</a>
+            </td>
+            <td>
+                <a href="{% url sale|yesno:'bill_delete,purchase_delete' q.billnum %}">DEL</a>
+            </td>
         </tr>
         {% endif %}
         {% endfor %}
     </table>
-
 </div>
-{% endif %}
 
+<!-- ================= CASH TABLE ================= -->
+<div class="column">
 
-<!-- ================================================================ -->
-<!-- CASE 3: ONLY CASH TABLE EXISTS → FULL WIDTH                      -->
-<!-- ================================================================ -->
+    <!-- spacer restored -->
+    <h2><font color="white">Quantity n/a</font></h2>
 
-{% if cashquery and not bill_query %}
-<div class="full-width">
-    <h3>_____________________________________</h3>
-
-    <h3>💰 Amount Received ₹{{totamt1|floatformat}}</h3>
+    <h3>💰 Amount Received ₹{{ totamt1|floatformat }}</h3>
 
     <table>
         <tr>
             <th>DATE</th>
             <th>NAME</th>
             <th>MODE</th>
-            <th>TOTAL AMOUNT</th>
+            <th>AMOUNT</th>
             <th>COMMENT</th>
             <th>EDIT</th>
             <th>DELETE</th>
         </tr>
 
-        {% for qq in cashquery %}
+        {% for c in cashquery %}
         <tr>
-            <td>{{qq.date}}</td>
-            <td>{{qq.selbuy}}</td>
-            <td>{{qq.mode}}</td>
-            <td>{{qq.amt}}</td>
-            <td>{{qq.comment}}</td>
-            <td>EDIT</td>
-            <td>DELETE</td>
+            <td>{{ c.date }}</td>
+            <td>{{ c.selbuy }}</td>
+            <td>{{ c.mode }}</td>
+            <td>{{ c.amt }}</td>
+            <td>{{ c.comment }}</td>
+
+            <td>
+                <a href="{% url sale|yesno:'cashbook_edit,purchasebook_edit' c.id %}">EDIT</a>
+            </td>
+            <td>
+                <a href="{% url sale|yesno:'cashbook_delete,purchasebook_delete' c.id %}">DELETE</a>
+            </td>
         </tr>
         {% endfor %}
     </table>
+</div>
 
+</div>
+{% endif %}
+
+{% if bill_query.paginator.count and not cashquery.paginator.count %}
+<!-- ================= BILL ONLY ================= -->
+<div class="full-width">
+    <h3>📦 Quantity {{ totquant|floatformat }}</h3>
+    <h3>💰 Amount ₹{{ totamt|floatformat }}</h3>
+
+    <table>
+        <tr>
+            <th>BILL</th><th>DATE</th><th>NAME</th><th>QTY</th>
+            <th>RATE</th><th>PARTY</th><th>AMOUNT</th>
+            <th>MODE</th><th>EDIT</th><th>  </th>
+        </tr>
+
+        {% for q in bill_query %}
+        {% if q.qty > 0 %}
+        <tr>
+            <td>{{ q.billnum }}</td>
+            <td>{{ q.date }}</td>
+            <td>{{ q.product }}</td>
+            <td>{{ q.qty }}</td>
+            <td>{{ q.rate }}</td>
+            <td>{{ q.selbuy }}</td>
+            <td>{{ q.amt }}</td>
+            <td>{{ q.mode }}</td>
+            <td><a href="{% url sale|yesno:'bill_edit,purchase_edit' q.billnum %}">EDIT</a></td>
+            <td><a href="{% url sale|yesno:'bill_delete,purchase_delete' q.billnum %}">DEL</a></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% if cashquery.paginator.count and not bill_query.paginator.count %}
+<!-- ================= CASH ONLY ================= -->
+<div class="full-width">
+
+    <h3><font color="white">Quantity n/a</font></h3>
+    <h3>💰 Amount Received ₹{{ totamt1|floatformat }}</h3>
+
+    <table>
+        <tr>
+            <th>DATE</th>
+            <th>NAME</th>
+            <th>MODE</th>
+            <th>AMOUNT</th>
+            <th>COMMENT</th>
+            <th>EDIT</th>
+            <th>DEL</th>
+        </tr>
+
+        {% for c in cashquery %}
+        <tr>
+            <td>{{ c.date }}</td>
+            <td>{{ c.selbuy }}</td>
+            <td>{{ c.mode }}</td>
+            <td>{{ c.amt }}</td>
+            <td>{{ c.comment }}</td>
+            <td><a href="{% url sale|yesno:'cashbook_edit,purchasebook_edit' c.id %}">EDIT</a></td>
+            <td><a href="{% url sale|yesno:'cashbook_delete,purchasebook_delete' c.id %}">DEL</a></td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
 {% endif %}
 

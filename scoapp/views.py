@@ -5,9 +5,7 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from django.core.management import call_command
 from django.core.mail import EmailMessage
-from django.core.management import call_command
 from django.shortcuts import render,redirect,reverse
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
@@ -16,12 +14,8 @@ from decimal import Decimal
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.views.decorators.http import require_POST
-from django.utils import timezone
 from collections import defaultdict
 import calendar 
-from django.http import HttpResponse
-from django.template.loader import render_to_string
-from tenant_schemas.utils import schema_context, get_tenant_model
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
 
@@ -30,26 +24,26 @@ from django.contrib.auth import get_user_model
 ## User defines functions
 def mode_total(model,model1,need_query ):
     # ## Invoice_model
-        upi_query=model.objects.all().filter(mode = 'UPI')
+        Bank_query=model.objects.all().filter(mode = 'Bank')
         cash_query=model.objects.all().filter(mode = 'cash')
         credit_query=model1.objects.all().filter(mode = 'credit')
 
         cashdict = cash_query.aggregate(Sum('amt')) 
         cash = cashdict['amt__sum'] or 0
 
-        upiquery = upi_query.aggregate(Sum('amt')) 
-        upi = upiquery['amt__sum'] or 0
+        Bankquery = Bank_query.aggregate(Sum('amt')) 
+        Bank = Bankquery['amt__sum'] or 0
         
         total_transaction_query = model1.objects.all() 
         total_dict = total_transaction_query.aggregate(Sum('amt')) 
         total_transaction = total_dict['amt__sum'] or 0
 
-        cash_upi = Decimal(cash or 0) + Decimal(upi or 0)
-        credit = Decimal(total_transaction or 0) - Decimal(cash_upi or 0)
+        cash_Bank = Decimal(cash or 0) + Decimal(Bank or 0)
+        credit = Decimal(total_transaction or 0) - Decimal(cash_Bank or 0)
         if need_query == False:
-            return cash,upi,credit
+            return cash,Bank,credit
         else :
-            return cash,upi,credit,upi_query,cash_query,credit_query
+            return cash,Bank,credit,Bank_query,cash_query,credit_query
 
 
         # query=model.objects.all().filter(mode = mode_type)
@@ -156,15 +150,16 @@ def collect_values(request,pk,model,compare_field,field_to_access):
         return amt_total,qty_total,name,pages
 
 
-
+@login_required
 def formFunction(request,heading,formvar,redirectpage,context_data):
     form = formvar(request.POST or None, request.FILES or None)
-    theuser = request.user
-    print(theuser)
+    theuser = request.user  # this is a Members instance
+    print(theuser, theuser.is_authenticated)
+
     if request.method == 'POST':
         if form.is_valid():
             obj = form.save(commit=False)
-            obj.user = theuser
+            obj.user = theuser  # assign BEFORE saving
             obj.save()
             return redirect(redirectpage)
     return render(request, 'formjust.html', context={'form': form, 'heading': heading,**context_data})
@@ -178,7 +173,7 @@ def display(request, modelvar, var):
 
 def edit_view_decorator(Modelvar, redirect_view, Formvar, use_edit_view=True):
     def edit_using_num(request, pk):
-        obj = get_object_or_404(Modelvar, num=pk)
+        obj = get_object_or_404(Modelvar, billnum=pk)
         if request.method == 'POST':
             form = Formvar(request.POST, request.FILES, instance=obj)
         else:
@@ -209,7 +204,7 @@ def edit_view_decorator(Modelvar, redirect_view, Formvar, use_edit_view=True):
     
 def delete_view_decorator(Modelvar, redirect_view, use_delete_view=True):
     def delete_using_num(request, pk):
-        instance = get_object_or_404(Modelvar, num=pk)
+        instance = get_object_or_404(Modelvar, billnum=pk)
         if request.method == 'POST':
             instance.delete()
             return redirect(redirect_view)
@@ -380,11 +375,15 @@ from datetime import datetime, timedelta
 
 ############ DATA ENTRY #################
 
-def Add_item(request):
-    heading = "Add Product"
+def Add_item_sale(request):
+    heading = "Add Sale Product"
     context_data = {}
-    return formFunction(request,heading,Add_item_form,redirectpage='additem',context_data=context_data)
+    return formFunction(request,heading,Add_item_sale_form,redirectpage='additemsale',context_data=context_data)
 
+def Add_item_purch(request):
+    heading = "Add Purchase Product"
+    context_data = {}
+    return formFunction(request,heading,Add_item_purch_form,redirectpage='additempurch',context_data=context_data)
 
 def setupCompany(request):
   heading = "Please complete your company profile to continue."
@@ -392,10 +391,10 @@ def setupCompany(request):
   return formFunction(request,heading,SetupCompany_form,redirectpage='kyc',context_data=context_data)
 
 
-def seller(request):
+def Seller_view(request):
   heading = "Add Seller"
   context_data = {}
-  return formFunction(request,heading,Seller_form,redirectpage='seller',context_data=context_data)
+  return formFunction(request,heading,Seller_form,redirectpage='kyc',context_data=context_data)
 
 def cashbook(request):
   heading = "Cash Receipt"
@@ -413,7 +412,8 @@ def customer(request):
   return formFunction(request,heading,Customer_form,redirectpage='customer',context_data=context_data)
 
 ############ EDIT AND DELETE #################
-item_delete = delete_view_decorator(Add_item_model, 'item',use_delete_view=False)
+itempurch_delete = delete_view_decorator(Add_item_model_purch, 'itempurch',use_delete_view=False)
+itemsale_delete = delete_view_decorator(Add_item_model_sale, 'itemsale',use_delete_view=False)
 customer_delete = delete_view_decorator(Customer, 'customerall',use_delete_view=False)
 seller_delete = delete_view_decorator(Seller, 'sellerall',use_delete_view=False)
 cashbook_delete = delete_view_decorator(CashBook, 'show',use_delete_view=False)
@@ -421,7 +421,8 @@ purchasebook_delete = delete_view_decorator(PurchaseBook, 'show',use_delete_view
 bill_delete = delete_view_decorator(Invoice_model, 'show',use_delete_view=True)
 purchase_delete = delete_view_decorator(Purchase_model, 'show',use_delete_view=True)
 
-item_edit = edit_view_decorator(Add_item_model, 'item',Add_item_form, use_edit_view=False)
+itemsale_edit = edit_view_decorator(Add_item_model_sale, 'itemsale',Add_item_sale_form, use_edit_view=False)
+itempurch_edit = edit_view_decorator(Add_item_model_purch, 'itempurch',Add_item_purch_form, use_edit_view=False)
 seller_edit = edit_view_decorator(Seller, 'sellerall',Seller_form, use_edit_view=False)
 customer_edit = edit_view_decorator(Customer, 'customerall',Customer_form, use_edit_view=False)
 cashbook_edit = edit_view_decorator(CashBook, 'show',CashReceipt_form, use_edit_view=False)
@@ -431,15 +432,17 @@ purchase_edit = edit_view_decorator(Purchase_model, 'show',Purchase_form, use_ed
 setupCompany_edit = edit_view_decorator(SetupCompany, 'setup',SetupCompany_form, use_edit_view=False)
 
 ############ DISPLAY #################
-def item_display(request):
-    heading="Product List"
-    query = display(request, Add_item_model, 'id')
+def itemsale_display(request):
+    heading="Sale Product List"
+    query = display(request, Add_item_model_sale, 'id')
     return render(request,'view.html',context={'query':query,'heading':heading})
 
-def product_list(request):
-    heading="Product List"
-    query = display(request, Add_item_model, 'id')
-    return render(request,'product_list.html',context={'query':query,'heading':heading})
+def itempurch_display(request):
+    heading="Purchase Product List"
+    query = display(request, Add_item_model_purch, 'id')
+    return render(request,'view.html',context={'query':query,'heading':heading})
+
+
 
 def seller_display(request):
     heading="Seller List"
@@ -452,8 +455,9 @@ def customer_display(request):
     return render(request,'view.html',context={'query':query,'heading':heading})
 
 #################### PURCHASES AND SALES ###############################
-def process(request,Tansaction_model,CustSel,Book_model,redirectpage):
+def process(request,Tansaction_model,CustSel,Add_item_model,Book_model,redirectpage):
     print("enter view")
+    gstperc =0
     if request.method == 'POST':
         print('POST request received')
         try:
@@ -465,12 +469,8 @@ def process(request,Tansaction_model,CustSel,Book_model,redirectpage):
             total_amount = 0
             if not selected_products:
                 print("No products received in the order.")
-            try:
-                latest_invoice = Tansaction_model.objects.latest('date')
-                bill_number = latest_invoice.billnum + 1
-            except Tansaction_model.DoesNotExist:
-                # If no invoices exist, set the initial bill number to 1
-                bill_number = 1
+            latest_invoice = Tansaction_model.objects.order_by('-date').first()
+            bill_number = (latest_invoice.billnum + 1) if latest_invoice else 1
             print('Bill number:', bill_number)
             for product in selected_products:  
                 if not isinstance(product, dict):
@@ -523,14 +523,14 @@ def process(request,Tansaction_model,CustSel,Book_model,redirectpage):
                     total_amount += amount
 
                     print('1')
-                    if payment_mode in ['cash', 'UPI']:
+                    if payment_mode in ['cash', 'Bank']:
                         try:
                             print('2')
                             cash_book_entry = Book_model(
                                 user = request.user,
                                 selbuy=seller_buyer,  # Link to the customer
                                 amt=amount,  # Amount paid
-                                mode=payment_mode,  # Payment mode (cash/UPI)
+                                mode=payment_mode,  # Payment mode (cash/Bank)
                                 comment=f"Payment for Invoice {bill_number}"  # Optional comment
                             )
                             print('3')
@@ -546,9 +546,58 @@ def process(request,Tansaction_model,CustSel,Book_model,redirectpage):
     return render(request, 'sale.html', context={})
 
 
+def process_mini(request, form, redirectpage, Book_model, purchase, qty):
+    if request.method == 'POST':
+        try:
+            if form.is_valid():
+                obj = form.save(commit=False)
+
+                # From Purchase (SAFE)
+                obj.product = purchase.product
+                obj.qty = qty
+
+                # From Form (Customer)
+                obj.selbuy = form.cleaned_data['selbuy']
+                obj.rate = form.cleaned_data['rate']
+
+                # Amount calculation
+                obj.amt = qty * obj.rate
+
+                gstperc = form.cleaned_data.get('gst', 0)
+                obj.gst = (obj.amt * gstperc) / 100
+                total_amount = obj.amt + obj.gst
+
+                # Generate bill number
+                latest_invoice = obj.__class__.objects.order_by('-date').first()
+                obj.billnum = latest_invoice.billnum + 1 if latest_invoice else 1
+
+                obj.user = request.user
+                obj.save()
+
+                # Cash / Bank Entry
+                payment_mode = form.cleaned_data.get('mode')
+                if payment_mode in ['cash', 'Bank']:
+                    Book_model.objects.create(
+                        user=request.user,
+                        selbuy=obj.selbuy,   # Customer
+                        amt=total_amount,
+                        mode=payment_mode,
+                        comment=f"Payment for Invoice {obj.billnum}"
+                    )
+
+                return redirect(redirectpage)
+
+        except Exception as e:
+            print(f"Error processing order: {e}")
+
+    return render(request, 'sale.html', {'form': form})
+
+
+
+
 def sale(request):
     head = "Bill"
-    items = Add_item_model.objects.exclude(image__isnull=True).exclude(image__exact='')  
+    items = Add_item_model_sale.objects.exclude(image__isnull=True).exclude(image__exact='')  
     form = InvoiceSecond_form(request.POST or None)
     print(items)
     return render(request, 'sale.html', context={'items': items, 'head': head, 'form': form})
@@ -556,12 +605,12 @@ def sale(request):
 @require_POST
 @csrf_exempt
 def process_sale(request):
-    query = process(request, Invoice_model,Customer,CashBook, 'invoice')
+    query = process(request, Invoice_model,Customer,Add_item_model_sale,CashBook, 'invoice')
     return render(request,'sale.html',context={'query':query})
 
 def purchase(request):
     head = "Purchase"
-    items = Add_item_model.objects.exclude(image__isnull=True).exclude(image__exact='')  
+    items = Add_item_model_purch.objects.exclude(image__isnull=True).exclude(image__exact='')  
     form = Purchase_form2(request.POST or None)
     print(items)
     return render(request, 'purchase.html', context={'items': items, 'head': head, 'form': form})
@@ -570,8 +619,177 @@ def purchase(request):
 @require_POST
 @csrf_exempt
 def process_purchase(request):
-    query = process(request, Purchase_model,Seller,PurchaseBook, 'invoice')
+    query = process(request, Purchase_model,Seller,Add_item_model_purch,PurchaseBook, 'invoice')
     return render(request,'purchase.html',context={'query':query})
+
+#####################################################
+from django.db import transaction, IntegrityError
+from django.contrib import messages
+
+def purchase_manual(request):
+    if request.method == "POST":
+        invoice_form = PurchaseManual_form(request.POST)
+        transport_form = TransportForm(request.POST)
+
+        if invoice_form.is_valid():
+            try:
+                with transaction.atomic():
+                    # 1️⃣ Save Invoice (always)
+                    invoice = invoice_form.save()
+
+                    bill_number = invoice.billnum
+                    payment_mode = invoice.mode
+                    amount = invoice.amt
+                    seller_buyer = invoice.selbuy
+
+                    # 2️⃣ Save Transport ONLY if data is provided
+                    if transport_form.is_valid():
+                        has_data = any(
+                            transport_form.cleaned_data.get(field)
+                            for field in transport_form.fields
+                        )
+
+                        if has_data:
+                            transport = transport_form.save(commit=False)
+                            transport.bill = invoice   # FK expects Invoice_model instance
+                            transport.save()
+                            messages.success(request, "Transport details saved successfully.")
+
+                    # 3️⃣ CashBook entry only for cash / Bank
+                    if payment_mode in ['cash', 'Bank']:
+                        PurchaseBook.objects.create(
+                            user=request.user,
+                            selbuy=seller_buyer,
+                            amt=amount,
+                            mode=payment_mode,
+                            comment=f"Payment for Invoice {bill_number}"
+                        )
+
+                    messages.success(request, "Invoice saved successfully.")
+
+            except IntegrityError:
+                invoice_form.add_error(
+                    'billnum',
+                    'This bill number already exists. Please choose another.'
+                )
+
+    else:
+        latest_invoice = Purchase_model.objects.order_by('-date').first()
+        bill_number = (latest_invoice.billnum + 1) if latest_invoice else 1
+
+        invoice_form = PurchaseManual_form(initial={'billnum': bill_number})
+        transport_form = TransportForm()
+
+    return render(request, "invoice_manual.html", {
+        "invoice_form": invoice_form,
+        "transport_form": transport_form,
+    })
+
+def transportation_view(request):
+    form = TransportForm1(request.POST or None)  
+    if form.is_valid():
+        form.save()
+        return redirect('show')
+    return render(request, 'formjust.html', context={'form': form, 'heading': 'Transportation'})   
+
+from django.shortcuts import render, redirect, get_object_or_404
+
+def generate_invoice_view(request, pk):
+    # Get the purchase object
+    purchase = get_object_or_404(Purchase_model, billnum=pk)
+    print("Purchase:", purchase)
+    
+    # Get transportation qty (sum all related)
+    unloaded_qty = Transportation.objects.filter(purchase=purchase).aggregate(
+        total_qty=models.Sum('qty')
+    )['total_qty'] or 0
+
+    # Determine qty to process
+    qty = min(purchase.qty, unloaded_qty)
+
+    # Pre-fill the form with initial data
+    initial_data = {
+        'qty': qty,
+        'rate': purchase.rate,      # assuming rate exists in Purchase_model
+        'selbuy': purchase.selbuy,  # assuming selbuy exists
+    }
+    form = GenerateInvoice_form(request.POST or None, initial=initial_data)
+
+    # Process the form
+    if request.method == 'POST':
+        # Pass purchase as an argument
+        return process_mini(request, form, 'show', CashBook, purchase, qty)
+
+
+    return render(request, 'formjust.html', context={'form': form, 'heading': 'Generate Invoice'})
+
+
+
+def transportation(request):
+    rows = []
+
+    purch_query = Purchase_model.objects.all().order_by('-date')
+
+    for p in purch_query:
+        billnumber = p.billnum
+        seller = p.selbuy
+        purch_qty = p.qty
+        purch_rate = p.rate
+
+        # Transportation data (can be multiple)
+        transports = Transportation.objects.filter(purchase=billnumber)
+
+        # Invoice data (can be multiple)
+        bills = Invoice_model.objects.filter(billnum=billnumber)
+
+        # Loop through transportation
+        if transports.exists():
+            for transport in transports:
+                vehicle = transport.vehicle_no
+                date_supply = transport.date_supply
+                qty = transport.qty
+
+                # Loop through invoices
+                if bills.exists():
+                    for bill in bills:
+                        rows.append({
+                            'billnumber': billnumber,
+                            'vehicle': vehicle,
+                            'date_supply': date_supply,
+                            'customer': bill.selbuy,
+                            'qty': qty,
+                            'quantity': bill.qty,
+                            'rate': bill.rate,
+                            'amount': bill.amt,
+                            'seller': seller,
+                            'purch_qty': purch_qty,
+                            'purch_rate': purch_rate,
+                        })
+                else:
+                    rows.append({
+                        'billnumber': billnumber,
+                        'vehicle': vehicle,
+                        'date_supply': date_supply,
+                        'customer': '-',
+                        'qty': qty,
+                        'quantity': '-',
+                        'rate': '-',
+                        'amount': '-',
+                        'seller': seller,
+                        'purch_qty': purch_qty,
+                        'purch_rate': purch_rate,
+                    })
+
+    return render(
+        request,
+        'transport.html',
+        {
+            'rows': rows,
+            'heading': 'Transportation'
+        }
+    )
+
+    
 
 ###################### DASHBOARD AND SUMMARY ################################
 
@@ -594,7 +812,7 @@ def invoiceDisplay(request):
 
 def Stock(request):
     head = "Stock"
-    products = Add_item_model.objects.all()
+    products = Add_item_model_sale.objects.all()
     d = {}
     d1 = {}
     d2 = {}
@@ -620,18 +838,18 @@ def cash_balance(request):
         d2={}
 
 
-        cash_sold ,upi_sold,credit_sold = mode_total(CashBook,Invoice_model,need_query = False)
-        cash_purch ,upi_purch,credit_purch = mode_total(PurchaseBook,Purchase_model,need_query = False)
+        cash_sold ,Bank_sold,credit_sold = mode_total(CashBook,Invoice_model,need_query = False)
+        cash_purch ,Bank_purch,credit_purch = mode_total(PurchaseBook,Purchase_model,need_query = False)
 
         d1 = {
         "Cash": cash_sold,  
-        "UPI":upi_sold,
+        "Bank":Bank_sold,
         "Credit":credit_sold,
         }
 
         d = {
         "Cash": cash_purch,  
-        "UPI":upi_purch,
+        "Bank":Bank_purch,
         "Credit":credit_purch,
         }
     
@@ -735,52 +953,52 @@ def multisearch(request):
 
     return render(request,'search.html',context = {'form':form,'bill_query':combined_query})
 
-def dashboard_today(request):
-    products = Add_item_model.objects.all()
-    product_names = []
-    balances = []
-    for p in products:
-        prod_name = p.product
-        prod_id = p.id if p.id is not None else 0
+# def dashboard_today(request):
+#     products = Add_item_model.objects.all()
+#     product_names = []
+#     balances = []
+#     for p in products:
+#         prod_name = p.product
+#         prod_id = p.id if p.id is not None else 0
 
-        purchased = total_quantity(Purchase_model, prod_id)
-        sold = total_quantity(Invoice_model, prod_id)
-        balance = purchased - sold
-        print(prod_name, balances)
-        product_names.append(prod_name)
-        balances.append(balance)
-################CASH BOXES ######################
-    today1 = timezone.now().date()
-    today = today1.strftime('%Y-%m-%d')
-    head = f'Balances as on {today}'
+#         purchased = total_quantity(Purchase_model, prod_id)
+#         sold = total_quantity(Invoice_model, prod_id)
+#         balance = purchased - sold
+#         print(prod_name, balances)
+#         product_names.append(prod_name)
+#         balances.append(balance)
+# ################CASH BOXES ######################
+#     today1 = timezone.now().date()
+#     today = today1.strftime('%Y-%m-%d')
+#     head = f'Balances as on {today}'
        
-    purch_query=Purchase_model.objects.all()
-    purchBook_query = PurchaseBook.objects.all()
-    bill_query=Invoice_model.objects.all()
-    csh_query = CashBook.objects.all()
+#     purch_query=Purchase_model.objects.all()
+#     purchBook_query = PurchaseBook.objects.all()
+#     bill_query=Invoice_model.objects.all()
+#     csh_query = CashBook.objects.all()
 
-    bill_tot = find_sum(bill_query)
-    csh_tot = find_sum(csh_query)
+#     bill_tot = find_sum(bill_query)
+#     csh_tot = find_sum(csh_query)
 
-    purch_tot = find_sum(purch_query)
-    purchBook_tot = find_sum(purchBook_query)
-    print()
-    a=b=0
-    d = mode(purchBook_query,purch_tot,purchBook_tot)
-    d1= mode(csh_query,bill_tot,csh_tot)
-    d3 = {key: d1.get(key, 0) - d.get(key, 0) for key in d.keys() | d1.keys()} 
-    print(d3)
-    print('balances',d3)
-    payment_data = {
-        "Cash": d3.get('cash',0), 
-        "UPI": d3.get(' UPI'),    
-        "Credit": d3.get('credit',0) 
-    }
-    print(payment_data)
-    # If no products are available, handle empty data
-    if not product_names:
-        product_names = ["No products available"]
-        balances = [0]
+#     purch_tot = find_sum(purch_query)
+#     purchBook_tot = find_sum(purchBook_query)
+#     print()
+#     a=b=0
+#     d = mode(purchBook_query,purch_tot,purchBook_tot)
+#     d1= mode(csh_query,bill_tot,csh_tot)
+#     d3 = {key: d1.get(key, 0) - d.get(key, 0) for key in d.keys() | d1.keys()} 
+#     print(d3)
+#     print('balances',d3)
+#     payment_data = {
+#         "Cash": d3.get('cash',0), 
+#         "Bank": d3.get(' Bank'),    
+#         "Credit": d3.get('credit',0) 
+#     }
+#     print(payment_data)
+#     # If no products are available, handle empty data
+#     if not product_names:
+#         product_names = ["No products available"]
+#         balances = [0]
 
 ################LINE GRAPH####################
 
@@ -853,7 +1071,7 @@ def prod(request,pk):
         amt_total,qty_total,name,pages= collect_values(request,pk,Invoice_model,'product_id','product')
         print('number')
     else:
-        product_query = Add_item_model.objects.filter(product = pk)
+        product_query = Add_item_model_sale.objects.filter(product = pk)
         for p in product_query:
             pkk = p.id
             print(pk)
@@ -867,7 +1085,7 @@ def prod_purch(request,pk):
     if pk.isnumeric():
         amt_total,qty_total,name,pages = collect_values(request,pkk,Purchase_model,'product_id','product')
     else:
-        product_query = Add_item_model.objects.filter(product = pk)
+        product_query = Add_item_model_purch.objects.filter(product = pk)
         for p in product_query:
             pkk = p.id
             print(pk)
@@ -881,7 +1099,7 @@ def seller(request,pk):
     amt_total,qty_total,name,pages = collect_values(request,pk,Invoice_model,'selbuy_id','selbuy')
     amt_total1,qty_total1,name1,pages1 = collect_values(request,pk,CashBook,'selbuy_id','selbuy')
     bal = Decimal(amt_total or 0) - Decimal(amt_total1 or 0)
-    return render(request,'cashflow.html',context={'bill_query':pages,'totquant':qty_total,'name_pk':name,'totamt':amt_total,'sale':False,
+    return render(request,'cashflow.html',context={'bill_query':pages,'totquant':qty_total,'name_pk':name,'totamt':amt_total,'sale':True,
     'cashquery':pages1,'totamt1':amt_total1,
     'bal':bal})
 
@@ -896,15 +1114,15 @@ def seller_purch(request,pk):
 
 #mode
 def mode_purch(request,pk):
-    # cash_sold ,upi_sold,credit_sold,upi_query,cash_query = mode_total(CashBook,Invoice_model,need_query = True)
-    cash_purch ,upi_purch,credit_purch,upi_query,cash_query,credit_query = mode_total(PurchaseBook,Purchase_model,need_query = True)
-    print(cash_purch ,upi_purch,credit_purch,upi_query,cash_query,credit_query)
+    # cash_sold ,Bank_sold,credit_sold,Bank_query,cash_query = mode_total(CashBook,Invoice_model,need_query = True)
+    cash_purch ,Bank_purch,credit_purch,Bank_query,cash_query,credit_query = mode_total(PurchaseBook,Purchase_model,need_query = True)
+    print(cash_purch ,Bank_purch,credit_purch,Bank_query,cash_query,credit_query)
     if pk =='cash':
         cashquery = cash_query
         totamt1 = cash_purch
-    elif pk =='UPI':
-        cashquery = upi_query
-        totamt1=upi_purch
+    elif pk =='Bank':
+        cashquery = Bank_query
+        totamt1=Bank_purch
     else :
         cashquery = credit_query
         totamt1=credit_purch
@@ -914,18 +1132,18 @@ def mode_purch(request,pk):
 
 
 def mode(request,pk):
-    cash_purch ,upi_purch,credit_purch,upi_query,cash_query,credit_query = mode_total(CashBook,Invoice_model,need_query = True)
-    print(cash_purch ,upi_purch,credit_purch,upi_query,cash_query,credit_query)
+    cash_purch ,Bank_purch,credit_purch,Bank_query,cash_query,credit_query = mode_total(CashBook,Invoice_model,need_query = True)
+    print(cash_purch ,Bank_purch,credit_purch,Bank_query,cash_query,credit_query)
     if pk =='cash':
         cashquery = cash_query
         totamt1 = cash_purch
-    elif pk =='UPI':
-        cashquery = upi_query
-        totamt1=upi_purch
+    elif pk =='Bank':
+        cashquery = Bank_query
+        totamt1=Bank_purch
     else :
         cashquery = credit_query
         totamt1=credit_purch
 
-    return render(request,'cashflow.html',context={'name_pk':pk,'cashquery':cashquery,'totamt1':totamt1})
+    return render(request,'cashflow.html',context={'name_pk':pk,'cashquery':cashquery,'totamt1':totamt1,'sale':True,})
 
 

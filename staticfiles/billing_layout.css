@@ -1,0 +1,144 @@
+/* Main container */
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 20px;
+    padding: 0 20px;
+    flex-wrap: wrap;            /* Allow wrapping on small screens */
+    display: none;              /* Initially hidden */
+}
+
+/* Left side - Image Grid */
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    flex: 1 1 300px;            /* Responsive width */
+}
+
+.image-grid img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Right side - Selected Products */
+.selected-products-container {
+    flex: 1 1 300px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Product Selection Row */
+.product-selection {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.product-selection input {
+    flex: 1;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.product-selection button {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.product-selection button:hover {
+    background-color: #e60000;
+}
+
+/* Form Styles */
+.form-section {
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 16px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-container button:hover {
+    background-color: #45a049;
+}
+
+/* Payment Button */
+.payment-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.payment-button:hover {
+    background-color: #45a049;
+}
+
+/* -------------------------- */
+/*     RESPONSIVE BREAKPOINTS */
+/* -------------------------- */
+
+/* Tablets & small laptops */
+@media (max-width: 992px) {
+    .main-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .image-grid, 
+    .selected-products-container {
+        max-width: 100%;
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 600px) {
+    .image-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+
+    .product-selection {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .product-selection button {
+        width: 100%;
+    }
+}

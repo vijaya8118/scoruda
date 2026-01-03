@@ -54,14 +54,16 @@ urlpatterns = [
     path('',views.landing,name =''),
 
 #############
-    path('additem',views.Add_item,name='additem'),
-    path('seller',views.seller,name='seller'),
+    path('additemsale',views.Add_item_sale,name='additemsale'),
+    path('additempurch',views.Add_item_purch,name='additempurch'),
+    path('seller',views.Seller_view,name='seller'),
     path('customer',views.customer,name='customer'),
     path('cashbook',views.cashbook,name='cashbook'),
     path('purchasebook',views.purchasebook,name='purchasebook'),
 
 # ####delete
-    path('item_delete/<str:pk>/',views.item_delete,name='item_delete'),
+    path('itemsale_delete/<str:pk>/',views.itemsale_delete,name='itemsale_delete'),
+    path('itempurch_delete/<str:pk>/',views.itempurch_delete,name='itempurch_delete'),
     path('seller_delete/<str:pk>/',views.seller_delete,name='seller_delete'),
     path('customer_delete/<str:pk>/',views.customer_delete,name='customer_delete'),
     path('cashbook_delete/<str:pk>/',views.cashbook_delete,name='cashbook_delete'),
@@ -70,7 +72,8 @@ urlpatterns = [
     path('bill_delete/<str:pk>/',views.bill_delete,name='bill_delete'),
 
 # ####edits
-    path('item_edit/<str:pk>/',views.item_edit,name='item_edit'),
+    path('itemsale_edit/<str:pk>/',views.itemsale_edit,name='itemsale_edit'),
+    path('itempurch_edit/<str:pk>/',views.itempurch_edit,name='itempurch_edit'),
     path('seller_edit/<str:pk>/',views.seller_edit,name='seller_edit'),
     path('customer_edit/<str:pk>/',views.customer_edit,name='customer_edit'),
     path('cashbook_edit/<str:pk>/',views.cashbook_edit,name='cashbook_edit'),
@@ -81,7 +84,8 @@ urlpatterns = [
     path('company_edit/<str:pk>/',views.setupCompany_edit,name='company_edit'),
                                                                  
 # ##view
-    path('item',views.item_display,name='item'),
+    path('itemsale',views.itemsale_display,name='itemsale'),
+    path('itempurch',views.itempurch_display,name='itempurch'),
     path('customerall',views.customer_display,name='customerall'),
     path('sellerall',views.seller_display,name='sellerall'),
 
@@ -97,8 +101,13 @@ urlpatterns = [
 
     path('retailpurch',views.purchase,name='retailpurch'),
     path('r1',views.process_purchase,name='r1'),
-    
 
+##############
+
+    path('purchase_manual',views.purchase_manual,name='purchase_manual'),
+    path('transport',views.transportation_view,name='transport'),
+    path('transport_display',views.transportation,name='transport_display'),
+    path('generate_invoice/<str:pk>/',views.generate_invoice_view,name='generate_invoice'),
 # ##overviews
     path('show',views.scout,name='show'),
     path('cshbal',views.cash_balance,name='cshbal'),
@@ -126,11 +135,11 @@ urlpatterns = [
 #     # path('',views.frontPage,name=''),
 #     path('cr/<str:pk>',views.credit,name='cr'),
 #     path('cr1/<str:pk>/',views.credit1,name='cr1'),
-
+           
 # #####
 #     path('send_to_serial', views.serial_data, name='send_to_serial'),
 #     path('index',views.index,name='index'),
-    path('dashboard',views.dashboard_today,name='dashboard'),
+    # path('dashboard',views.dashboard_today,name='dashboard'),
 # ####
 #     path('download_pdf/', views.download_pdf, name='download_pdf'),
 # #####
@@ -142,7 +151,7 @@ urlpatterns = [
 #     path('upload_invoice/', views.upload_invoice, name='upload_invoice'),
 #     path('upload_purchase/', views.upload_purchase, name='upload_purchase'),
 
-
+    
 ]
 
 

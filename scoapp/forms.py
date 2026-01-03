@@ -5,6 +5,7 @@ import re
 from django.db import connection
 from django.contrib.auth.hashers import make_password
 
+
 class UploadForm(forms.Form):
     file = forms.FileField()
 
@@ -84,14 +85,31 @@ class SetupCompany_form(forms.ModelForm):
         fields='__all__'
         exclude=('user',)
 
+# def SetupCompanyFormFactory(user):
+#     SetupCompany = get_strategy(user).SetupCompany
+
+#     class SetupCompanyForm(forms.ModelForm):
+#         class Meta:
+#             model = SetupCompany
+#             fields = '__all__'
+#             exclude = ('user',)
+
+#     return SetupCompanyForm
+
 class SearchForm(forms.Form):
-    product = forms.ModelChoiceField(queryset=Add_item_model.objects.all(),initial=None,required=False)
+    product = forms.ModelChoiceField(queryset=Add_item_model_sale.objects.all(),initial=None,required=False)
     seller = forms.ModelChoiceField(queryset=Seller.objects.all(),initial=None,required=False)
     customer = forms.ModelChoiceField(queryset=Customer.objects.all(),initial=None,required=False)
 
-class Add_item_form(forms.ModelForm):
+class Add_item_purch_form(forms.ModelForm):
     class Meta:
-        model=Add_item_model
+        model=Add_item_model_purch
+        fields='__all__'
+        exclude=('user',)
+
+class Add_item_sale_form(forms.ModelForm):
+    class Meta:
+        model=Add_item_model_sale
         fields='__all__'
         exclude=('user',)
 
@@ -99,25 +117,44 @@ class PurchaseCounter_form(forms.ModelForm):
     class Meta:
         model=Purchase_model
         fields=['qty','mode']
-        exclude=('dis','amount','amt','product','selbuy','user','rate')
+        exclude=('dis','amount','amt','product','selbuy','user','rate','user')
 
 class Purchase_form(forms.ModelForm):
     class Meta:
         model=Purchase_model
         fields='__all__'
-        exclude=('dis','amount','amt','rate')
+        exclude=('dis','amount','amt','user')
 
 class Purchase_form2(forms.ModelForm):
     class Meta:
         model=Purchase_model
         fields=['mode','selbuy',]
 
+
+class PurchaseManual_form(forms.ModelForm):
+    class Meta:
+        model=Purchase_model
+        fields='__all__'
+        exclude=('user','date','date1','gst',)
+
 class CashReceipt_form(forms.ModelForm):
+    # COMMENT_CHOICES = [
+    #     ('Advance Paid', 'Advance Paid'),
+    #     ('Balance Paid', 'Balance Paid'),
+    #     ('Full Payment', 'Full Payment'),
+    #     ('Other', 'Other'),
+    # ]
+
+    # comment = forms.ChoiceField(
+    #     choices=COMMENT_CHOICES,
+    #     required=False,
+    #     widget=forms.Select(attrs={'id': 'id_comment'})
+    # )
+
     class Meta:
         model = CashBook
-        fields='__all__'
-        exclude=('user',)
-
+        fields = '__all__'
+        exclude = ('user',)
 
 
 class InvoiceSecond_form(forms.ModelForm):
@@ -134,7 +171,16 @@ class InvoiceMode_form(forms.ModelForm):
     class Meta:
         model = Invoice_model
         fields = ('mode',)     
-        
+
+class GenerateInvoice_form(forms.ModelForm):
+    class Meta:
+        model = Invoice_model
+        fields = ('selbuy','rate')      
+# class Invoice_form(forms.ModelForm):
+#     class Meta:
+#         model=Invoice_model
+#         fields='__all__'
+#         exclude=('user','date','date1','gst',)
 
 class Customer_form(forms.ModelForm):
     class Meta:
@@ -151,6 +197,19 @@ class Seller_form(forms.ModelForm):
 
 
 class PurchaseBookForm(forms.ModelForm):
+    # COMMENT_CHOICES = [
+    #     ('Advance Received', 'Advance Received'),
+    #     ('Balance Received', 'Balance Received'),
+    #     ('Full Payment Received', 'Full Payment Received'),
+    #     ('Other', 'Other'),
+    # ]
+
+    # comment = forms.ChoiceField(
+    #     choices=COMMENT_CHOICES,
+    #     required=False,
+    #     widget=forms.Select(attrs={'id': 'id_comment'})
+    # )
+
     class Meta:
         model = PurchaseBook
         fields = '__all__'
@@ -168,12 +227,12 @@ class SearchForm(forms.Form):
         required=False
     )
     product = forms.ModelChoiceField(
-        queryset=Add_item_model.objects.all(),
+        queryset=Add_item_model_sale.objects.all(),
         label='Product Sale',
         required=False
     )
     product_purch = forms.ModelChoiceField(
-        queryset=Add_item_model.objects.all(),
+        queryset=Add_item_model_sale.objects.all(),
         label='Product Purchase',
         required=False
     )
@@ -212,5 +271,39 @@ class ImageChoiceField(forms.ModelChoiceField):
         return option
 
 
-class ProductForm(forms.Form):
-    product = ImageChoiceField(queryset=Add_item_model.objects.all(), widget=forms.Select())
+# class ProductForm(forms.Form):
+#     product = ImageChoiceField(queryset=Add_item_model.objects.all(), widget=forms.Select())
+
+
+class TransportForm(forms.ModelForm):
+    date_supply = forms.DateField(
+        label='Date of Supply',
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=False
+    )
+    class Meta:
+        model = Transportation
+        fields = '__all__'
+        exclude = ('user','bill',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = False
+
+class TransportForm1(forms.ModelForm):
+    date_supply = forms.DateField(
+        label='Date of Supply',
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=False
+    )
+    class Meta:
+        model = Transportation
+        fields = '__all__'
+        exclude = ('user',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = False
+

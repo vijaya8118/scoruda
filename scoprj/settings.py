@@ -30,19 +30,19 @@ SECRET_KEY = 'django-insecure-#rt(o9c+(t^&f174d$^(%%k@wo!bzcaltle*-^p6s$3)rr*w9y
 DEBUG = True
 
 ALLOWED_HOSTS = ['*',]
-CSRF_TRUSTED_ORIGINS = [
-    'https://scoruda81-4tng.onrender.com',
-    'https://scoruda81-4tng.onrender.com', 
-    'https://scoruda.com',
-    'https://*.scoruda.com',
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://scoruda81-4tng.onrender.com',
+#     'https://scoruda81-4tng.onrender.com', 
+#     'https://scoruda.com',
+#     'https://*.scoruda.com',
 
-]
-SESSION_COOKIE_DOMAIN = '.scoruda.com'
-CSRF_COOKIE_DOMAIN = '.scoruda.com'
+# ]
+# SESSION_COOKIE_DOMAIN = '.scoruda.com'
+# CSRF_COOKIE_DOMAIN = '.scoruda.com'
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_HTTPONLY = True
 
 # Application definition
 
@@ -56,8 +56,6 @@ SHARED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'django.contrib.staticfiles',
-
-
 
 )
 
@@ -77,12 +75,14 @@ INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in S
 MIDDLEWARE = [
     'django_tenants.middleware.main.TenantMainMiddleware', #at first
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'scoprj.urls'
@@ -110,21 +110,39 @@ WSGI_APPLICATION = 'scoprj.wsgi.application'
 
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django_tenants.postgresql_backend',
-        'NAME': 'scoruda_db_nu8i',
-        'USER': 'scoruda_db_nu8i_user',
-        'PASSWORD': 'mxqR47Nr01HglL8afy3oyEIz9ckK6C58',
-        'HOST': 'dpg-d4lfqvchg0os73b8nch0-a.oregon-postgres.render.com',
-        'PORT': '5432',
-        'OPTIONS': {
-            'sslmode': 'require',  # Render requires SSL
-        },
-    }
-}
-# DATABASES['default']['ENGINE'] = 'django_tenants.postgresql_backend'
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django_tenants.postgresql_backend',
+#         'NAME': 'watchmandb',
+#         'USER': 'postgres',
+#         'PASSWORD': 'root1234',
+#         # 'HOST': 'dpg-d4lfqvchg0os73b8nch0-a.oregon-postgres.render.com',
+#         'PORT': '5432',
+#         # 'OPTIONS': {
+#         #     'sslmode': 'require',  # Render requires SSL
+#         # },
+#     }
+# } 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django_tenants.postgresql_backend',
+#         'NAME': 'postgres',
+#         'USER': 'postgres',
+#         'PASSWORD': 'root1234',
+#     }
+# }
+import dj_database_url
+import os
 
+
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        engine='django_tenants.postgresql_backend',
+        conn_max_age=600,
+        ssl_require=False,  # True on production (Render/Railway/Heroku)
+    )
+}
 
 DATABASE_ROUTERS = (
     'django_tenants.routers.TenantSyncRouter',
@@ -176,14 +194,23 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')]
+# STORAGES = {
+#     "default": {
+#         "BACKEND": "scoapp.imagekit_storage.ImageKitStorage"
+#     },
+#     "staticfiles": {
+#         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+#     }
+#  }
 STORAGES = {
     "default": {
-        "BACKEND": "scoapp.imagekit_storage.ImageKitStorage"
+        "BACKEND": "scoapp.imagekit_storage.ImageKitStorage"   # keep your custom media storage
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
     }
- }
+}
+
 
 # DEFAULT_FILE_STORAGE = 'scoapp.imagekit_storage.ImageKitStorage'
 
@@ -218,3 +245,4 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# export DATABASE_URL="postgresql://postgres:NfwqOxBzYQgnxWKdWbXHQUGGcwVpHphF@yamabiko.proxy.rlwy.net:51689/railway"

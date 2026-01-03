@@ -172,19 +172,21 @@
     <div id="mySidenav" class="sidenav">
         <span class="closebtn" onclick="closeNav()">&times; </span>
         <h2 style="color: #ffff82; padding-left: 20px;">Add</h2>
-        <a href="{% url 'additem'  %}">Add Product</a>
-        <a href="{% url 'seller'  %}">Add Seller</a>
+        <a href="{% url 'additemsale'  %}">Add Sale Product</a>
+                <a href="{% url 'additempurch'  %}">Add Purchase Product</a>        
+                <a href="{% url 'seller'  %}">Add Seller</a>
         <a href="{% url 'customer'  %}">Add Customer</a>
 
         <h2 style="color: #ffff82; padding-left: 20px;">View</h2>
-        <a href="{% url 'item'  %}">View Products</a>
+        <a href="{% url 'itemsale'  %}">View Sale Products</a>
+        <a href="{% url 'itempurch'  %}">View Purchase Products</a>        
         <a href="{% url 'sellerall'  %}">View Seller</a>
         <a href="{% url 'customerall'  %}">View Customers</a>
 
         <h2 style="color: #ffff82; padding-left: 20px;">Entry</h2>
         <a href="b2c">Sales</a>
-            <a href="#">Counter Sales</a>
-            <a href="#">Purchase</a>
+            <a href="{% url 'cashbook'  %}">Cashbook</a>
+            <a href="{% url 'purchasebook'  %}">PurchaseBook</a>
             <a href="{% url 'retailpurch'  %}">Retail Purchase</a>
 
         <h2 style="color: #ffff82; padding-left: 20px;">Company</h2>
@@ -206,13 +208,14 @@
     <div id="mySidenav" class="sidenav">
         <span class="closebtn" onclick="closeNav()">&times; </span>
         <h2 style="color: #ffff82; padding-left: 20px;">Add</h2>
-        <a href="{% url 'additem'  %}">Add Product</a>
+        <a href="{% url 'additemsale'  %}">Add Sale Product</a>
+                <a href="{% url 'additempurch'  %}">Add Purchase Product</a>                
         <a href="{% url 'seller'  %}">Add Seller</a>
         <a href="{% url 'customer'  %}">Add Customer</a>
 
         <h2 style="color: #ffff82; padding-left: 20px;">View</h2>
-        <a href="{% url 'item'  %}">View Products</a>
-        <a href="{% url 'sellerall'  %}">View Seller</a>
+        <a href="{% url 'itemsale'  %}">View Sale Products</a>
+        <a href="{% url 'itempurch'  %}">View Purchase Products</a>        <a href="{% url 'sellerall'  %}">View Seller</a>
         <a href="{% url 'customerall'  %}">View Customers</a>
  </div>
 

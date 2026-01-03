@@ -7,25 +7,39 @@
         <div class="container">
 
         <h2><center>{{heading}} </center></h2> 
-        {%if heading == "Product List"%}
+        {%if heading == "Purchase Product List"%}
         <tr bgcolor="yellow">
         <td>PRODUCT</td>
-        <td>SELLING RATE </td>
-        <td>PURCHASE RATE</td>
+        <td> RATE </td>
         </tr>
         {%for q in query %}
         <tr>
         
         </td>          <td>{{q.product}}</td>
         <td>{{q.rate}}</td> 
-        <td>{{q.rate_purch}}</td> 
         <td>{{q.user}}</td> 
-        <td><a href="{% url 'item_edit' q.id %}">EDIT</a></td>
-        <td><a href="{% url 'item_delete' q.id %}">DELETE</a></td>
+        <td><a href="{% url 'itemsale_edit' q.id %}">EDIT</a></td>
+        <td><a href="{% url 'itemsale_delete' q.id %}">DELETE</a></td>
       </tr>
         {%endfor%}
         {%endif%}
         
+                {%if heading == "Sale Product List"%}
+        <tr bgcolor="yellow">
+        <td>PRODUCT</td>
+        <td> RATE </td>
+        </tr>
+        {%for q in query %}
+        <tr>
+        
+        </td><td>{{q.product}}</td>
+        <td>{{q.rate}}</td> 
+        <td>{{q.user}}</td> 
+        <td><a href="{% url 'itemsale_edit' q.id %}">EDIT</a></td>
+        <td><a href="{% url 'itemsale_delete' q.id %}">DELETE</a></td>
+      </tr>
+        {%endfor%}
+        {%endif%}
         {%if heading == "Seller List"%}
         <tr bgcolor="yellow">
         <td>NAME</td>
