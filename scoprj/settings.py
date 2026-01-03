@@ -29,20 +29,28 @@ SECRET_KEY = 'django-insecure-#rt(o9c+(t^&f174d$^(%%k@wo!bzcaltle*-^p6s$3)rr*w9y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*',]
-# CSRF_TRUSTED_ORIGINS = [
-#     'https://scoruda81-4tng.onrender.com',
-#     'https://scoruda81-4tng.onrender.com', 
-#     'https://scoruda.com',
-#     'https://*.scoruda.com',
+ALLOWED_HOSTS = [
+    "scoruda.com",
+     "*.scoruda.com",
+     "*",
+     "scoruda-production.up.railway.app",
 
-# ]
-# SESSION_COOKIE_DOMAIN = '.scoruda.com'
-# CSRF_COOKIE_DOMAIN = '.scoruda.com'
+]
+CSRF_TRUSTED_ORIGINS = [
+    'https://scoruda-production.up.railway.app',
+    'https://scoruda.com',
+    'https://www.scoruda.com',
+   
+]
 
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_DOMAIN = '.scoruda.com'
+CSRF_COOKIE_DOMAIN = '.scoruda.com'
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Application definition
 
@@ -131,18 +139,20 @@ WSGI_APPLICATION = 'scoprj.wsgi.application'
 #         'PASSWORD': 'root1234',
 #     }
 # }
-import dj_database_url
-import os
-
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        engine='django_tenants.postgresql_backend',
-        conn_max_age=600,
-        ssl_require=False,  # True on production (Render/Railway/Heroku)
-    )
-}
+    'default': {
+        'ENGINE': 'django_tenants.postgresql_backend',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': 'NfwqOxBzYQgnxWKdWbXHQUGGcwVpHphF',
+        'HOST': 'postgres.railway.internal',
+        'PORT': '5432',
+        # 'OPTIONS': {
+        #     'sslmode': 'require',  # Render requires SSL
+        # },
+    }
+} 
 
 DATABASE_ROUTERS = (
     'django_tenants.routers.TenantSyncRouter',
@@ -231,9 +241,9 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'  
-BASE_URL = 'localhost'
+BASE_URL = 'scoruda.com'
 LOGIN_URL = '/create_member/'
-CSRF_TRUSTED_ORIGINS = ['https://*']
+# CSRF_TRUSTED_ORIGINS = ['https://*']
 PORT = ':8000'
 AUTH_USER_MODEL = 'scoapp.Members'
 SITE_ID = 1 
