@@ -219,9 +219,9 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'  
-BASE_URL = 'scoruda.com'
+# BASE_URL = 'scoruda.com'
 LOGIN_URL = '/create_member/'
-# CSRF_TRUSTED_ORIGINS = ['https://*']
+CSRF_TRUSTED_ORIGINS = ['https://*']
 PORT = ':8000'
 AUTH_USER_MODEL = 'scoapp.Members'
 SITE_ID = 1 
