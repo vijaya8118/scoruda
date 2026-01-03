@@ -134,7 +134,7 @@ import dj_database_url
 
 DATABASES = {
     "default": dj_database_url.parse(
-        os.environ.get("postgresql://postgres:DDtscyGtEeLwrllWcoUpXhFDVnnytSRA@postgres.railway.internal:5432/railway"),
+        os.environ.get("postgresql://postgres:DDtscyGtEeLwrllWcoUpXhFDVnnytSRA@switchyard.proxy.rlwy.net:44230/railway"),
         conn_max_age=600,
         ssl_require=True  # important for cloud Postgres
     )
