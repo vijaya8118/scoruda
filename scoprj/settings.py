@@ -36,19 +36,21 @@ ALLOWED_HOSTS = [
      "scoruda-production.up.railway.app",
 
 ]
+
 CSRF_TRUSTED_ORIGINS = [
     'https://scoruda-production.up.railway.app',
     'https://scoruda.com',
     'https://www.scoruda.com',
 ]
-
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_DOMAIN = '.scoruda.com'
 CSRF_COOKIE_DOMAIN = '.scoruda.com'
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = False
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
 
 
 # Application definition
