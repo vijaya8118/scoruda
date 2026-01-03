@@ -117,35 +117,12 @@ WSGI_APPLICATION = 'scoprj.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django_tenants.postgresql_backend',
-#         'NAME': 'watchmandb',
-#         'USER': 'postgres',
-#         'PASSWORD': 'root1234',
-#         # 'HOST': 'dpg-d4lfqvchg0os73b8nch0-a.oregon-postgres.render.com',
-#         'PORT': '5432',
-#         # 'OPTIONS': {
-#         #     'sslmode': 'require',  # Render requires SSL
-#         # },
-#     }
-# } 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django_tenants.postgresql_backend',
-#         'NAME': 'postgres',
-#         'USER': 'postgres',
-#         'PASSWORD': 'root1234',
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django_tenants.postgresql_backend',
         'NAME': 'railway',
         'USER': 'postgres',
-        'PASSWORD': 'NfwqOxBzYQgnxWKdWbXHQUGGcwVpHphF',
+        'PASSWORD': 'DDtscyGtEeLwrllWcoUpXhFDVnnytSRA',
         'HOST': 'postgres.railway.internal',
         'PORT': '5432',
         # 'OPTIONS': {
