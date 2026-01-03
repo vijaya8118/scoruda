@@ -40,6 +40,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://scoruda-production.up.railway.app',
     'https://scoruda.com',
     'https://www.scoruda.com',
+    '*',
    
 ]
 
