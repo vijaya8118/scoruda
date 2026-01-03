@@ -117,29 +117,19 @@ WSGI_APPLICATION = 'scoprj.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django_tenants.postgresql_backend',
-#         'NAME': 'railway',
-#         'USER': 'postgres',
-#         'PASSWORD': 'DDtscyGtEeLwrllWcoUpXhFDVnnytSRA',
-#         'HOST': 'postgres.railway.internal',
-#         'PORT': '5432',
-#         # 'OPTIONS': {
-#         #     'sslmode': 'require',  # Render requires SSL
-#         # },
-#     }
-# } 
-import dj_database_url
-
 DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ.get("postgresql://postgres:DDtscyGtEeLwrllWcoUpXhFDVnnytSRA@switchyard.proxy.rlwy.net:44230/railway"),
-        conn_max_age=600,
-        ssl_require=True  # important for cloud Postgres
-    )
-}
-DATABASES['default']['ENGINE'] = 'django_tenants.postgresql_backend'
+    'default': {
+        'ENGINE': 'django_tenants.postgresql_backend',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': 'DDtscyGtEeLwrllWcoUpXhFDVnnytSRA',
+        'HOST': 'postgres.railway.internal',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',  # Render requires SSL
+        },
+    }
+} 
 
 DATABASE_ROUTERS = (
     'django_tenants.routers.TenantSyncRouter',
