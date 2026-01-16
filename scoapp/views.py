@@ -281,7 +281,7 @@ def createCompany(request):
                     to=[tenant_email]
                 )
                 print('Email launching....')
-                email.send()
+                # email.send()
                 print('Email Launched')
 
             except IntegrityError as e:
