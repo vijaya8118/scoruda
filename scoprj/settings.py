@@ -29,26 +29,58 @@ SECRET_KEY = 'django-insecure-#rt(o9c+(t^&f174d$^(%%k@wo!bzcaltle*-^p6s$3)rr*w9y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    # "scoruda.com",
-    #  "*.scoruda.com",
-    #  "*",
-     "scoruda-production.up.railway.app",
+# ALLOWED_HOSTS = [
+#     "scoruda.com",
+#      "*.scoruda.com",
+#      "*",
+#      "scoruda-production.up.railway.app",
 
-]
+# ]
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://scoruda-production.up.railway.app',
-    # 'https://scoruda.com',
-    # 'https://www.scoruda.com',
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://scoruda-production.up.railway.app',
+#     'https://scoruda.com',
+#     'https://www.scoruda.com',
+# ]
 # CSRF_COOKIE_SECURE = True
 # SESSION_COOKIE_SECURE = True
 # SESSION_COOKIE_DOMAIN = '.scoruda.com'
 # CSRF_COOKIE_DOMAIN = '.scoruda.com'
 # CSRF_COOKIE_HTTPONLY = False
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+ALLOWED_HOSTS = [
+    "scoruda.com",
+    ".scoruda.com",
+    "scoruda-production.up.railway.app",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://scoruda.com",
+    "https://www.scoruda.com",
+    "https://*.scoruda.com",
+    "https://scoruda-production.up.railway.app",
+]
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SAMESITE = "Lax"
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = True
+
+import os
+IS_PRODUCTION = os.getenv("RAILWAY_ENVIRONMENT") == "production"
+
+if IS_PRODUCTION:
+    SESSION_COOKIE_DOMAIN = ".scoruda.com"
+    CSRF_COOKIE_DOMAIN = ".scoruda.com"
+else:
+    SESSION_COOKIE_DOMAIN = None
+    CSRF_COOKIE_DOMAIN = None
 
 
 
