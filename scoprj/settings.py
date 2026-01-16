@@ -50,11 +50,14 @@ DEBUG = True
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ALLOWED_HOSTS = [
-    "scoruda-production.up.railway.app",
+    "scoruda.com",
+    ".scoruda.com",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://scoruda-production.up.railway.app",
+    "https://scoruda.com",
+    "https://www.scoruda.com",
+    "https://*.scoruda.com",
 ]
 
 CSRF_COOKIE_SECURE = True
@@ -63,12 +66,13 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SAMESITE = "Lax"
 
-SESSION_COOKIE_DOMAIN = None
-CSRF_COOKIE_DOMAIN = None
+CSRF_COOKIE_DOMAIN = ".scoruda.com"
+SESSION_COOKIE_DOMAIN = ".scoruda.com"
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 SECURE_SSL_REDIRECT = True
+
 
 
 
