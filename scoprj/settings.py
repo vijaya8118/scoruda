@@ -50,15 +50,10 @@ DEBUG = True
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ALLOWED_HOSTS = [
-    "scoruda.com",
-    ".scoruda.com",
     "scoruda-production.up.railway.app",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://scoruda.com",
-    "https://www.scoruda.com",
-    "https://*.scoruda.com",
     "https://scoruda-production.up.railway.app",
 ]
 
@@ -68,19 +63,12 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SAMESITE = "Lax"
 
+SESSION_COOKIE_DOMAIN = None
+CSRF_COOKIE_DOMAIN = None
+
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 SECURE_SSL_REDIRECT = True
-
-import os
-IS_PRODUCTION = os.getenv("RAILWAY_ENVIRONMENT") == "production"
-
-if IS_PRODUCTION:
-    SESSION_COOKIE_DOMAIN = ".scoruda.com"
-    CSRF_COOKIE_DOMAIN = ".scoruda.com"
-else:
-    SESSION_COOKIE_DOMAIN = None
-    CSRF_COOKIE_DOMAIN = None
 
 
 
