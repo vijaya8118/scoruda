@@ -30,24 +30,23 @@ SECRET_KEY = 'django-insecure-#rt(o9c+(t^&f174d$^(%%k@wo!bzcaltle*-^p6s$3)rr*w9y
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "scoruda.com",
-     "*.scoruda.com",
-     "*",
+    # "scoruda.com",
+    #  "*.scoruda.com",
+    #  "*",
      "scoruda-production.up.railway.app",
 
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://scoruda-production.up.railway.app',
-    'https://scoruda.com',
-    'https://www.scoruda.com',
+    # 'https://scoruda.com',
+    # 'https://www.scoruda.com',
 ]
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-SESSION_COOKIE_DOMAIN = '.scoruda.com'
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+# SESSION_COOKIE_DOMAIN = '.scoruda.com'
 # CSRF_COOKIE_DOMAIN = '.scoruda.com'
-CSRF_COOKIE_DOMAIN ='scoruda-production.up.railway.app'
-CSRF_COOKIE_HTTPONLY = False
+# CSRF_COOKIE_HTTPONLY = False
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
@@ -221,7 +220,7 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'  
 # BASE_URL = 'scoruda.com'
 LOGIN_URL = '/create_member/'
-CSRF_TRUSTED_ORIGINS = ['https://*']
+# CSRF_TRUSTED_ORIGINS = ['https://*']
 PORT = ':8000'
 AUTH_USER_MODEL = 'scoapp.Members'
 SITE_ID = 1 
