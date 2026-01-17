@@ -123,8 +123,21 @@ class Purchase_form(forms.ModelForm):
     class Meta:
         model=Purchase_model
         fields='__all__'
-        exclude=('dis','user')
+        exclude=('dis','amount','amt','user')
+        widgets = {
+            'date1': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={
+                    'type': 'date',   # this is the key
+                }
+            )
+        }
 
+    def clean_date1(self):
+        date = self.cleaned_data.get('date1')
+        if not date:
+            return timezone.now().date()
+        return date
 
 class Purchase_form2(forms.ModelForm):
     class Meta:
@@ -156,13 +169,43 @@ class CashReceipt_form(forms.ModelForm):
         model = CashBook
         fields = '__all__'
         exclude = ('user',)
+        widgets = {
+            'date1': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={
+                    'type': 'date',   # this is the key
+                }
+            )
+        }
 
+    def clean_date1(self):
+        date = self.cleaned_data.get('date1')
+        if not date:
+            return timezone.now().date()
+        return date
+
+from django.utils import timezone
 
 class InvoiceSecond_form(forms.ModelForm):
-    class Meta:
-        model=Invoice_model
-        fields=['mode','selbuy','qty','amt',]
 
+    class Meta:
+        model = Invoice_model
+        fields = ['mode', 'selbuy', 'qty', 'amt', 'date1','billnum']
+        widgets = {
+            'date1': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={
+                    'type': 'date',   # this is the key
+                }
+            )
+        }
+
+    def clean_date1(self):
+        date = self.cleaned_data.get('date1')
+        if not date:
+            return timezone.now().date()
+        return date
+    
 class InvoiceQty_form(forms.ModelForm):
     class Meta:
         model = Invoice_model
@@ -215,6 +258,20 @@ class PurchaseBookForm(forms.ModelForm):
         model = PurchaseBook
         fields = '__all__'
         exclude=('user',)
+        widgets = {
+            'date1': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={
+                    'type': 'date',   # this is the key
+                }
+            )
+        }
+
+    def clean_date1(self):
+        date = self.cleaned_data.get('date1')
+        if not date:
+            return timezone.now().date()
+        return date
 
 class SearchForm(forms.Form):
     datee = forms.DateField(
