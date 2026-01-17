@@ -83,7 +83,7 @@
         {% if q.qty > 0 %}
         <tr>
             <td>{{ q.billnum }}</td>
-            <td>{{ q.date }}</td>
+            <td>{{ q.date1 }}</td>
 
             <td>
                 <a href="{% url sale|yesno:'prod,purchprod' q.product_id %}">
@@ -136,7 +136,7 @@
 
         {% for c in cashquery %}
         <tr>
-            <td>{{ c.date }}</td>
+            <td>{{ c.date1 }}</td>
             <td> <a href="{% url sale|yesno:'seller_shop,purchseller_shop' c.selbuy_id %}">
                     {{ c.selbuy }}
                 </a></td>
@@ -177,7 +177,7 @@
         {% if q.qty > 0 %}
         <tr>
             <td>{{ q.billnum }}</td>
-            <td>{{ q.date }}</td>
+            <td>{{ q.date1 }}</td>
             <td>{{ q.product }}</td>
             <td>{{ q.qty }}</td>
             <td>{{ q.rate }}</td>
@@ -213,7 +213,7 @@
 
         {% for c in cashquery %}
         <tr>
-            <td>{{ c.date }}</td>
+            <td>{{ c.date1 }}</td>
             <td><a href="{% url sale|yesno:'seller_shop,purchseller_shop' c.selbuy_id %}">
                     {{ c.selbuy }}
                 </a></td>
