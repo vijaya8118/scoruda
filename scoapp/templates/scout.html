@@ -22,7 +22,7 @@
         </tr>
 
     {%for q in bill_query%}
-        <tr><td>{{q.date}}</td></a>
+        <tr><td>{{q.date1}}</td></a>
 
         <td>{{q.billnum}}</td>
         <td><a href="{% url 'prod' q.product_id %}">{{q.product}}</a></td>
@@ -76,7 +76,7 @@
     {%for q in purch_query%}
 
             <tr>
-                <td>{{q.date}}</td></a>
+                <td>{{q.date1}}</td></a>
                 <td>{{q.billnum}}</td>
 
                 <td><a href="{% url 'purchprod' q.product_id %}">{{q.product}}</a></td>
