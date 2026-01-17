@@ -56,7 +56,7 @@
     {% endif %}
 </h2>
 
-{% if bill_query.paginator.count and cashquery.paginator.count %}
+{% if bill_query and cashquery %}
 <!-- ================= BOTH TABLES ================= -->
 <div class="tables-wrapper">
 
@@ -137,16 +137,20 @@
         {% for c in cashquery %}
         <tr>
             <td>{{ c.date }}</td>
-            <td>{{ c.selbuy }}</td>
-            <td>{{ c.mode }}</td>
+            <td> <a href="{% url sale|yesno:'seller_shop,purchseller_shop' c.selbuy_id %}">
+                    {{ c.selbuy }}
+                </a></td>
+            <td><a href="{% url sale|yesno:'mode,modepurch' c.mode %}">
+                    {{ c.mode }}
+                </a></td>
             <td>{{ c.amt }}</td>
             <td>{{ c.comment }}</td>
 
             <td>
-                <a href="{% url sale|yesno:'cashbook_edit,purchasebook_edit' c.id %}">EDIT</a>
+                <a href="{% url sale|yesno:'cashbook_edit,purchasebook_edit' c.pk %}">EDIT</a>
             </td>
             <td>
-                <a href="{% url sale|yesno:'cashbook_delete,purchasebook_delete' c.id %}">DELETE</a>
+                <a href="{% url sale|yesno:'cashbook_delete,purchasebook_delete' c.pk%}">DELETE</a>
             </td>
         </tr>
         {% endfor %}
@@ -156,7 +160,7 @@
 </div>
 {% endif %}
 
-{% if bill_query.paginator.count and not cashquery.paginator.count %}
+{% if bill_query and not cashquery %}
 <!-- ================= BILL ONLY ================= -->
 <div class="full-width">
     <h3>📦 Quantity {{ totquant|floatformat }}</h3>
@@ -189,7 +193,7 @@
 </div>
 {% endif %}
 
-{% if cashquery.paginator.count and not bill_query.paginator.count %}
+{% if cashquery and not bill_query %}
 <!-- ================= CASH ONLY ================= -->
 <div class="full-width">
 
@@ -210,12 +214,16 @@
         {% for c in cashquery %}
         <tr>
             <td>{{ c.date }}</td>
-            <td>{{ c.selbuy }}</td>
-            <td>{{ c.mode }}</td>
+            <td><a href="{% url sale|yesno:'seller_shop,purchseller_shop' c.selbuy_id %}">
+                    {{ c.selbuy }}
+                </a></td>
+            <td><a href="{% url sale|yesno:'mode,modepurch' c.mode %}">
+                    {{ c.mode }}
+                </a></td>
             <td>{{ c.amt }}</td>
             <td>{{ c.comment }}</td>
-            <td><a href="{% url sale|yesno:'cashbook_edit,purchasebook_edit' c.id %}">EDIT</a></td>
-            <td><a href="{% url sale|yesno:'cashbook_delete,purchasebook_delete' c.id %}">DEL</a></td>
+            <td><a href="{% url sale|yesno:'cashbook_edit,purchasebook_edit' c.pk %}">EDIT</a></td>
+            <td><a href="{% url sale|yesno:'cashbook_delete,purchasebook_delete' c.pk %}">DEL</a></td>
         </tr>
         {% endfor %}
     </table>
