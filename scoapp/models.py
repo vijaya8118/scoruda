@@ -156,6 +156,8 @@ class PurchaseBook(models.Model):
         ('Full Payment', 'Full Payment'),
         ('Cash in Hand', 'Cash in Hand'),
         ('Bank Transfer', 'Bank Transfer'),
+        ('TDS', 'TDS'),
+        ('Quality rebate', 'Quality rebate'),
         ('Other', 'Other'),
     ]
     comment = models.TextField("narration",choices=DROP_CHOICES,max_length=150,null=True)
