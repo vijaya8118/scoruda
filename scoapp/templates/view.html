@@ -18,8 +18,8 @@
         </td>          <td>{{q.product}}</td>
         <td>{{q.rate}}</td> 
         <td>{{q.user}}</td> 
-        <td><a href="{% url 'itemsale_edit' q.id %}">EDIT</a></td>
-        <td><a href="{% url 'itemsale_delete' q.id %}">DELETE</a></td>
+         <td><a href="{% url 'itempurch_edit' q.id %}">EDIT</a></td>
+        <td><a href="{% url 'itempurch_delete' q.id %}">DELETE</a></td>
       </tr>
         {%endfor%}
         {%endif%}
