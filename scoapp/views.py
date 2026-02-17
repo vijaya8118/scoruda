@@ -508,6 +508,7 @@ def process(request,Tansaction_model,CustSel,Add_item_model,Book_model,redirectp
                         continue
                 
                     new_invoice = Tansaction_model(
+                        date=timezone.now(),
                         product_id=product_id,
                         qty=quantity,
                         rate = ratee,
@@ -528,6 +529,7 @@ def process(request,Tansaction_model,CustSel,Add_item_model,Book_model,redirectp
                             print('2')
                             cash_book_entry = Book_model(
                                 user = request.user,
+                                date=timezone.now(),
                                 selbuy=seller_buyer,  # Link to the customer
                                 amt=amount,  # Amount paid
                                 mode=payment_mode,  # Payment mode (cash/Bank)
