@@ -117,8 +117,9 @@ class Purchase_model(models.Model):
     date=models.DateTimeField(auto_now_add=True)
     date1 = models.DateField(default=timezone.now)
     selbuy = models.ForeignKey(Seller,on_delete=models.DO_NOTHING,null=True)
-    billnum=models.AutoField(auto_created = True,primary_key = True)
-    
+    num=models.AutoField(auto_created = True,primary_key = True,serialize = False, verbose_name ='Bill num',)
+    billnum= models.IntegerField("Bill Number",null=True)
+
     STATUS = (
         ('cash',_('cash')),
         ('Bank',_('Bank')),
@@ -141,7 +142,7 @@ class Purchase_model(models.Model):
 
 class PurchaseBook(models.Model):
     date = models.DateTimeField(auto_now_add=True)
-    date1 = models.DateField(default=timezone.now)
+    date1 = models.DateField(default=timezone.now,null = True)
     selbuy = models.ForeignKey(Seller,on_delete=models.DO_NOTHING,null=True)
 
     amt= models.DecimalField('Amount Paid',null=False,max_digits=10,decimal_places=2,default=0)
