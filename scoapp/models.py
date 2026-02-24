@@ -116,7 +116,7 @@ class Purchase_model(models.Model):
     date=models.DateTimeField(auto_now_add=True)
     date1=models.DateField(auto_now_add=True)
     selbuy = models.ForeignKey(Seller,on_delete=models.DO_NOTHING,null=True)
-    num=models.AutoField(auto_created = True,primary_key = True,serialize = False, verbose_name ='Bill num')
+    # num=models.AutoField(auto_created = True,primary_key = True,serialize = False, verbose_name ='Bill num')
     billnum= models.IntegerField("Bill Number",null=True)
     
     STATUS = (
