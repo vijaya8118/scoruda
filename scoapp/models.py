@@ -3,7 +3,6 @@ from django_tenants.models import TenantMixin, DomainMixin
 from django.utils.text import slugify
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext as _
-from django.utils import timezone
 
 #################################
 
@@ -115,11 +114,10 @@ class Seller(Common_InfoShop):
     
 class Purchase_model(models.Model):
     date=models.DateTimeField(auto_now_add=True)
-    date1 = models.DateField(default=timezone.now)
+    date1=models.DateField(auto_now_add=True)
     selbuy = models.ForeignKey(Seller,on_delete=models.DO_NOTHING,null=True)
-    num=models.AutoField(auto_created = True,primary_key = True,serialize = False, verbose_name ='Bill num',)
-    billnum= models.IntegerField("Bill Number",null=True)
-
+    billnum=models.AutoField(auto_created = True,primary_key = True)
+    
     STATUS = (
         ('cash',_('cash')),
         ('Bank',_('Bank')),
@@ -142,7 +140,7 @@ class Purchase_model(models.Model):
 
 class PurchaseBook(models.Model):
     date = models.DateTimeField(auto_now_add=True)
-    date1 = models.DateField(default=timezone.now,null = True)
+    date1=models.DateField(auto_now_add=True)
     selbuy = models.ForeignKey(Seller,on_delete=models.DO_NOTHING,null=True)
 
     amt= models.DecimalField('Amount Paid',null=False,max_digits=10,decimal_places=2,default=0)
@@ -166,7 +164,7 @@ class PurchaseBook(models.Model):
 
 class CashBook(models.Model):
     date = models.DateTimeField("Date",auto_now_add=True)
-    date1 = models.DateField(default=timezone.now)
+    date1=models.DateField( 'date',auto_now_add=True)
     selbuy = models.ForeignKey(Customer,on_delete=models.DO_NOTHING,null=False,blank=False)
 
     amt= models.DecimalField('Amount Paid',null=False,max_digits=10,decimal_places=2,default=0)
@@ -189,7 +187,7 @@ class CashBook(models.Model):
 
 class Invoice_model(models.Model):
     date=models.DateTimeField(auto_now_add=True)
-    date1 = models.DateField(default=timezone.now)
+    date1=models.DateField(auto_now_add=True)
     selbuy = models.ForeignKey(Customer,on_delete=models.DO_NOTHING,null=False,blank=False)
     num=models.AutoField(auto_created = True,primary_key = True,serialize = False, verbose_name ='Bill num')
     billnum= models.IntegerField("Bill Number",null=True)
@@ -213,7 +211,7 @@ class Invoice_model(models.Model):
 
 class Transportation(models.Model):
     date=models.DateTimeField(auto_now_add=True)
-    date1 = models.DateField(default=timezone.now)
+    date1=models.DateField(auto_now_add=True)
     receipt_num = models.CharField('Receipt Number', max_length=50, unique=True, null=False, blank=False)
     vehicle_no = models.CharField('Vehicle Number', max_length=20, null=False, blank=False)
     driver_name = models.CharField('Driver Name', max_length=100, null=False)
