@@ -18,6 +18,7 @@ from collections import defaultdict
 import calendar 
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 
 
@@ -173,7 +174,7 @@ def display(request, modelvar, var):
 
 def edit_view_decorator(Modelvar, redirect_view, Formvar, use_edit_view=True):
     def edit_using_num(request, pk):
-        obj = get_object_or_404(Modelvar, billnum=pk)
+        obj = get_object_or_404(Modelvar, num=pk)
         if request.method == 'POST':
             form = Formvar(request.POST, request.FILES, instance=obj)
         else:
@@ -204,7 +205,7 @@ def edit_view_decorator(Modelvar, redirect_view, Formvar, use_edit_view=True):
     
 def delete_view_decorator(Modelvar, redirect_view, use_delete_view=True):
     def delete_using_num(request, pk):
-        instance = get_object_or_404(Modelvar, billnum=pk)
+        instance = get_object_or_404(Modelvar, num=pk)
         if request.method == 'POST':
             instance.delete()
             return redirect(redirect_view)
