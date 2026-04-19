@@ -845,13 +845,13 @@ def cash_balance(request):
         cash_purch ,Bank_purch,credit_purch = mode_total(PurchaseBook,Purchase_model,need_query = False)
 
         d1 = {
-        "Cash": cash_sold,  
+        "cash": cash_sold,  
         "Bank":Bank_sold,
         "Credit":credit_sold,
         }
 
         d = {
-        "Cash": cash_purch,  
+        "cash": cash_purch,  
         "Bank":Bank_purch,
         "Credit":credit_purch,
         }
