@@ -125,7 +125,7 @@ class Purchase_model(models.Model):
         ('credit',_('credit')),
 
     )
-    mode=models.CharField('Mode',max_length=15,null=True,choices=STATUS,default='cash',blank=True)
+    mode=models.CharField('Mode',max_length=15,null=True,choices=STATUS,blank=True)
     ####
     product=models.ForeignKey(Add_item_model_purch,on_delete=models.DO_NOTHING,null=True,related_name="Product1:+",default='name')
     qty = models.DecimalField('Quantity',decimal_places=2,max_digits=10,null=False,default=0)
@@ -198,7 +198,7 @@ class Invoice_model(models.Model):
         ('credit',_('credit')),
 
     )
-    mode=models.CharField('Mode',max_length=15,null=False,blank=False,choices=STATUS,default='cash')
+    mode=models.CharField('Mode',max_length=15,null=False,blank=False,choices=STATUS)
     ####
     product=models.ForeignKey(Add_item_model_sale,related_name='item',on_delete=models.DO_NOTHING,null=True,blank=False,verbose_name="prod:")
     qty = models.DecimalField('quantity',decimal_places=2,max_digits=10,null=False,default=0)
