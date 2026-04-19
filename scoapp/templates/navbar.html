@@ -223,10 +223,10 @@
     {% elif user.get_role_display == 'Employee' %}
     <nav class="menu">
         <div>
-            a href="b2c">Sales</a>
-            <a href="#">Counter Sales</a>
-            <a href="#">Purchase</a>
-            <a href="{% url 'retailpurch'  %}">Retail Purchase</a>
+            <a href="{% url 'b2c'  %}">Sales ಮಾರಾಟ</a>
+            <a href="{% url 'retailpurch'  %}">Retail Purchase ಖರೀದಿ</a>
+            <a href="{% url 'stock'  %}">Stock ಸ್ಟಾಕ್</a>
+
         </div>
         <span class="menu-btn" onclick="openNav()">&#9776; Menu</span>
     </nav>
