@@ -53,17 +53,26 @@ th, td {
             <td>PRODUCT</td>
             <td>TOTAL</td>
           </tr>
-          {% for i, j in d.items %}
           <tr>
-            {%if product == True%}
-            <td><a href="{% url 'purchprod' i %}">{{i}}</a></td>
-            {%else%}
-             <td><a href="{% url 'modepurch' i %}">{{i}}</a></td>
-             {%endif%}
 
-            <td>{{j}}</td>
-          </tr>
+           {%if product == True%}
+          {% for item in purch_list %}
+          <td><a href="{% url 'purchprod' item.id %}">{{item.name}}</a></td>
+          <td>{{item.purchased}}</td>
+          <td>{{j}}</td></tr>
           {% endfor %}
+          {%else%}
+          {% for i, j in d.items %}
+          <tr><td><a href="{% url 'modepurch' i %}">{{i}}</a></td>
+          <td>{{j}}</td>
+          {% endfor %}
+          {%endif%}
+            </tr>
+
+
+
+
+
         </table>
       </div>
 
@@ -74,16 +83,24 @@ th, td {
             <td>PRODUCT</td>
             <td>TOTAL</td>
           </tr>
-          {% for i, j in d1.items %}
-          <tr>
-            {%if product == True%}
-            <td><a href="{% url 'prod' i %}">{{i}}</a></td>
-            {%else%}
-             <td><a href="{% url 'mode' i %}">{{i}}</a></td>
-             {%endif%}
-            <td>{{j}}</td>
-          </tr>
+
+           {%if product == True%}
+          {% for item in sale_list %}
+          <td><a href="{% url 'prod' item.id %}">{{item.name}}</a></td>
+          <td>{{item.sold}}</td>
+          <td>{{j}}</td></tr>
           {% endfor %}
+          {%else%}
+          {% for i, j in d1.items %}
+          <tr><td><a href="{% url 'mode' i %}">{{i}}</a></td>
+          <td>{{j}}</td>
+          {% endfor %}
+          {%endif%}
+            </tr>
+
+
+
+        
         </table>
       </div>
     </div>
