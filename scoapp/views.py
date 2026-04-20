@@ -819,6 +819,8 @@ def Stock(request):
     d = {}
     d1 = {}
     d2 = {}
+    purch_list = []
+    sale_list = []
 
     for p in products:
         prod = p.id
@@ -828,10 +830,20 @@ def Stock(request):
 
         sold = total_quantity(Invoice_model, prod)
         d1[prod_name] = sold
-
+        print(prod)
         bal = purchased - sold
+        purch_list.append({
+        'id': prod,
+        'name': prod_name,  
+        'purchased':purchased,      
+    })
+        sale_list.append({
+        'id': prod,
+        'name': prod_name, 
+        'sold':sold,       
+    })
         d2[prod_name] = bal
-    return render(request,'stock.html',context={'d':d,'d1':d1,'d2':d2,'head':head,'products':products,'product':True,})
+    return render(request,'stock.html',context={'d':d,'d1':d1,'d2':d2,'head':head,'products':products,'product':True,'purch_list':purch_list,'sale_list':sale_list,})
 
 def cash_balance(request):
         head = "CASH BALANCE"
