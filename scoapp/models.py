@@ -87,18 +87,33 @@ class SetupCompany(Common_InfoShop):
         return self.name
  
 #########################################################################################################
-class Add_item_model_purch(models.Model):
-    product=models.CharField(max_length=100)
-    rate = models.DecimalField('Purchased rate',decimal_places=2,max_digits=10,null=False,default=0)
-    image = models.ImageField(null=True, blank=True)
+# class Add_item_model(models.Model):
+#     product=models.CharField(max_length=100)
+#     rate = models.DecimalField('Purchased rate',decimal_places=2,max_digits=10,null=False,default=0)
+#     image = models.ImageField(null=True, blank=True)
 
-    def __str__(self):
-        return self.product
+#     def __str__(self):
+#         return self.product
     
-class Add_item_model_sale(models.Model):
-    product=models.CharField(max_length=100)
-    rate = models.DecimalField('Selling rate',decimal_places=2,max_digits=10,null=False,default=0)
-    image = models.ImageField(null=True, blank=True)
+# class Add_item_model(models.Model):
+#     product=models.CharField(max_length=100)
+#     rate = models.DecimalField('Selling rate',decimal_places=2,max_digits=10,null=False,default=0)
+#     image = models.ImageField(null=True, blank=True)
+
+#     def __str__(self):
+#         return self.product
+    
+class Add_item_model(models.Model):
+    class ProductType(models.TextChoices):
+        PURCHASE_ONLY = 'purchase_only', 'Purchase Only'
+        SALE_ONLY     = 'sale_only',     'Sale Only'
+        BOTH          = 'both',          'Both'
+
+    product          = models.CharField(max_length=100)
+    product_type  = models.CharField(max_length=20, choices=ProductType.choices, default=ProductType.BOTH)
+    purchase_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    sale_rate     = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    image         = models.ImageField(null=True, blank=True)
 
     def __str__(self):
         return self.product
@@ -111,7 +126,41 @@ class Customer(Common_InfoShop):
 class Seller(Common_InfoShop):
     def __str__(self):
         return self.name
-    
+
+class Offer(models.Model):
+    date=models.DateTimeField(auto_now_add=True)
+    date1=models.DateField(auto_now_add=True)
+    class OfferType(models.TextChoices):
+        PERC_BILL = 'perc_bill', 'Percentage deducted on Bill'
+        AMT_BILL     = 'amt_bill',     'Amount deducted on Bill'
+        PERC_PROD          = 'perc_prod',          'Percentage deducted on Product'
+        AMT_PROD = 'amt_prod', 'Amount deducted on Product'
+        BUY_GET = 'buy_get', 'Buy One Get One'
+
+    offer_type = models.CharField(max_length=20, choices=OfferType.choices, default=OfferType.PERC_BILL)
+
+    offer_name = models.CharField('Offer Name', max_length=50, null=False, blank=False)
+    valid_till = models.DateField('Valid Till', null=False, blank=False)
+    product = models.ForeignKey(
+    Add_item_model,
+    on_delete=models.DO_NOTHING,
+    null=True,
+    blank=True,
+    limit_choices_to={
+        'product_type__in': [
+            Add_item_model.ProductType.SALE_ONLY,
+            Add_item_model.ProductType.BOTH
+        ]
+    }
+)
+    val  = models.DecimalField('Discount Value', decimal_places=2, max_digits=10, null=False, default=0)
+
+    buyOne = models.CharField('Buy How many Product', max_length=50, null=True, blank=True)
+    getOne = models.CharField('Get How many Product', max_length=50, null=True, blank=True)
+    def __str__(self):
+        return self.offer_name
+
+
 class Purchase_model(models.Model):
     date=models.DateTimeField(auto_now_add=True)
     date1=models.DateField(auto_now_add=True)
@@ -127,7 +176,7 @@ class Purchase_model(models.Model):
     )
     mode=models.CharField('Mode',max_length=15,null=True,choices=STATUS,blank=True)
     ####
-    product=models.ForeignKey(Add_item_model_purch,on_delete=models.DO_NOTHING,null=True,related_name="Product1:+",default='name')
+    product=models.ForeignKey(Add_item_model,on_delete=models.DO_NOTHING,null=True,related_name="Product1:+",default='name')
     qty = models.DecimalField('Quantity',decimal_places=2,max_digits=10,null=False,default=0)
     rate = models.DecimalField('Rate',decimal_places=2,max_digits=10,null=False,default=0)
     gst = models.DecimalField("GST",null=False,max_digits=10,decimal_places=2,default=0)
@@ -200,11 +249,15 @@ class Invoice_model(models.Model):
     )
     mode=models.CharField('Mode',max_length=15,null=False,blank=False,choices=STATUS)
     ####
-    product=models.ForeignKey(Add_item_model_sale,related_name='item',on_delete=models.DO_NOTHING,null=True,blank=False,verbose_name="prod:")
+    product=models.ForeignKey(Add_item_model,related_name='item',on_delete=models.DO_NOTHING,null=True,blank=False,verbose_name="prod:")
     qty = models.DecimalField('quantity',decimal_places=2,max_digits=10,null=False,default=0)
     rate = models.DecimalField("Rate",null=False,max_digits=10,decimal_places=2,default=0)
     gst = models.DecimalField("GST",null=False,max_digits=10,decimal_places=2,default=0)
     amt = models.DecimalField("Amt",null=False,max_digits=10,decimal_places=2,default=0)
+
+    ###
+    transport_amt = models.DecimalField("Transportation Amt",null=False,max_digits=10,decimal_places=2,default=0)
+    offer= models.ForeignKey(Offer,on_delete=models.DO_NOTHING,null=True,blank=True)
     user = models.ForeignKey(Members,on_delete=models.DO_NOTHING,null=True)
 
     def __str__(self):
@@ -215,11 +268,8 @@ class Transportation(models.Model):
     date1=models.DateField(auto_now_add=True)
     receipt_num = models.CharField('Receipt Number', max_length=50, unique=True, null=False, blank=False)
     vehicle_no = models.CharField('Vehicle Number', max_length=20, null=False, blank=False)
-    driver_name = models.CharField('Driver Name', max_length=100, null=False)
-    date_supply=models.DateField('Date',auto_now_add=False,null=True,blank=True)
-    transporter_name = models.CharField('Transporter Name', max_length=100, null=False, blank=False)
     bill = models.ForeignKey(Invoice_model,on_delete=models.DO_NOTHING,null=True,blank=True)
     purchase = models.ForeignKey(Purchase_model ,on_delete=models.DO_NOTHING,null=True,blank=True)
-    qty = models.DecimalField('Quantity',decimal_places=2,max_digits=10,null=False,default=0)
     def __str__(self):
         return self.receipt_num
+    
