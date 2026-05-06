@@ -54,16 +54,15 @@ urlpatterns = [
     path('',views.landing,name =''),
 
 #############
-    path('additemsale',views.Add_item_sale,name='additemsale'),
-    path('additempurch',views.Add_item_purch,name='additempurch'),
+    path('additem',views.Add_item,name='additem'),    
     path('seller',views.Seller_view,name='seller'),
     path('customer',views.customer,name='customer'),
     path('cashbook',views.cashbook,name='cashbook'),
     path('purchasebook',views.purchasebook,name='purchasebook'),
-
+    path('offer',views.offer,name='offer'),
+    
 # ####delete
-    path('itemsale_delete/<str:pk>/',views.itemsale_delete,name='itemsale_delete'),
-    path('itempurch_delete/<str:pk>/',views.itempurch_delete,name='itempurch_delete'),
+    path('item_delete/<str:pk>/',views.item_delete,name='item_delete'),
     path('seller_delete/<str:pk>/',views.seller_delete,name='seller_delete'),
     path('customer_delete/<str:pk>/',views.customer_delete,name='customer_delete'),
     path('cashbook_delete/<str:pk>/',views.cashbook_delete,name='cashbook_delete'),
@@ -72,8 +71,7 @@ urlpatterns = [
     path('bill_delete/<str:pk>/',views.bill_delete,name='bill_delete'),
 
 # ####edits
-    path('itemsale_edit/<str:pk>/',views.itemsale_edit,name='itemsale_edit'),
-    path('itempurch_edit/<str:pk>/',views.itempurch_edit,name='itempurch_edit'),
+    path('item_edit/<str:pk>/',views.item_edit,name='item_edit'),
     path('seller_edit/<str:pk>/',views.seller_edit,name='seller_edit'),
     path('customer_edit/<str:pk>/',views.customer_edit,name='customer_edit'),
     path('cashbook_edit/<str:pk>/',views.cashbook_edit,name='cashbook_edit'),
