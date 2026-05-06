@@ -97,19 +97,14 @@ class SetupCompany_form(forms.ModelForm):
 #     return SetupCompanyForm
 
 class SearchForm(forms.Form):
-    product = forms.ModelChoiceField(queryset=Add_item_model_sale.objects.all(),initial=None,required=False)
+    product = forms.ModelChoiceField(queryset=Add_item_model.objects.all(),initial=None,required=False)
     seller = forms.ModelChoiceField(queryset=Seller.objects.all(),initial=None,required=False)
     customer = forms.ModelChoiceField(queryset=Customer.objects.all(),initial=None,required=False)
 
-class Add_item_purch_form(forms.ModelForm):
-    class Meta:
-        model=Add_item_model_purch
-        fields='__all__'
-        exclude=('user',)
 
-class Add_item_sale_form(forms.ModelForm):
+class Add_item_form(forms.ModelForm):
     class Meta:
-        model=Add_item_model_sale
+        model=Add_item_model
         fields='__all__'
         exclude=('user',)
 
@@ -157,10 +152,12 @@ class CashReceipt_form(forms.ModelForm):
         exclude = ('user',)
 
 
+
 class InvoiceSecond_form(forms.ModelForm):
     class Meta:
-        model=Invoice_model
-        fields=['mode','selbuy','qty','amt',]
+        model = Invoice_model
+        fields = ['mode', 'selbuy', 'product', 'qty', 'amt']
+
 
 class InvoiceQty_form(forms.ModelForm):
     class Meta:
@@ -227,12 +224,12 @@ class SearchForm(forms.Form):
         required=False
     )
     product = forms.ModelChoiceField(
-        queryset=Add_item_model_sale.objects.all(),
+        queryset=Add_item_model.objects.all(),
         label='Product Sale',
         required=False
     )
     product_purch = forms.ModelChoiceField(
-        queryset=Add_item_model_sale.objects.all(),
+        queryset=Add_item_model.objects.all(),
         label='Product Purchase',
         required=False
     )
@@ -306,3 +303,29 @@ class TransportForm1(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.required = False
+
+
+############## OFER ####################################
+class Offer_form(forms.ModelForm):
+    valid = forms.DateField(
+        label='Valid Until',
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=False
+    )
+    class Meta:
+        model = Offer
+        # fields = ['offer_type']
+        fields = '__all__'
+        exclude = ('user',)
+
+class Offer_amt_form(forms.ModelForm):
+    class Meta:
+        model = Offer
+        fields = '__all__'
+        exclude = ('user','product','buy_one','get_one')
+
+class Offer_perc_form(forms.ModelForm):
+    class Meta:
+        model = Offer
+        fields = '__all__'
+        exclude = ('user','val',)
