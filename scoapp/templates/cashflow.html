@@ -1,0 +1,235 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        .tables-wrapper {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .column {
+            flex: 1;
+            overflow-x: auto;
+        }
+        .full-width {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 6px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        @media (max-width: 900px) {
+            .tables-wrapper {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+{% include 'navbar.html' %}
+
+<div class="container">
+
+<h1 style="text-align:center">
+    {{ name_pk }} {% if sale %}Sale{% else %}Purchase{% endif %} Ledger
+</h1>
+
+<h2 style="text-align:center">
+    ⚖️ Balance ₹
+    {% if bal < 0 %}
+        <span style="color:red">{{ bal }}</span>
+    {% else %}
+        {{ bal }}
+    {% endif %}
+</h2>
+
+{% if bill_query and cashquery %}
+<!-- ================= BOTH TABLES ================= -->
+<div class="tables-wrapper">
+
+<!-- ================= BILL TABLE ================= -->
+<div class="column">
+    <h3>📦 Quantity {{ totquant|floatformat }}</h3>
+    <h3>💰 Amount ₹{{ totamt|floatformat }}</h3>
+
+    <table>
+        <tr>
+            <th>BILL</th>
+            <th>DATE</th>
+            <th>NAME</th>
+            <th>QTY</th>
+            <th>RATE</th>
+            <th>PARTY</th>
+            <th>AMOUNT</th>
+            <th>MODE</th>
+            <th>EDIT</th>
+            <th>DEL</th>
+        </tr>
+
+        {% for q in bill_query %}
+        {% if q.qty > 0 %}
+        <tr>
+            <td>{{ q.billnum }}</td>
+            <td>{{ q.date1 }}</td>
+
+            <td>
+                <a href="{% url sale|yesno:'prod,purchprod' q.product_id %}">
+                    {{ q.product }}
+                </a>
+            </td>
+
+            <td>{{ q.qty }}</td>
+            <td>{{ q.rate }}</td>
+
+            <td>
+                <a href="{% url sale|yesno:'seller_shop,purchseller_shop' q.selbuy_id %}">
+                    {{ q.selbuy }}
+                </a>
+            </td>
+
+            <td>{{ q.amt }}</td>
+            <td>{{ q.mode }}</td>
+
+            <td>
+                <a href="{% url sale|yesno:'bill_edit,purchase_edit' q.billnum %}">EDIT</a>
+            </td>
+            <td>
+                <a href="{% url sale|yesno:'bill_delete,purchase_delete' q.billnum %}">DEL</a>
+            </td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </table>
+</div>
+
+<!-- ================= CASH TABLE ================= -->
+<div class="column">
+
+    <!-- spacer restored -->
+    <h2><font color="white">Quantity n/a</font></h2>
+
+    <h3>💰 Amount Received ₹{{ totamt1|floatformat }}</h3>
+
+    <table>
+        <tr>
+            <th>DATE</th>
+            <th>NAME</th>
+            <th>MODE</th>
+            <th>AMOUNT</th>
+            <th>COMMENT</th>
+            <th>EDIT</th>
+            <th>DELETE</th>
+        </tr>
+
+        {% for c in cashquery %}
+        <tr>
+            <td>{{ c.date1 }}</td>
+            <td> <a href="{% url sale|yesno:'seller_shop,purchseller_shop' c.selbuy_id %}">
+                    {{ c.selbuy }}
+                </a></td>
+            <td><a href="{% url sale|yesno:'mode,modepurch' c.mode %}">
+                    {{ c.mode }}
+                </a></td>
+            <td>{{ c.amt }}</td>
+            <td>{{ c.comment }}</td>
+
+            <td>
+                <a href="{% url sale|yesno:'cashbook_edit,purchasebook_edit' c.pk %}">EDIT</a>
+            </td>
+            <td>
+                <a href="{% url sale|yesno:'cashbook_delete,purchasebook_delete' c.pk%}">DELETE</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+</div>
+{% endif %}
+
+{% if bill_query and not cashquery %}
+<!-- ================= BILL ONLY ================= -->
+<div class="full-width">
+    <h3>📦 Quantity {{ totquant|floatformat }}</h3>
+    <h3>💰 Amount ₹{{ totamt|floatformat }}</h3>
+
+    <table>
+        <tr>
+            <th>BILL</th><th>DATE</th><th>NAME</th><th>QTY</th>
+            <th>RATE</th><th>PARTY</th><th>AMOUNT</th>
+            <th>MODE</th><th>EDIT</th><th>  </th>
+        </tr>
+
+        {% for q in bill_query %}
+        {% if q.qty > 0 %}
+        <tr>
+            <td>{{ q.billnum }}</td>
+            <td>{{ q.date1 }}</td>
+            <td>{{ q.product }}</td>
+            <td>{{ q.qty }}</td>
+            <td>{{ q.rate }}</td>
+            <td>{{ q.selbuy }}</td>
+            <td>{{ q.amt }}</td>
+            <td>{{ q.mode }}</td>
+            <td><a href="{% url sale|yesno:'bill_edit,purchase_edit' q.billnum %}">EDIT</a></td>
+            <td><a href="{% url sale|yesno:'bill_delete,purchase_delete' q.billnum %}">DEL</a></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% if cashquery and not bill_query %}
+<!-- ================= CASH ONLY ================= -->
+<div class="full-width">
+
+    <h3><font color="white">Quantity n/a</font></h3>
+    <h3>💰 Amount Received ₹{{ totamt1|floatformat }}</h3>
+
+    <table>
+        <tr>
+            <th>DATE</th>
+            <th>NAME</th>
+            <th>MODE</th>
+            <th>AMOUNT</th>
+            <th>COMMENT</th>
+            <th>EDIT</th>
+            <th>DEL</th>
+        </tr>
+
+        {% for c in cashquery %}
+        <tr>
+            <td>{{ c.date1 }}</td>
+            <td><a href="{% url sale|yesno:'seller_shop,purchseller_shop' c.selbuy_id %}">
+                    {{ c.selbuy }}
+                </a></td>
+            <td><a href="{% url sale|yesno:'mode,modepurch' c.mode %}">
+                    {{ c.mode }}
+                </a></td>
+            <td>{{ c.amt }}</td>
+            <td>{{ c.comment }}</td>
+            <td><a href="{% url sale|yesno:'cashbook_edit,purchasebook_edit' c.pk %}">EDIT</a></td>
+            <td><a href="{% url sale|yesno:'cashbook_delete,purchasebook_delete' c.pk %}">DEL</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+</div>
+</body>
+</html>

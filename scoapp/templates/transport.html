@@ -1,0 +1,84 @@
+{% include 'navbar.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ heading }}</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+
+        /* Color classes */
+        .purch {
+            color: #1e40af; /* blue */
+            font-weight: 600;
+        }
+        .bill {
+            color: #15803d; /* green */
+            font-weight: 600;
+        }
+        .transport {
+            color: #c2410c; /* orange */
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<h2>{{ heading }}</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th class="purch">Purchase Number </th>
+            <th class="purch">Seller</th>
+            <th class="purch">Purchased Quantity</th>
+            <th class="purch">Purchased Rate</th>
+
+            <th class="transport">Vehicle No</th>
+            <th class="transport">Date of Supply</th>
+            <th class="transport">Unloaded Quantity</th>
+            <th class="bill">Customer</th>
+            <th class="bill">Quantity</th>
+            <th class="bill">Rate</th>
+            <th class="bill">Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>
+            <td class="purch">{{ row.billnumber }}</td>
+            <td class="purch">{{ row.seller }}</td>
+            <td class="purch">{{ row.purch_qty }}</td>
+            <td class="purch">{{ row.purch_rate }}</td>
+            <td class="transport">{{ row.vehicle }}</td>
+            <td class="transport">{{ row.date_supply }}</td>
+            <td class="transport">{{ row.qty }}</td>
+            <td class="bill">{{ row.customer }}</td>
+            <td class="bill">{{ row.quantity }}</td>
+            <td class="bill">{{ row.rate }}</td>
+            <td class="bill">{{ row.amount }}</td>
+            <td>
+            <a href="{% url 'generate_invoice' row.billnumber %}">Generate Invoice</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7">No records found</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

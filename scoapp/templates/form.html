@@ -1,0 +1,33 @@
+{% load static %} 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form</title>
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+    <script>
+        // JavaScript function to show a success message
+        function showMessage() {
+            alert("YOUR REPORT HAS BEEN SAVED SUCCESSFULLY");
+        }
+
+        // This function triggers the message on form submit
+        function clicked() {
+            showMessage();
+        }
+    </script>
+    <title>Save Form</title>
+</head>
+<body>
+    <h1><center>{{ heading }} {{ q }}</center></h1>
+
+    <form method="post">
+        {% csrf_token %}
+                {{ form.as_p }}
+        <button type="submit" name="save_form" value="save_form" onclick="clicked()">Save</button>
+    </form>
+</body>
+</html>
