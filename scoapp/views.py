@@ -376,15 +376,11 @@ from datetime import datetime, timedelta
 
 ############ DATA ENTRY #################
 
-def Add_item_sale(request):
-    heading = "Add Sale Product"
+def Add_item(request):
+    heading = "Add  Product"
     context_data = {}
-    return formFunction(request,heading,Add_item_sale_form,redirectpage='additemsale',context_data=context_data)
+    return formFunction(request,heading,Add_item_form,redirectpage='additem',context_data=context_data)
 
-def Add_item_purch(request):
-    heading = "Add Purchase Product"
-    context_data = {}
-    return formFunction(request,heading,Add_item_purch_form,redirectpage='additempurch',context_data=context_data)
 
 def setupCompany(request):
   heading = "Please complete your company profile to continue."
@@ -412,9 +408,13 @@ def customer(request):
   context_data = {}
   return formFunction(request,heading,Customer_form,redirectpage='customer',context_data=context_data)
 
+def offer(request):
+    heading = "Add Offer"
+    context_data = {}
+    return formFunction(request,heading,Offer_form,redirectpage='offer',context_data=context_data)
+
 ############ EDIT AND DELETE #################
-itempurch_delete = delete_view_decorator(Add_item_model_purch, 'itempurch',use_delete_view=False)
-itemsale_delete = delete_view_decorator(Add_item_model_sale, 'itemsale',use_delete_view=False)
+item_delete = delete_view_decorator(Add_item_model, 'itempurch',use_delete_view=False)
 customer_delete = delete_view_decorator(Customer, 'customerall',use_delete_view=False)
 seller_delete = delete_view_decorator(Seller, 'sellerall',use_delete_view=False)
 cashbook_delete = delete_view_decorator(CashBook, 'show',use_delete_view=False)
@@ -422,8 +422,8 @@ purchasebook_delete = delete_view_decorator(PurchaseBook, 'show',use_delete_view
 bill_delete = delete_view_decorator(Invoice_model, 'show',use_delete_view=True)
 purchase_delete = delete_view_decorator(Purchase_model, 'show',use_delete_view=True)
 
-itemsale_edit = edit_view_decorator(Add_item_model_sale, 'itemsale',Add_item_sale_form, use_edit_view=False)
-itempurch_edit = edit_view_decorator(Add_item_model_purch, 'itempurch',Add_item_purch_form, use_edit_view=False)
+item_edit = edit_view_decorator(Add_item_model, 'itempurch',Add_item_form, use_edit_view=False)
+# itempurch_edit = edit_view_decorator(Add_item_model, 'itempurch',Add_item_purch_form, use_edit_view=False)
 seller_edit = edit_view_decorator(Seller, 'sellerall',Seller_form, use_edit_view=False)
 customer_edit = edit_view_decorator(Customer, 'customerall',Customer_form, use_edit_view=False)
 cashbook_edit = edit_view_decorator(CashBook, 'show',CashReceipt_form, use_edit_view=False)
@@ -435,12 +435,26 @@ setupCompany_edit = edit_view_decorator(SetupCompany, 'setup',SetupCompany_form,
 ############ DISPLAY #################
 def itemsale_display(request):
     heading="Sale Product List"
-    query = display(request, Add_item_model_sale, 'id')
+    query = Add_item_model.objects.filter(
+    product_type__in=[
+        Add_item_model.ProductType.SALE_ONLY,
+        Add_item_model.ProductType.BOTH
+    ]
+)
+     
+    # print(items)
+    # query = display(request, Add_item_model, 'id')
     return render(request,'view.html',context={'query':query,'heading':heading})
 
 def itempurch_display(request):
     heading="Purchase Product List"
-    query = display(request, Add_item_model_purch, 'id')
+    query = Add_item_model.objects.filter(
+    product_type__in=[
+        Add_item_model.ProductType.PURCHASE_ONLY,
+        Add_item_model.ProductType.BOTH
+    ]
+)
+     
     return render(request,'view.html',context={'query':query,'heading':heading})
 
 
@@ -456,7 +470,7 @@ def customer_display(request):
     return render(request,'view.html',context={'query':query,'heading':heading})
 
 #################### PURCHASES AND SALES ###############################
-def process(request,Tansaction_model,CustSel,Add_item_model,Book_model,redirectpage):
+def process(request,Tansaction_model,CustSel,Add_item_model,Book_model,redirectpage,ch_rate):
     print("enter view")
     gstperc =0
     if request.method == 'POST':
@@ -497,7 +511,7 @@ def process(request,Tansaction_model,CustSel,Add_item_model,Book_model,redirectp
                     print(f"Product with ID {product_id} not found.")
                     continue
                 for p in product_list:
-                    ratee = p.rate  # Product rate
+                    ratee = getattr(p, ch_rate)
                     print('Product rate:', ratee)
                     try:
                         amount_before_gst = float(quantity) * float(ratee)  
@@ -600,7 +614,12 @@ def process_mini(request, form, redirectpage, Book_model, purchase, qty):
 
 def sale(request):
     head = "Bill"
-    items = Add_item_model_sale.objects.exclude(image__isnull=True).exclude(image__exact='')  
+    items = Add_item_model.objects.filter(
+            product_type__in=[
+                Add_item_model.ProductType.SALE_ONLY,
+                Add_item_model.ProductType.BOTH
+            ]
+        ).exclude(image__isnull=True).exclude(image__exact='')  
     form = InvoiceSecond_form(request.POST or None)
     print(items)
     return render(request, 'sale.html', context={'items': items, 'head': head, 'form': form})
@@ -608,12 +627,17 @@ def sale(request):
 @require_POST
 @csrf_exempt
 def process_sale(request):
-    query = process(request, Invoice_model,Customer,Add_item_model_sale,CashBook, 'invoice')
+    query = process(request, Invoice_model,Customer,Add_item_model,CashBook, 'invoice','sale_rate')
     return render(request,'sale.html',context={'query':query})
 
 def purchase(request):
     head = "Purchase"
-    items = Add_item_model_purch.objects.exclude(image__isnull=True).exclude(image__exact='')  
+    items = Add_item_model.objects.filter(
+            product_type__in=[
+                Add_item_model.ProductType.PURCHASE_ONLY,
+                Add_item_model.ProductType.BOTH
+            ]
+        ).exclude(image__isnull=True).exclude(image__exact='')  
     form = Purchase_form2(request.POST or None)
     print(items)
     return render(request, 'purchase.html', context={'items': items, 'head': head, 'form': form})
@@ -622,7 +646,7 @@ def purchase(request):
 @require_POST
 @csrf_exempt
 def process_purchase(request):
-    query = process(request, Purchase_model,Seller,Add_item_model_purch,PurchaseBook, 'invoice')
+    query = process(request, Purchase_model,Seller,Add_item_model,PurchaseBook, 'invoice','purchase_rate')
     return render(request,'purchase.html',context={'query':query})
 
 #####################################################
@@ -815,36 +839,59 @@ def invoiceDisplay(request):
 
 def Stock(request):
     head = "Stock"
-    products = Add_item_model_sale.objects.all()
-    d = {}
-    d1 = {}
-    d2 = {}
+    sale_products = Add_item_model.objects.all()
+    purch_products = Add_item_model.objects.all()
+
+    d = {}   # purchased
+    d1 = {}  # sold
+    d2 = {}  # balance
+
     purch_list = []
     sale_list = []
 
-    for p in products:
-        prod = p.id
+    # Collect purchased quantities
+    for p in purch_products:
+        prod_id = p.id
         prod_name = p.product
-        purchased = total_quantity(Purchase_model, prod)
+        purchased = total_quantity(Purchase_model, prod_id) or 0
         d[prod_name] = purchased
 
-        sold = total_quantity(Invoice_model, prod)
+    # Collect sold quantities
+    for s in sale_products:
+        prod_id = s.id
+        prod_name = s.product
+        sold = total_quantity(Invoice_model, prod_id) or 0
         d1[prod_name] = sold
-        print(prod)
-        bal = purchased - sold
-        purch_list.append({
-        'id': prod,
-        'name': prod_name,  
-        'purchased':purchased,      
-    })
-        sale_list.append({
-        'id': prod,
-        'name': prod_name, 
-        'sold':sold,       
-    })
-        d2[prod_name] = bal
-    return render(request,'stock.html',context={'d':d,'d1':d1,'d2':d2,'head':head,'products':products,'product':True,'purch_list':purch_list,'sale_list':sale_list,})
 
+    # Combine all product names from both
+    all_products = set(list(d.keys()) + list(d1.keys()))
+
+    for name in all_products:
+        purchased = d.get(name, 0)
+        sold = d1.get(name, 0)
+        bal = purchased - sold
+
+        d2[name] = bal
+
+        purch_list.append({
+            'name': name,
+            'purchased': purchased,
+        })
+
+        sale_list.append({
+            'name': name,
+            'sold': sold,
+        })
+
+    return render(request, 'stock.html', context={
+        'd': d,
+        'd1': d1,
+        'd2': d2,
+        'head': head,
+        'purch_list': purch_list,
+        'sale_list': sale_list,
+    })
+    
 def cash_balance(request):
         head = "CASH BALANCE"
         g ={}
@@ -1086,7 +1133,7 @@ def prod(request,pk):
         amt_total,qty_total,name,pages= collect_values(request,pk,Invoice_model,'product_id','product')
         print('number')
     else:
-        product_query = Add_item_model_sale.objects.filter(product = pk)
+        product_query = Add_item_model.objects.filter(product = pk)
         for p in product_query:
             pkk = p.id
             print(pk)
@@ -1100,7 +1147,7 @@ def prod_purch(request,pk):
     if pk.isnumeric():
         amt_total,qty_total,name,pages = collect_values(request,pkk,Purchase_model,'product_id','product')
     else:
-        product_query = Add_item_model_purch.objects.filter(product = pk)
+        product_query = Add_item_model.objects.filter(product = pk)
         for p in product_query:
             pkk = p.id
             print(pk)
