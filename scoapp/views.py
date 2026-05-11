@@ -1,3 +1,5 @@
+from httpx import request
+
 from.models import *
 from .forms import *
 from django.contrib.auth.models import Group
@@ -1116,15 +1118,13 @@ def multisearch(request):
 ############################ FILTERS ##########################################
 
 #date
-# def dateie(request,pk):
-#     heading="Sales on "
-#     d1,bal,pk = date_by(pk,Invoice_model,CashBook)
-#     return render(request,'dateie.html',context={'d1':d1,'bal':bal,'pk':pk,'heading':heading})
+def by_date(request,pk):
+    amt_total,qty_total,name,pages= collect_values(request,pk,Invoice_model,'date1','pk')
+    return render(request,'cashflow.html',context={'bill_query':pages,'totquant':qty_total,'name_pk':pk,'totamt':amt_total,'sale':True,})
 
-# def purchdateie(request,pk):
-#     heading="Purchase on" 
-#     d1,bal,pk = date_by(pk,Purchase_model,PurchaseBook)
-#     return render(request,'dateie.html',context={'d1':d1,'bal':bal,'pk':pk,'heading':heading})
+def by_date_purch(request,pk):
+    amt_total,qty_total,name,pages= collect_values(request,pk,Purchase_model,'date1','pk')
+    return render(request,'cashflow.html',context={'bill_query':pages,'totquant':qty_total,'name_pk':pk,'totamt':amt_total,'sale':False,})
 
 #product
 def prod(request,pk):
@@ -1159,7 +1159,7 @@ def prod_purch(request,pk):
 #selbuy
 def seller(request,pk):
     amt_total,qty_total,name,pages = collect_values(request,pk,Invoice_model,'selbuy_id','selbuy')
-    amt_total1,qty_total1,name1,pages1 = collect_values(request,pk,CashBook,'selbuy_id','selbuy')
+    amt_total1,qty_total1,name1,pages11 = collect_values(request,pk,CashBook,'selbuy_id','selbuy')
     bal = Decimal(amt_total or 0) - Decimal(amt_total1 or 0)
     return render(request,'cashflow.html',context={'bill_query':pages,'totquant':qty_total,'name_pk':name,'totamt':amt_total,'sale':True,
     'cashquery':pages1,'totamt1':amt_total1,
