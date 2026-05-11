@@ -152,7 +152,8 @@
         <div class="head2">A Necessity for Every Entity</div>
         <div class="user-actions">
             <span>Hello,  {{ user.get_role_display}} {{request.user}} </span> |   {% now "Y-m-d" as current_date %}
-         Todays date {{current_date}}<a href="signout">Logout</a>
+         Todays date {{current_date}}<a href="signout">Logout</a><a href="{% url 'backup_db' %}">
+    <button type="button">Download DB Backup (Excel)</button>
         </div>
     </header>
 
