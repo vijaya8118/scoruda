@@ -1207,3 +1207,102 @@ def mode(request,pk):
     return render(request,'cashflow.html',context={'name_pk':pk,'cashquery':cashquery,'totamt1':totamt1,'sale':True,})
 
 
+###############################
+from django.http import HttpResponse, Http404
+from django.utils.timezone import is_aware, make_naive
+
+
+def clean_timezone(data):
+    for row in data:
+        for key, value in row.items():
+            if isinstance(value, datetime) and is_aware(value):
+                row[key] = make_naive(value)
+    return data
+
+
+def resolve_foreign_keys(model, data):
+    """
+    For every ForeignKey field on the model, replace `fieldname_id`
+    with `fieldname` containing the related object's name/str.
+    """
+    # Map: raw column name (e.g. "author_id") → (field_name, related_model)
+    fk_map = {}
+    for field in model._meta.get_fields():
+        if isinstance(field, models.ForeignKey):
+            fk_map[field.attname] = (field.name, field.related_model)
+            # field.attname = "author_id"  (the raw DB column stored in .values())
+            # field.name    = "author"     (the clean name we want in Excel)
+
+    if not fk_map:
+        return data  # nothing to resolve
+
+    # Build a cache per FK field so we don't hit the DB repeatedly
+    # cache[field.attname][pk] = display name
+    cache = {col: {} for col in fk_map}
+
+    for row in data:
+        for raw_col, (clean_name, related_model) in fk_map.items():
+            if raw_col not in row:
+                continue
+
+            pk_value = row.pop(raw_col)  # remove "author_id"
+
+            if pk_value is None:
+                row[clean_name] = None
+                continue
+
+            # Fetch from cache or DB
+            if pk_value not in cache[raw_col]:
+                try:
+                    related_obj = related_model.objects.get(pk=pk_value)
+                    # Prefer a `name` field, fall back to str()
+                    cache[raw_col][pk_value] = (
+                        related_obj.name
+                        if hasattr(related_obj, "name")
+                        else str(related_obj)
+                    )
+                except related_model.DoesNotExist:
+                    cache[raw_col][pk_value] = f"[Deleted #{pk_value}]"
+
+            row[clean_name] = cache[raw_col][pk_value]
+
+    return data
+
+
+def export_db_excel(request):
+    # ── Step 1: collect only non-empty models ──────────────────────────────
+    model_data = {}
+    for model in apps.get_models():
+        data = list(model.objects.all().values())
+        if not data:
+            continue  # skip empty models — no sheet, no download
+
+        data = clean_timezone(data)
+        data = resolve_foreign_keys(model, data)   # ← FK replacement
+        model_data[model.__name__] = data
+
+    if not model_data:
+        raise Http404("No data available to export.")
+
+    # ── Step 2: write to Excel only when there is something to write ───────
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = "attachment; filename=database_backup.xlsx"
+
+    used_sheet_names = {}
+
+    with pd.ExcelWriter(response, engine="openpyxl") as writer:
+        for model_name, data in model_data.items():
+            # Deduplicate sheet names (Excel limit: 31 chars, must be unique)
+            base_name = model_name[:31]
+            if base_name in used_sheet_names:
+                used_sheet_names[base_name] += 1
+                suffix = f"_{used_sheet_names[base_name]}"
+                base_name = base_name[: 31 - len(suffix)] + suffix
+            else:
+                used_sheet_names[base_name] = 1
+
+            pd.DataFrame(data).to_excel(writer, sheet_name=base_name, index=False)
+
+    return response
