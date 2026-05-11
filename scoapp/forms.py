@@ -156,7 +156,7 @@ class CashReceipt_form(forms.ModelForm):
 class InvoiceSecond_form(forms.ModelForm):
     class Meta:
         model = Invoice_model
-        fields = ['mode', 'selbuy', 'product', 'qty', 'amt']
+        fields = ['billnum','mode', 'selbuy', 'product', 'qty', 'amt']
 
 
 class InvoiceQty_form(forms.ModelForm):
