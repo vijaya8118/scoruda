@@ -183,10 +183,10 @@
         <a href="{% url 'customerall'  %}">View Customers</a>
 
         <h2 style="color: #ffff82; padding-left: 20px;">Entry</h2>
-        <a href="b2c">Sales</a>
+            <a href="b2c">Sales</a>
+            <a href="{% url 'retailpurch'  %}">Purchase</a>
             <a href="{% url 'cashbook'  %}">Cashbook</a>
             <a href="{% url 'purchasebook'  %}">PurchaseBook</a>
-            <a href="{% url 'retailpurch'  %}">Retail Purchase</a>
 
         <h2 style="color: #ffff82; padding-left: 20px;">Company</h2>
              <a href="{% url 'profile' %}">My Profile </a>
@@ -198,7 +198,9 @@
     <nav class="menu">
         <div>
             <a href="{% url 'b2c'  %}">Sales</a>
-            <a href="{% url 'retailpurch'  %}">Retail Purchase</a>
+            <a href="{% url 'retailpurch'  %}">Purchase</a>
+            <a href="{% url 'cashbook'  %}">Cashbook</a>
+            <a href="{% url 'purchasebook'  %}">PurchaseBook</a>
         </div>
         <span class="menu-btn" onclick="openNav()">&#9776; Menu</span>
     </nav>
@@ -213,8 +215,14 @@
 
         <h2 style="color: #ffff82; padding-left: 20px;">View</h2>
         <a href="{% url 'itemsale'  %}">View Sale Products</a>
-        <a href="{% url 'itempurch'  %}">View Purchase Products</a>        <a href="{% url 'sellerall'  %}">View Seller</a>
+        <a href="{% url 'itempurch'  %}">View Purchase Products</a>        
+        <a href="{% url 'sellerall'  %}">View Seller</a>
         <a href="{% url 'customerall'  %}">View Customers</a>
+        </div>
+        
+        <h2 style="color: #ffff82; padding-left: 20px;">View</h2>
+        <a href="{% url 'stock'  %}">Stock</a>
+
  </div>
 
 
@@ -222,9 +230,10 @@
     <nav class="menu">
         <div>
             <a href="{% url 'b2c'  %}">Sales ಮಾರಾಟ</a>
-            <a href="{% url 'retailpurch'  %}">Retail Purchase ಖರೀದಿ</a>
+            <a href="{% url 'retailpurch'  %}">Purchase ಖರೀದಿ</a>
             <a href="{% url 'stock'  %}">Stock ಸ್ಟಾಕ್</a>
-
+            <a href="{% url 'cashbook'  %}">Cashbook</a>
+            <a href="{% url 'purchasebook'  %}">PurchaseBook</a>
         </div>
         <span class="menu-btn" onclick="openNav()">&#9776; Menu</span>
     </nav>
