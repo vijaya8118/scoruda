@@ -1207,10 +1207,12 @@ def mode(request,pk):
     return render(request,'cashflow.html',context={'name_pk':pk,'cashquery':cashquery,'totamt1':totamt1,'sale':True,})
 
 
-###############################
+##############################
 from django.http import HttpResponse, Http404
 from django.utils.timezone import is_aware, make_naive
-
+import pandas as pd
+from django.apps import apps
+from datetime import datetime, date
 
 def clean_timezone(data):
     for row in data:
@@ -1270,31 +1272,31 @@ def resolve_foreign_keys(model, data):
 
 
 def export_db_excel(request):
-    # ── Step 1: collect only non-empty models ──────────────────────────────
     model_data = {}
     for model in apps.get_models():
         data = list(model.objects.all().values())
         if not data:
-            continue  # skip empty models — no sheet, no download
+            continue
 
         data = clean_timezone(data)
-        data = resolve_foreign_keys(model, data)   # ← FK replacement
+        data = resolve_foreign_keys(model, data)
         model_data[model.__name__] = data
 
     if not model_data:
         raise Http404("No data available to export.")
 
-    # ── Step 2: write to Excel only when there is something to write ───────
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response["Content-Disposition"] = "attachment; filename=database_backup.xlsx"
+
+    # ── filename with today's date ─────────────────────────────────────────
+    today = date.today().strftime("%Y-%m-%d")
+    response["Content-Disposition"] = f"attachment; filename=database_backup_{today}.xlsx"
 
     used_sheet_names = {}
 
     with pd.ExcelWriter(response, engine="openpyxl") as writer:
         for model_name, data in model_data.items():
-            # Deduplicate sheet names (Excel limit: 31 chars, must be unique)
             base_name = model_name[:31]
             if base_name in used_sheet_names:
                 used_sheet_names[base_name] += 1
