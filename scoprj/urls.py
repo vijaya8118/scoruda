@@ -117,8 +117,8 @@ urlpatterns = [
 #     path('prodlist',views.product_list,name='prodlist'),
 
 # ##filters
-    # path('dateie/<str:pk>/',views.dateie,name ='dateie'),
-    # path('purchdateie/<str:pk>/',views.purchdateie,name ='purchdateie'),
+    path('by_date/<str:pk>/',views.by_date,name ='by_date'),
+    path('by_date_purch/<str:pk>/',views.by_date_purch,name ='by_date_purch'),
     path('prod/<str:pk>/',views.prod,name ='prod'),
     path('purchprod/<str:pk>/',views.prod_purch,name ='purchprod'),
     path('seller_shop/<str:pk>/',views.seller,name='seller_shop'),
