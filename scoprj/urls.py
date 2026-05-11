@@ -148,6 +148,7 @@ urlpatterns = [
 #     path('upload_cashebook/', views.upload_cashebook, name='upload_cashebook'),
 #     path('upload_invoice/', views.upload_invoice, name='upload_invoice'),
 #     path('upload_purchase/', views.upload_purchase, name='upload_purchase'),
+    path('backup-db/', views.export_db_excel, name='backup_db'),
 
     
 ]
