@@ -156,8 +156,15 @@ class CashReceipt_form(forms.ModelForm):
 class InvoiceSecond_form(forms.ModelForm):
     class Meta:
         model = Invoice_model
-        fields = ['billnum','mode', 'selbuy', 'product', 'qty', 'amt']
+        fields = ['billnum', 'date1', 'mode', 'selbuy', 'product', 'qty', 'amt']
 
+        widgets = {
+            'date1': forms.DateInput(
+                attrs={
+                    'type': 'date'
+                }
+            )
+        }
 
 class InvoiceQty_form(forms.ModelForm):
     class Meta:
