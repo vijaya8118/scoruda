@@ -131,11 +131,15 @@
                 <th>Description of Goods</th>
                 <th>Quantity</th>
                 <th>Rate (₹)</th>
-                        {% if item.gst and item.gst != 0 %}
+                            {% for item in products %}
+
+                        {% if item.gst %}
                            <th>GST Amount (₹)</th>
                         {%else%}
-                        <th> </th>
-                        {% endif %}                
+                        <th>  -</th>
+                        {% endif %}  
+                                    {% endfor %}
+              
                         <th>Total (₹)</th>
             </tr>
         </thead>
@@ -218,6 +222,8 @@
 
             {% if company.gst %}
                 GSTIN: {{ company.gst }}
+                {%else}
+                -
             {% endif %}
         </div>
     </div>
