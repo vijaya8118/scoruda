@@ -1157,7 +1157,7 @@ def prod_purch(request,pk):
 #selbuy
 def seller(request,pk):
     amt_total,qty_total,name,pages = collect_values(request,pk,Invoice_model,'selbuy_id','selbuy')
-    amt_total1,qty_total1,name1,pages11 = collect_values(request,pk,CashBook,'selbuy_id','selbuy')
+    amt_total1,qty_total1,name1,pages1 = collect_values(request,pk,CashBook,'selbuy_id','selbuy')
     bal = Decimal(amt_total or 0) - Decimal(amt_total1 or 0)
     return render(request,'cashflow.html',context={'bill_query':pages,'totquant':qty_total,'name_pk':name,'totamt':amt_total,'sale':True,
     'cashquery':pages1,'totamt1':amt_total1,
