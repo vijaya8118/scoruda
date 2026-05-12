@@ -152,11 +152,10 @@ class CashReceipt_form(forms.ModelForm):
         exclude = ('user',)
 
 
-
 class InvoiceSecond_form(forms.ModelForm):
     class Meta:
         model = Invoice_model
-        fields = ['billnum', 'date1', 'mode', 'selbuy', 'product', 'qty', 'amt']
+        fields = ['billnum', 'date1', 'mode', 'selbuy', 'product', 'qty', 'rate','gst','amt']
 
         widgets = {
             'date1': forms.DateInput(
