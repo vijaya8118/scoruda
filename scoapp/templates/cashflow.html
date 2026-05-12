@@ -104,10 +104,10 @@
             <td>{{ q.mode }}</td>
 
             <td>
-                <a href="{% url sale|yesno:'bill_edit,purchase_edit' q.billnum %}">EDIT</a>
+                <a href="{% url sale|yesno:'bill_edit,purchase_edit' q.num %}">EDIT</a>
             </td>
             <td>
-                <a href="{% url sale|yesno:'bill_delete,purchase_delete' q.billnum %}">DEL</a>
+                <a href="{% url sale|yesno:'bill_delete,purchase_delete' q.num %}">DEL</a>
             </td>
         </tr>
         {% endif %}
@@ -184,8 +184,8 @@
             <td>{{ q.selbuy }}</td>
             <td>{{ q.amt }}</td>
             <td>{{ q.mode }}</td>
-            <td><a href="{% url sale|yesno:'bill_edit,purchase_edit' q.billnum %}">EDIT</a></td>
-            <td><a href="{% url sale|yesno:'bill_delete,purchase_delete' q.billnum %}">DEL</a></td>
+            <td><a href="{% url sale|yesno:'bill_edit,purchase_edit' q.num %}">EDIT</a></td>
+            <td><a href="{% url sale|yesno:'bill_delete,purchase_delete' q.num %}">DEL</a></td>
         </tr>
         {% endif %}
         {% endfor %}
