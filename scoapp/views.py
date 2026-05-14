@@ -1,5 +1,3 @@
-from httpx import request
-
 from.models import *
 from .forms import *
 from django.contrib.auth.models import Group
