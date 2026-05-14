@@ -130,7 +130,7 @@ class PurchaseManual_form(forms.ModelForm):
     class Meta:
         model=Purchase_model
         fields='__all__'
-        exclude=('user','date','date1','gst',)
+        exclude=('user','date','date1','gst','rate','amt','billnum','transport_amt','offer')
 
 class CashReceipt_form(forms.ModelForm):
     # COMMENT_CHOICES = [
@@ -150,6 +150,7 @@ class CashReceipt_form(forms.ModelForm):
         model = CashBook
         fields = '__all__'
         exclude = ('user',)
+
 
 
 class InvoiceSecond_form(forms.ModelForm):
@@ -178,12 +179,22 @@ class InvoiceMode_form(forms.ModelForm):
 class GenerateInvoice_form(forms.ModelForm):
     class Meta:
         model = Invoice_model
-        fields = ('selbuy','rate')      
-# class Invoice_form(forms.ModelForm):
-#     class Meta:
-#         model=Invoice_model
-#         fields='__all__'
-#         exclude=('user','date','date1','gst',)
+        fields = ('selbuy','rate')     
+
+
+class Invoice_form_manual(forms.ModelForm):
+    class Meta:
+        model=Invoice_model
+        fields='__all__'
+        exclude=('user','date','gst','billnum','amt','rate','transport_amt','offer')
+        widgets = {
+            'date1': forms.DateInput(
+                attrs={
+                    'type': 'date'
+                }
+            )
+        }
+
 
 class Customer_form(forms.ModelForm):
     class Meta:
