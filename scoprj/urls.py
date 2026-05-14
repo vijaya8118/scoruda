@@ -90,7 +90,9 @@ urlpatterns = [
 # ##Bills and purchase
     path('b2c',views.sale,name='b2c'),####Auto
     path('t', views.process_sale, name='t'),
-
+    
+    path('b2c_manual',views.sale_manual,name='b2c_manual'),##manual 
+    path('purch_manual', views.purchase_manual, name='purch_manual'),
 #     path('b2b',views.b2b, name='b2b'),
 #     path('t1', views.process_b2b, name='t1'),
 
