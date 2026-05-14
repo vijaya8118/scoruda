@@ -1,3 +1,5 @@
+from httpx import request
+
 from.models import *
 from .forms import *
 from django.contrib.auth.models import Group
@@ -432,6 +434,7 @@ bill_edit = edit_view_decorator(Invoice_model, 'show',InvoiceSecond_form, use_ed
 purchase_edit = edit_view_decorator(Purchase_model, 'show',Purchase_form, use_edit_view=True)
 setupCompany_edit = edit_view_decorator(SetupCompany, 'setup',SetupCompany_form, use_edit_view=False)
 
+
 ############ DISPLAY #################
 def itemsale_display(request):
     heading="Sale Product List"
@@ -470,46 +473,20 @@ def customer_display(request):
     return render(request,'view.html',context={'query':query,'heading':heading})
 
 #################### PURCHASES AND SALES ###############################
-def process(request,Tansaction_model,CustSel,Add_item_model,Book_model,redirectpage,ch_rate):
-    print("enter view")
-    gstperc =0
-    if request.method == 'POST':
-        print('POST request received')
-        try:
-            print('Entering POST try block')
-            selected_products = json.loads(request.body.decode('utf-8'))
-            print(selected_products)
-            if not isinstance(selected_products, list):
-                raise ValueError("Expected a list of products, got something else.")
-            total_amount = 0
-            if not selected_products:
-                print("No products received in the order.")
-            latest_invoice = Tansaction_model.objects.order_by('-date').first()
-            bill_number = (latest_invoice.billnum + 1) if latest_invoice else 1
-            print('Bill number:', bill_number)
-            for product in selected_products:  
-                if not isinstance(product, dict):
-                    print(f"Skipping invalid product: {product}")
-                    continue
-                product_id = product.get('productId')
-                payment_mode = product.get('mode')  
-                quantity = product.get('qty', 1) 
-                seller_buyer_id = product.get('customer')  
-            
-                seller_buyer = CustSel.objects.get(id=seller_buyer_id)
-                print('Mode:', payment_mode)                              
-                print('Quantity:', quantity)  
-                print("Seller/Buyer:", seller_buyer)
+def process(request,Tansaction_model,CustSel,Add_item_model,Book_model,redirectpage,ch_rate,product_id, payment_mode, quantity, seller_buyer, bill_number):
+                print('product_id from the process user defined function', product_id)
+                gstperc=0
+                total_amount =0
                 from_company = SetupCompany.objects.all()
                 for f in from_company:
                     gstperc = f.gsttype
                 if not product_id:
                     print("Missing product ID, skipping this product.")
-                    continue
+                    # continue
                 product_list = Add_item_model.objects.filter(id=product_id)
                 if not product_list.exists():
                     print(f"Product with ID {product_id} not found.")
-                    continue
+                    # continue
                 for p in product_list:
                     ratee = getattr(p, ch_rate)
                     print('Product rate:', ratee)
@@ -557,10 +534,10 @@ def process(request,Tansaction_model,CustSel,Add_item_model,Book_model,redirectp
                         except Exception as e:
                             print(f"Error saving CashBook entry: {e}")
             
-            return redirect(redirectpage)
-        except Exception as e:
-            print(f"Error processing order: {e}")
-    return render(request, 'sale.html', context={})
+                return redirect(redirectpage)
+        # except Exception as e:
+        #     print(f"Error processing order: {e}")
+            # return render(request, 'sale.html', context={})
 
 
 def process_mini(request, form, redirectpage, Book_model, purchase, qty):
@@ -627,7 +604,40 @@ def sale(request):
 @require_POST
 @csrf_exempt
 def process_sale(request):
-    query = process(request, Invoice_model,Customer,Add_item_model,CashBook, 'invoice','sale_rate')
+    if request.method == 'POST':
+            print('POST request received')
+        # try:
+            print('Entering POST try block')
+            selected_products = json.loads(request.body.decode('utf-8'))
+            print(selected_products)
+            if not isinstance(selected_products, list):
+                raise ValueError("Expected a list of products, got something else.")
+            total_amount = 0
+            if not selected_products:
+                print("No products received in the order.")
+            latest_invoice = Invoice_model.objects.order_by('-date').first()
+            bill_number = (latest_invoice.billnum + 1) if latest_invoice else 1
+            print('Bill number:', bill_number)
+            for product in selected_products:  
+                if not isinstance(product, dict):
+                    print(f"Skipping invalid product: {product}")
+                    continue
+                product_id = product.get('productId')
+                payment_mode = product.get('mode')  
+                quantity = product.get('qty', 1) 
+                seller_buyer_id = product.get('customer')  
+            
+                seller_buyer = Customer.objects.get(id=seller_buyer_id)
+                print('Mode:', payment_mode)
+                print('Quantity:', quantity)
+                print("Seller/Buyer:", seller_buyer)    
+                print('Product ID:', product_id)
+                print('Payment Mode:', payment_mode)
+                print('Quantity:', quantity)
+                print("Seller/Buyer:", seller_buyer) 
+                print('----------------------------------------------------')   
+                
+                query = process(request, Invoice_model,Customer,Add_item_model,CashBook, 'invoice','sale_rate',product_id=product_id, payment_mode=payment_mode, quantity=quantity, seller_buyer=seller_buyer, bill_number=bill_number)
     return render(request,'sale.html',context={'query':query})
 
 def purchase(request):
@@ -646,71 +656,109 @@ def purchase(request):
 @require_POST
 @csrf_exempt
 def process_purchase(request):
-    query = process(request, Purchase_model,Seller,Add_item_model,PurchaseBook, 'invoice','purchase_rate')
-    return render(request,'purchase.html',context={'query':query})
+    if request.method == 'POST':
+            print('POST request received')
+        # try:
+            print('Entering POST try block')
+            selected_products = json.loads(request.body.decode('utf-8'))
+            print(selected_products)
+            if not isinstance(selected_products, list):
+                raise ValueError("Expected a list of products, got something else.")
+            total_amount = 0
+            if not selected_products:
+                print("No products received in the order.")
+            latest_invoice = Purchase_model.objects.order_by('-date').first()
+            bill_number = (latest_invoice.billnum + 1) if latest_invoice else 1
+            print('Bill number:', bill_number)
+            for product in selected_products:  
+                if not isinstance(product, dict):
+                    print(f"Skipping invalid product: {product}")
+                    continue
+                product_id = product.get('productId')
+                payment_mode = product.get('mode')  
+                quantity = product.get('qty', 1) 
+                seller_buyer_id = product.get('customer')  
+            
+                seller_buyer = Seller.objects.get(id=seller_buyer_id)
+                print('Mode:', payment_mode)
+                print('Quantity:', quantity)
+                print("Seller/Buyer:", seller_buyer)    
+                print('Product ID:', product_id)
+                print('Payment Mode:', payment_mode)
+                print('Quantity:', quantity)
+                print("Seller/Buyer:", seller_buyer) 
+                print('----------------------------------------------------')   
+                
+                query = process(request, Purchase_model,Seller,Add_item_model,PurchaseBook, 'invoice','purchase_rate',product_id=product_id, payment_mode=payment_mode, quantity=quantity, seller_buyer=seller_buyer, bill_number=bill_number)
 
-#####################################################
-from django.db import transaction, IntegrityError
-from django.contrib import messages
+    return render(request,'purchase.html',context={'query':query})
+##############manual sale and  purchase #######################
+def sale_manual(request):
+    head = "Bill"
+    items = Add_item_model.objects.filter(
+            product_type__in=[
+                Add_item_model.ProductType.SALE_ONLY,
+                Add_item_model.ProductType.BOTH
+            ]
+        )  
+    form = Invoice_form_manual(request.POST or None)
+    if request.method == 'POST':
+            latest_invoice = Invoice_model.objects.order_by('-date').first()
+            bill_number = (latest_invoice.billnum + 1) if latest_invoice else 1
+            print('Bill number:', bill_number)
+            product_id = request.POST.get('product')
+
+            payment_mode = request.POST.get('mode')  
+            quantity = request.POST.get('qty', 1) 
+            seller_buyer_id = request.POST.get('selbuy')  
+            seller_buyer = Customer.objects.get(id=seller_buyer_id)
+            print('Mode:', payment_mode)
+            print('Quantity:', quantity)
+            print("Seller/Buyer:", seller_buyer)    
+            print('Product ID:', product_id)
+            print('Payment Mode:', payment_mode)
+            print('Quantity:', quantity)
+            print("Seller/Buyer:", seller_buyer) 
+            print('----------------------------------------------------')   
+            query = process(request, Invoice_model,Customer,Add_item_model,CashBook, 'invoice','sale_rate',product_id=product_id, payment_mode=payment_mode, quantity=quantity, seller_buyer=seller_buyer, bill_number=bill_number)
+            return redirect('b2c_manual')
+                
+    print(items)
+    return render(request, 'formjust.html', context={'items': items, 'heading': head, 'form': form})
 
 def purchase_manual(request):
-    if request.method == "POST":
-        invoice_form = PurchaseManual_form(request.POST)
-        transport_form = TransportForm(request.POST)
+    head = "Purchase"
+    items = Add_item_model.objects.filter(
+            product_type__in=[
+                Add_item_model.ProductType.SALE_ONLY,
+                Add_item_model.ProductType.BOTH
+            ]
+        )  
+    form = PurchaseManual_form(request.POST or None)
+    if request.method == 'POST':
+            latest_invoice = Purchase_model.objects.order_by('-date').first()
+            bill_number = (latest_invoice.billnum + 1) if latest_invoice else 1
+            print('Bill number:', bill_number)
+            product_id = request.POST.get('product')
 
-        if invoice_form.is_valid():
-            try:
-                with transaction.atomic():
-                    # 1️⃣ Save Invoice (always)
-                    invoice = invoice_form.save()
-
-                    bill_number = invoice.billnum
-                    payment_mode = invoice.mode
-                    amount = invoice.amt
-                    seller_buyer = invoice.selbuy
-
-                    # 2️⃣ Save Transport ONLY if data is provided
-                    if transport_form.is_valid():
-                        has_data = any(
-                            transport_form.cleaned_data.get(field)
-                            for field in transport_form.fields
-                        )
-
-                        if has_data:
-                            transport = transport_form.save(commit=False)
-                            transport.bill = invoice   # FK expects Invoice_model instance
-                            transport.save()
-                            messages.success(request, "Transport details saved successfully.")
-
-                    # 3️⃣ CashBook entry only for cash / Bank
-                    if payment_mode in ['cash', 'Bank']:
-                        PurchaseBook.objects.create(
-                            user=request.user,
-                            selbuy=seller_buyer,
-                            amt=amount,
-                            mode=payment_mode,
-                            comment=f"Payment for Invoice {bill_number}"
-                        )
-
-                    messages.success(request, "Invoice saved successfully.")
-
-            except IntegrityError:
-                invoice_form.add_error(
-                    'billnum',
-                    'This bill number already exists. Please choose another.'
-                )
-
-    else:
-        latest_invoice = Purchase_model.objects.order_by('-date').first()
-        bill_number = (latest_invoice.billnum + 1) if latest_invoice else 1
-
-        invoice_form = PurchaseManual_form(initial={'billnum': bill_number})
-        transport_form = TransportForm()
-
-    return render(request, "invoice_manual.html", {
-        "invoice_form": invoice_form,
-        "transport_form": transport_form,
-    })
+            payment_mode = request.POST.get('mode')  
+            quantity = request.POST.get('qty', 1) 
+            seller_buyer_id = request.POST.get('selbuy')  
+            seller_buyer = Seller.objects.get(id=seller_buyer_id)
+            print('Mode:', payment_mode)
+            print('Quantity:', quantity)
+            print("Seller/Buyer:", seller_buyer)    
+            print('Product ID:', product_id)
+            print('Payment Mode:', payment_mode)
+            print('Quantity:', quantity)
+            print("Seller/Buyer:", seller_buyer) 
+            print('----------------------------------------------------')   
+            query = process(request, Purchase_model,Seller,Add_item_model,PurchaseBook, 'invoice','purchase_rate',product_id=product_id, payment_mode=payment_mode, quantity=quantity, seller_buyer=seller_buyer, bill_number=bill_number)
+            return redirect('purch_manual')
+                
+    print(items)
+    return render(request, 'formjust.html', context={'items': items, 'heading': head, 'form': form})
+#####################################################
 
 def transportation_view(request):
     form = TransportForm1(request.POST or None)  
@@ -1206,8 +1254,7 @@ def mode(request,pk):
 
     return render(request,'cashflow.html',context={'name_pk':pk,'cashquery':cashquery,'totamt1':totamt1,'sale':True,})
 
-
-##############################
+###############################
 from django.http import HttpResponse, Http404
 from django.utils.timezone import is_aware, make_naive
 import pandas as pd
