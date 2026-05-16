@@ -1,3 +1,4 @@
+
 from.models import *
 from .forms import *
 from django.contrib.auth.models import Group
@@ -23,8 +24,9 @@ from django.utils import timezone
 
 
 ## User defines functions
-def mode_total(model,model1,need_query ):
+def mode_total(model,model1,need_query,using_query,pkk):
     # ## Invoice_model
+    if using_query == False:
         Bank_query=model.objects.all().filter(mode = 'Bank')
         cash_query=model.objects.all().filter(mode = 'cash')
         credit_query=model1.objects.all().filter(mode = 'credit')
@@ -45,7 +47,27 @@ def mode_total(model,model1,need_query ):
             return cash,Bank,credit
         else :
             return cash,Bank,credit,Bank_query,cash_query,credit_query
+    else:
+        Bank_query=model.objects.all().filter(mode = 'Bank').filter(date1=pkk)
+        cash_query=model.objects.all().filter(mode = 'cash').filter(date1=pkk)
+        credit_query=model1.objects.all().filter(mode = 'credit').filter(date1=pkk)
 
+        cashdict = cash_query.aggregate(Sum('amt')) 
+        cash = cashdict['amt__sum'] or 0
+
+        Bankquery = Bank_query.aggregate(Sum('amt')) 
+        Bank = Bankquery['amt__sum'] or 0
+        
+        total_transaction_query = model1.objects.all().filter(date1=pkk) 
+        total_dict = total_transaction_query.aggregate(Sum('amt')) 
+        total_transaction = total_dict['amt__sum'] or 0
+
+        cash_Bank = Decimal(cash or 0) + Decimal(Bank or 0)
+        credit = Decimal(total_transaction or 0) - Decimal(cash_Bank or 0)
+        if need_query == False:
+            return cash,Bank,credit
+        else :
+            return cash,Bank,credit,Bank_query,cash_query,credit_query
 
         # query=model.objects.all().filter(mode = mode_type)
         # dict = query.aggregate(Sum('amt')) 
@@ -694,35 +716,40 @@ def process_purchase(request):
 def sale_manual(request):
     head = "Bill"
     items = Add_item_model.objects.filter(
-            product_type__in=[
-                Add_item_model.ProductType.SALE_ONLY,
-                Add_item_model.ProductType.BOTH
-            ]
-        )  
-    form = Invoice_form_manual(request.POST or None)
+        product_type__in=[
+            Add_item_model.ProductType.SALE_ONLY,
+            Add_item_model.ProductType.BOTH
+        ]
+    )
+    InvoiceFormSet = formset_factory(Invoice_form_manual, extra=1)
+    formset = InvoiceFormSet(request.POST or None)
+
     if request.method == 'POST':
+        if formset.is_valid():
+            # Generate ONE bill number for ALL forms in this submission
             latest_invoice = Invoice_model.objects.order_by('-date').first()
             bill_number = (latest_invoice.billnum + 1) if latest_invoice else 1
-            print('Bill number:', bill_number)
-            product_id = request.POST.get('product')
 
-            payment_mode = request.POST.get('mode')  
-            quantity = request.POST.get('qty', 1) 
-            seller_buyer_id = request.POST.get('selbuy')  
-            seller_buyer = Customer.objects.get(id=seller_buyer_id)
-            print('Mode:', payment_mode)
-            print('Quantity:', quantity)
-            print("Seller/Buyer:", seller_buyer)    
-            print('Product ID:', product_id)
-            print('Payment Mode:', payment_mode)
-            print('Quantity:', quantity)
-            print("Seller/Buyer:", seller_buyer) 
-            print('----------------------------------------------------')   
-            query = process(request, Invoice_model,Customer,Add_item_model,CashBook, 'invoice','sale_rate',product_id=product_id, payment_mode=payment_mode, quantity=quantity, seller_buyer=seller_buyer, bill_number=bill_number)
+            payment_mode = request.POST.get('mode')
+            seller_buyer_id = request.POST.get('selbuy')
+
+            for form in formset:
+                if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                    invoice = form.save(commit=False)
+                    invoice.billnum = bill_number      # same billnum for all rows
+                    invoice.payment_mode = payment_mode
+                    # invoice.seller_buyer = Customer.objects.get(id=seller_buyer_id)
+                    invoice.save()
+
             return redirect('b2c_manual')
-                
-    print(items)
-    return render(request, 'formjust.html', context={'items': items, 'heading': head, 'form': form})
+        else:
+            print("Formset errors:", formset.errors)
+
+    return render(request, 'formset.html', context={
+        'items': items,
+        'heading': head,
+        'formset': formset
+    })
 
 def purchase_manual(request):
     head = "Purchase"
@@ -946,8 +973,8 @@ def cash_balance(request):
         d2={}
 
 
-        cash_sold ,Bank_sold,credit_sold = mode_total(CashBook,Invoice_model,need_query = False)
-        cash_purch ,Bank_purch,credit_purch = mode_total(PurchaseBook,Purchase_model,need_query = False)
+        cash_sold ,Bank_sold,credit_sold = mode_total(CashBook,Invoice_model,need_query = False,using_query=False,pkk=None)
+        cash_purch ,Bank_purch,credit_purch = mode_total(PurchaseBook,Purchase_model,need_query = False,using_query=False,pkk=None)
 
         d1 = {
         "cash": cash_sold,  
@@ -1163,12 +1190,78 @@ def multisearch(request):
 
 #date
 def by_date(request,pk):
-    amt_total,qty_total,name,pages= collect_values(request,pk,Invoice_model,'date1','pk')
-    return render(request,'cashflow.html',context={'bill_query':pages,'totquant':qty_total,'name_pk':pk,'totamt':amt_total,'sale':True,})
+        head = f"Ledger for {pk}"
+        g ={}
+        d={}
+        d1={}
+        d2={}
+
+
+        cash_sold ,Bank_sold,credit_sold = mode_total(CashBook,Invoice_model,need_query = False,using_query=False,pkk=None)
+        cash_purch ,Bank_purch,credit_purch = mode_total(PurchaseBook,Purchase_model,need_query = False,using_query=False,pkk=None)
+
+        d1 = {
+        "cash": cash_sold,  
+        "Bank":Bank_sold,
+        "Credit":credit_sold,
+        }
+
+        d = {
+        "cash": cash_purch,  
+        "Bank":Bank_purch,
+        "Credit":credit_purch,
+        }
+    
+        d2 = {key: d1[key] - d.get(key, 0)
+                                for key in d1.keys()}
+
+        context={
+                "d":d,
+                "d1":d1,
+                "d2":d2,
+                'mode':True,
+                'head':head,
+                'product':False,
+               
+        }
+        return render(request,'stock.html',context)
 
 def by_date_purch(request,pk):
-    amt_total,qty_total,name,pages= collect_values(request,pk,Purchase_model,'date1','pk')
-    return render(request,'cashflow.html',context={'bill_query':pages,'totquant':qty_total,'name_pk':pk,'totamt':amt_total,'sale':False,})
+        head = f"Ledger for {pk}"
+        g ={}
+        d={}
+        d1={}
+        d2={}
+
+
+        cash_sold ,Bank_sold,credit_sold = mode_total(CashBook,Invoice_model,need_query = False,using_query=True,pkk=pk)
+        cash_purch ,Bank_purch,credit_purch = mode_total(PurchaseBook,Purchase_model,need_query = False,using_query=True,pkk=pk)
+
+        d1 = {
+        "cash": cash_sold,  
+        "Bank":Bank_sold,
+        "Credit":credit_sold,
+        }
+
+        d = {
+        "cash": cash_purch,  
+        "Bank":Bank_purch,
+        "Credit":credit_purch,
+        }
+    
+        d2 = {key: d1[key] - d.get(key, 0)
+                                for key in d1.keys()}
+
+        context={
+                "d":d,
+                "d1":d1,
+                "d2":d2,
+                'mode':True,
+                'head':head,
+                'product':False,
+               
+        }
+        return render(request,'stock.html',context)
 
 #product
 def prod(request,pk):
@@ -1221,7 +1314,7 @@ def seller_purch(request,pk):
 #mode
 def mode_purch(request,pk):
     # cash_sold ,Bank_sold,credit_sold,Bank_query,cash_query = mode_total(CashBook,Invoice_model,need_query = True)
-    cash_purch ,Bank_purch,credit_purch,Bank_query,cash_query,credit_query = mode_total(PurchaseBook,Purchase_model,need_query = True)
+    cash_purch ,Bank_purch,credit_purch,Bank_query,cash_query,credit_query = mode_total(PurchaseBook,Purchase_model,need_query = True,using_query=False,pkk=None)
     print(cash_purch ,Bank_purch,credit_purch,Bank_query,cash_query,credit_query)
     if pk =='cash':
         cashquery = cash_query
@@ -1238,7 +1331,7 @@ def mode_purch(request,pk):
 
 
 def mode(request,pk):
-    cash_purch ,Bank_purch,credit_purch,Bank_query,cash_query,credit_query = mode_total(CashBook,Invoice_model,need_query = True)
+    cash_purch ,Bank_purch,credit_purch,Bank_query,cash_query,credit_query = mode_total(CashBook,Invoice_model,need_query = True,using_query=False,pkk=None)
     print(cash_purch ,Bank_purch,credit_purch,Bank_query,cash_query,credit_query)
     if pk =='cash':
         cashquery = cash_query
